@@ -70,11 +70,12 @@ function initNavbar() {
 /* ---- Mobile Menu ---- */
 function initMobileMenu() {
   const hamburger = document.getElementById('nav-hamburger');
+  const navbar = document.getElementById('navbar');
   const navLinks = document.getElementById('nav-links');
-  if (!hamburger || !navLinks) return;
+  if (!hamburger || !navbar || !navLinks) return;
 
   const toggle = () => {
-    const isOpen = navLinks.classList.toggle('open');
+    const isOpen = navbar.classList.toggle('nav-open');
     hamburger.setAttribute('aria-expanded', String(isOpen));
     hamburger.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -84,12 +85,12 @@ function initMobileMenu() {
 
   navLinks.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', () => {
-      if (navLinks.classList.contains('open')) toggle();
+      if (navbar.classList.contains('nav-open')) toggle();
     });
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && navLinks.classList.contains('open')) toggle();
+    if (e.key === 'Escape' && navbar.classList.contains('nav-open')) toggle();
   });
 }
 
@@ -135,7 +136,7 @@ function initParticles() {
 
   const ctx = canvas.getContext('2d');
   let width, height, particles, animId;
-  const COUNT = 50, MAX_DIST = 120;
+  const COUNT = 70, MAX_DIST = 140;
 
   function resize() {
     const section = canvas.closest('.hero');
@@ -154,20 +155,23 @@ function initParticles() {
   }
   function draw() {
     ctx.clearRect(0, 0, width, height);
-    const color = '96,165,250';
+    const isDark = document.documentElement.classList.contains('theme-dark');
+    const color = isDark ? '96,165,250' : '59,130,246';
+    const dotAlpha = isDark ? .5 : .65;
+    const lineAlpha = isDark ? .2 : .3;
     particles.forEach((p, i) => {
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0 || p.x > width) p.vx *= -1;
       if (p.y < 0 || p.y > height) p.vy *= -1;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color},.3)`; ctx.fill();
+      ctx.fillStyle = `rgba(${color},${dotAlpha})`; ctx.fill();
       for (let j = i + 1; j < particles.length; j++) {
         const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < MAX_DIST) {
           ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(${color},${.12 * (1 - dist / MAX_DIST)})`;
-          ctx.lineWidth = .5; ctx.stroke();
+          ctx.strokeStyle = `rgba(${color},${lineAlpha * (1 - dist / MAX_DIST)})`;
+          ctx.lineWidth = .7; ctx.stroke();
         }
       }
     });
