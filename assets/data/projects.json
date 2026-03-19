@@ -1,0 +1,74 @@
+[
+  {
+    "id": "karvel-mb",
+    "title": "Karvel Message Bus Model",
+    "description": "Modelação SysML v2 do Message Bus no contexto Karvel; requisitos, atividades e sequência alinhados com documentação interna.",
+    "image": "assets/img/projects/karvel-mb.svg",
+    "tags": ["SysML v2", "MBSE", "ESA", "Message Bus"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "cdp4-comet",
+    "title": "CDP4-COMET Experiments",
+    "description": "Experiências de interoperabilidade segundo ECSS-E-TM-10-25; exploração de modelos e trocas de dados.",
+    "image": "assets/img/projects/cdp4.svg",
+    "tags": ["ECSS", "CDP4", "Python"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "syson-wsl",
+    "title": "SysON Local Setup",
+    "description": "Deployment local de SysON via Docker/WSL, com troubleshooting e notas de desempenho.",
+    "image": "assets/img/projects/syson.svg",
+    "tags": ["Docker", "WSL", "DevOps"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "ecss-pus-parser",
+    "title": "ECSS PUS Packet Parser",
+    "description": "Parser em C++ para pacotes PUS (Packet Utilization Standard) com validação de checksums e descodificação de serviços.",
+    "image": "assets/img/projects/pus-parser.svg",
+    "tags": ["C++", "ECSS", "PUS", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "portfolio-site",
+    "title": "Portefólio Pessoal",
+    "description": "Site de portefólio responsivo com Dark Mode, filtros dinâmicos e geração de conteúdo a partir de JSON.",
+    "image": "assets/img/projects/portfolio.svg",
+    "tags": ["HTML5", "CSS3", "JavaScript", "Bootstrap"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "docker-dev-env",
+    "title": "Docker Dev Environment",
+    "description": "Ambiente de desenvolvimento containerizado com Docker Compose para projetos multi-serviço, incluindo hot-reload e debugging remoto.",
+    "image": "assets/img/projects/docker-dev.svg",
+    "tags": ["Docker", "DevOps", "WSL", "Python"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  }
+]
