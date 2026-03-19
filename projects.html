@@ -1,20 +1,20 @@
 <!doctype html>
-<html lang="pt-PT" class="theme-dark">
+<html lang="en" class="theme-dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projetos — João Miguel Santos Rosa</title>
-  <meta name="description" content="Lista completa de projetos de João Miguel Santos Rosa — MBSE, SysML v2, ECSS, software espacial e mais.">
-  <meta name="author" content="João Miguel Santos Rosa">
+  <title>Projects — João Miguel Rosa</title>
+  <meta name="description" content="Complete list of projects by João Miguel Rosa — MBSE, SysML v2, ECSS, space software and more.">
+  <meta name="author" content="João Miguel Rosa">
   <link rel="canonical" href="https://gitrosas.github.io/projects.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Projetos — João Miguel Santos Rosa">
-  <meta property="og:description" content="Lista completa de projetos — MBSE, SysML v2, ECSS, software espacial e ferramentas DevOps.">
+  <meta property="og:title" content="Projects — João Miguel Rosa">
+  <meta property="og:description" content="Complete list of projects — MBSE, SysML v2, ECSS, space software and DevOps tools.">
   <meta property="og:url" content="https://gitrosas.github.io/projects.html">
   <meta property="og:image" content="https://gitrosas.github.io/assets/img/avatar.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Projetos — João Miguel Santos Rosa">
-  <meta name="twitter:description" content="Lista completa de projetos — MBSE, SysML v2, ECSS, software espacial e ferramentas DevOps.">
+  <meta name="twitter:title" content="Projects — João Miguel Rosa">
+  <meta name="twitter:description" content="Complete list of projects — MBSE, SysML v2, ECSS, space software and DevOps tools.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,33 +25,33 @@
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Projetos — João Miguel Santos Rosa",
+    "name": "Projects — João Miguel Rosa",
     "url": "https://gitrosas.github.io/projects.html",
-    "description": "Lista completa de projetos de engenharia de sistemas e software."
+    "description": "Complete list of systems engineering and software projects."
   }
   </script>
 </head>
 <body>
 
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
-  <a class="skip-link" href="#main-content">Saltar para o conteúdo</a>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <!-- Navbar -->
-  <nav class="navbar" id="navbar" aria-label="Navegação principal">
+  <nav class="navbar" id="navbar" aria-label="Main navigation">
     <div class="container navbar-inner">
       <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
       <ul class="nav-links" id="nav-links">
-        <li><a href="index.html" class="nav-link">Início</a></li>
-        <li><a href="projects.html" class="nav-link">Projetos</a></li>
-        <li><a href="about.html" class="nav-link">Sobre</a></li>
-        <li><a href="contact.html" class="nav-link">Contacto</a></li>
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="projects.html" class="nav-link">Projects</a></li>
+        <li><a href="about.html" class="nav-link">About Me</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
       </ul>
       <div class="navbar-actions">
-        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema">
+        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
           <i class="fa-solid fa-moon" aria-hidden="true"></i>
           <i class="fa-solid fa-sun" aria-hidden="true"></i>
         </button>
-        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false">
           <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
       </div>
@@ -63,8 +63,8 @@
     <!-- Page Header -->
     <section class="page-header">
       <div class="container">
-        <h1 id="page-title">Projetos</h1>
-        <p>Explorar todos os projetos por área ou pesquisar por palavra-chave.</p>
+        <h1 id="page-title">Projects</h1>
+        <p>Explore all projects by area or search by keyword.</p>
       </div>
     </section>
 
@@ -74,18 +74,18 @@
         <div class="projects-controls">
           <div class="search-wrapper">
             <i class="fa-solid fa-search" aria-hidden="true"></i>
-            <input type="search" class="search-input" id="project-search" placeholder="Pesquisar projetos..." aria-label="Pesquisar projetos por título ou descrição">
+            <input type="search" class="search-input" id="project-search" placeholder="Search projects..." aria-label="Search projects by title or description">
           </div>
-          <span class="results-count" id="results-count" aria-live="polite">A carregar...</span>
+          <span class="results-count" id="results-count" aria-live="polite">Loading...</span>
         </div>
-        <div class="filter-tags" id="project-filters" aria-label="Filtrar projetos por tag"></div>
+        <div class="filter-tags" id="project-filters" aria-label="Filter projects by tag"></div>
         <div class="projects-grid" id="projects-grid"></div>
       </div>
     </section>
 
   </main>
 
-  <button class="back-to-top" id="back-to-top" aria-label="Voltar ao topo" type="button">
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
     <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
   </button>
 
@@ -94,24 +94,24 @@
       <div class="footer-top">
         <div>
           <div class="footer-brand">JM<span>Rosa</span></div>
-          <p class="footer-desc">Engenheiro focado em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais. A construir a ponte entre modelos e código.</p>
-          <div class="footer-social-row" aria-label="Redes sociais">
+          <p class="footer-desc">Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software. Building the bridge between models and code.</p>
+          <div class="footer-social-row" aria-label="Social media">
             <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
             <a href="https://linkedin.com/in/joaomiguelrosa" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
             <a href="mailto:joao.rosa@example.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Navegação</h3>
+          <h3 class="footer-heading">Navigation</h3>
           <div class="footer-links">
-            <a href="index.html">Início</a>
-            <a href="projects.html">Projetos</a>
-            <a href="about.html">Sobre Mim</a>
-            <a href="contact.html">Contacto</a>
+            <a href="index.html">Home</a>
+            <a href="projects.html">Projects</a>
+            <a href="about.html">About Me</a>
+            <a href="contact.html">Contact</a>
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Tecnologias</h3>
+          <h3 class="footer-heading">Technologies</h3>
           <div class="footer-links">
             <a href="projects.html">SysML v2</a>
             <a href="projects.html">ECSS / PUS</a>
@@ -120,7 +120,8 @@
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Contacto</h3>
+          <h3 class="footer-heading">Contact</h3>
+          <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joao.rosa@example.com">joao.rosa@example.com</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
           <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
@@ -128,8 +129,8 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Santos Rosa. Todos os direitos reservados.</p>
-        <p class="footer-tech">Feito com <i class="fa-solid fa-heart" aria-hidden="true"></i> usando HTML5, CSS3 &amp; JavaScript</p>
+        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Rosa. All rights reserved.</p>
+        <p class="footer-tech">Made with <i class="fa-solid fa-heart" aria-hidden="true"></i> using HTML5, CSS3 &amp; JavaScript</p>
       </div>
     </div>
   </footer>
@@ -138,7 +139,7 @@
   <div class="project-modal" id="project-modal" role="dialog" aria-hidden="true" aria-labelledby="modal-title">
     <div class="project-modal-overlay" id="modal-overlay"></div>
     <div class="project-modal-content">
-      <button class="project-modal-close" id="modal-close" type="button" aria-label="Fechar modal">
+      <button class="project-modal-close" id="modal-close" type="button" aria-label="Close modal">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
       <div class="project-modal-body">

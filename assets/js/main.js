@@ -1,5 +1,7 @@
 'use strict';
 
+let allProjectsData = [];
+
 document.addEventListener('DOMContentLoaded', () => {
   initPageLoader();
   initTheme();
@@ -43,7 +45,7 @@ function initTheme() {
     document.documentElement.classList.toggle('theme-dark');
     const isDark = document.documentElement.classList.contains('theme-dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    toggle.setAttribute('aria-label', isDark ? 'Mudar para modo claro' : 'Mudar para modo escuro');
+    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
   });
 }
 
@@ -81,7 +83,7 @@ function initMobileMenu() {
   const toggle = () => {
     const isOpen = navbar.classList.toggle('nav-open');
     hamburger.setAttribute('aria-expanded', String(isOpen));
-    hamburger.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+    hamburger.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
     document.body.style.overflow = isOpen ? 'hidden' : '';
   };
 
@@ -260,7 +262,7 @@ function initProjectsPage() {
   const searchInput = document.getElementById('project-search');
   const filtersContainer = document.getElementById('project-filters');
   const resultsCount = document.getElementById('results-count');
-  let activeTag = 'Todos';
+  let activeTag = 'All';
 
   fetch('assets/data/projects.json')
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
@@ -271,7 +273,7 @@ function initProjectsPage() {
       updateCount(data.length, resultsCount);
     })
     .catch(() => {
-      grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>Erro ao carregar projetos.</p></div>';
+      grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>Error loading projects.</p></div>';
     });
 
   if (searchInput) searchInput.addEventListener('input', () => applyFilters(allProjectsData, activeTag, searchInput.value, grid, resultsCount));
@@ -284,8 +286,6 @@ function initProjectsPage() {
     applyFilters(allProjectsData, activeTag, searchInput ? searchInput.value : '', grid, resultsCount);
   });
 }
-
-/* ---- Featured Projects ---- */
 function initFeaturedProjects() {
   const grid = document.getElementById('featured-projects');
   if (!grid) return;
@@ -295,7 +295,7 @@ function initFeaturedProjects() {
       allProjectsData = data;
       renderProjects(data.slice(0, 3), grid);
     })
-    .catch(() => { grid.innerHTML = '<p style="color:var(--text-muted);text-align:center">Não foi possível carregar os projetos.</p>'; });
+    .catch(() => { grid.innerHTML = '<p style="color:var(--text-muted);text-align:center">Could not load projects.</p>'; });
 }
 
 /* ---- Render Helpers ---- */
@@ -303,7 +303,7 @@ function renderFilters(projects, container) {
   if (!container) return;
   const tags = new Set();
   projects.forEach(p => p.tags.forEach(t => tags.add(t)));
-  let html = '<button class="filter-tag active" data-tag="Todos">Todos</button>';
+  let html = '<button class="filter-tag active" data-tag="All">All</button>';
   Array.from(tags).sort().forEach(tag => { html += `<button class="filter-tag" data-tag="${esc(tag)}">${esc(tag)}</button>`; });
   container.innerHTML = html;
 }
@@ -311,7 +311,7 @@ function renderFilters(projects, container) {
 function applyFilters(projects, tag, query, grid, countEl) {
   const q = query.toLowerCase().trim();
   const filtered = projects.filter(p => {
-    const matchTag = tag === 'Todos' || p.tags.includes(tag);
+    const matchTag = tag === 'All' || p.tags.includes(tag);
     const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
     return matchTag && matchQ;
   });
@@ -321,13 +321,13 @@ function applyFilters(projects, tag, query, grid, countEl) {
 
 function renderProjects(projects, grid) {
   if (!projects.length) {
-    grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><p>Sem resultados encontrados.</p></div>';
+    grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><p>No results found.</p></div>';
     return;
   }
   grid.innerHTML = projects.map(p => `
-    <article class="project-card" data-project-id="${esc(p.id)}" style="cursor:pointer;" role="button" tabindex="0">
+    <article class="project-card" data-project-id="${esc(p.id)}" role="button" tabindex="0">
       <div class="project-card-img-wrapper">
-        <img src="${esc(p.image)}" alt="Projeto: ${esc(p.title)}" class="project-card-img" loading="lazy">
+        <img src="${esc(p.image)}" alt="Project: ${esc(p.title)}" class="project-card-img" loading="lazy">
         <div class="project-card-overlay">
           ${p.year ? `<span class="project-card-year">${esc(String(p.year))}</span>` : ''}
         </div>
@@ -358,11 +358,10 @@ function renderProjects(projects, grid) {
 
 function updateCount(count, el) {
   if (!el) return;
-  el.textContent = `${count} projeto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`;
+  el.textContent = `${count} project${count !== 1 ? 's' : ''} found${count !== 1 ? '' : ''}`;
 }
 
 /* ---- Project Modal ---- */
-let allProjectsData = [];
 
 function initProjectModal() {
   const modal = document.getElementById('project-modal');
@@ -378,51 +377,30 @@ function initProjectModal() {
 
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
-
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
   });
 }
 
 function openProjectModal(projectId) {
-  if (!allProjectsData.length) return;
   const project = allProjectsData.find(p => p.id === projectId);
-  if (!project) return;
-
   const modal = document.getElementById('project-modal');
+  if (!project || !modal) return;
+
   const img = document.getElementById('modal-image');
-  const title = document.getElementById('modal-title');
-  const desc = document.getElementById('modal-description');
-  const year = document.getElementById('modal-year');
-  const tags = document.getElementById('modal-tags');
-  const links = document.getElementById('modal-links');
+  if (img) { img.src = project.image; img.alt = `Project: ${project.title}`; }
+  document.getElementById('modal-title').textContent = project.title;
+  document.getElementById('modal-description').textContent = project.description;
+  document.getElementById('modal-year').textContent = project.year || '';
+  document.getElementById('modal-tags').innerHTML = project.tags.map(t => `<span>${esc(t)}</span>`).join('');
+  document.getElementById('modal-links').innerHTML = [
+    project.links.github && project.links.github !== '#' && `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>`,
+    project.links.demo && project.links.demo !== '#' && `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>`
+  ].filter(Boolean).join('');
 
-  if (img) {
-    img.src = project.image;
-    img.alt = `Projeto: ${project.title}`;
-  }
-  if (title) title.textContent = project.title;
-  if (desc) desc.textContent = project.description;
-  if (year) year.textContent = project.year ? String(project.year) : '';
-  if (tags) {
-    tags.innerHTML = project.tags.map(t => `<span>${esc(t)}</span>`).join('');
-  }
-  if (links) {
-    let linksHtml = '';
-    if (project.links.github && project.links.github !== '#') {
-      linksHtml += `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>`;
-    }
-    if (project.links.demo && project.links.demo !== '#') {
-      linksHtml += `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>`;
-    }
-    links.innerHTML = linksHtml;
-  }
-
-  if (modal) {
-    modal.classList.add('active');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
 }
 
 /* ---- Contact Form ---- */
@@ -458,7 +436,7 @@ function initContactForm() {
     if (!action || action.includes('YOUR_FORM_ID') || action === '#') {
       e.preventDefault();
       if (alertError) {
-        alertError.textContent = 'O formulário ainda não está configurado. Consulte o README para instruções.';
+        alertError.textContent = 'The form is not yet configured. See the README for instructions.';
         alertError.style.display = 'block';
         alertError.focus();
       }

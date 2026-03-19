@@ -1,20 +1,20 @@
 <!doctype html>
-<html lang="pt-PT" class="theme-dark">
+<html lang="en" class="theme-dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contacto — João Miguel Santos Rosa</title>
-  <meta name="description" content="Entre em contacto com João Miguel Santos Rosa — formulário, email, GitHub e LinkedIn.">
-  <meta name="author" content="João Miguel Santos Rosa">
+  <title>Contact — João Miguel Rosa</title>
+  <meta name="description" content="Get in touch with João Miguel Rosa — contact form, email, GitHub and LinkedIn.">
+  <meta name="author" content="João Miguel Rosa">
   <link rel="canonical" href="https://gitrosas.github.io/contact.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Contacto — João Miguel Santos Rosa">
-  <meta property="og:description" content="Entre em contacto — formulário, email, GitHub e LinkedIn.">
+  <meta property="og:title" content="Contact — João Miguel Rosa">
+  <meta property="og:description" content="Get in touch — contact form, email, GitHub and LinkedIn.">
   <meta property="og:url" content="https://gitrosas.github.io/contact.html">
   <meta property="og:image" content="https://gitrosas.github.io/assets/img/avatar.svg">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Contacto — João Miguel Santos Rosa">
-  <meta name="twitter:description" content="Entre em contacto — formulário, email, GitHub e LinkedIn.">
+  <meta name="twitter:title" content="Contact — João Miguel Rosa">
+  <meta name="twitter:description" content="Get in touch — contact form, email, GitHub and LinkedIn.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,23 +25,23 @@
 <body>
 
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
-  <a class="skip-link" href="#main-content">Saltar para o conteúdo</a>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <nav class="navbar" id="navbar" aria-label="Navegação principal">
+  <nav class="navbar" id="navbar" aria-label="Main navigation">
     <div class="container navbar-inner">
       <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
       <ul class="nav-links" id="nav-links">
-        <li><a href="index.html" class="nav-link">Início</a></li>
-        <li><a href="projects.html" class="nav-link">Projetos</a></li>
-        <li><a href="about.html" class="nav-link">Sobre</a></li>
-        <li><a href="contact.html" class="nav-link">Contacto</a></li>
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="projects.html" class="nav-link">Projects</a></li>
+        <li><a href="about.html" class="nav-link">About Me</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
       </ul>
       <div class="navbar-actions">
-        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema">
+        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
           <i class="fa-solid fa-moon" aria-hidden="true"></i>
           <i class="fa-solid fa-sun" aria-hidden="true"></i>
         </button>
-        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false">
           <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
       </div>
@@ -52,8 +52,8 @@
 
     <section class="page-header">
       <div class="container">
-        <h1>Contacto</h1>
-        <p>Tem uma questão ou proposta? Envie uma mensagem.</p>
+        <h1>Contact</h1>
+        <p>Have a question or proposal? Send me a message.</p>
       </div>
     </section>
 
@@ -62,43 +62,52 @@
 
         <!-- Form -->
         <div class="reveal-left">
-          <h2 class="section-title">Enviar Mensagem</h2>
-          <p class="section-subtitle">Preencha o formulário abaixo e entrarei em contacto brevemente.</p>
-          <form id="contact-form" class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+          <h2 class="section-title">Send Message</h2>
+          <p class="section-subtitle">Fill out the form below and I'll get back to you shortly.</p>
+          <form id="contact-form" class="contact-form" action="https://formspree.io/f/maqpvzlp" method="POST" novalidate>
             <div class="form-group">
-              <label for="contact-name" class="form-label">Nome <span aria-hidden="true">*</span></label>
-              <input type="text" class="form-input" id="contact-name" name="name" placeholder="O seu nome" required minlength="2" autocomplete="name" aria-required="true">
-              <span class="form-error">Por favor, insira o seu nome (mín. 2 caracteres).</span>
+              <label for="contact-name" class="form-label">Name <span aria-hidden="true">*</span></label>
+              <input type="text" class="form-input" id="contact-name" name="name" placeholder="Your name" required minlength="2" autocomplete="name" aria-required="true">
+              <span class="form-error">Please enter your name (min. 2 characters).</span>
             </div>
             <div class="form-group">
               <label for="contact-email" class="form-label">Email <span aria-hidden="true">*</span></label>
-              <input type="email" class="form-input" id="contact-email" name="email" placeholder="nome@exemplo.com" required autocomplete="email" aria-required="true">
-              <span class="form-error">Por favor, insira um endereço de email válido.</span>
+              <input type="email" class="form-input" id="contact-email" name="email" placeholder="name@example.com" required autocomplete="email" aria-required="true">
+              <span class="form-error">Please enter a valid email address.</span>
             </div>
             <div class="form-group">
-              <label for="contact-message" class="form-label">Mensagem <span aria-hidden="true">*</span></label>
-              <textarea class="form-input" id="contact-message" name="message" rows="5" placeholder="A sua mensagem..." required minlength="10" aria-required="true"></textarea>
-              <span class="form-error">Por favor, escreva uma mensagem (mín. 10 caracteres).</span>
+              <label for="contact-subject" class="form-label">Subject <span aria-hidden="true">*</span></label>
+              <input type="text" class="form-input" id="contact-subject" name="subject" placeholder="Email subject" required minlength="3" aria-required="true">
+              <span class="form-error">Please enter a subject (min. 3 characters).</span>
+            </div>
+            <div class="form-group">
+              <label for="contact-message" class="form-label">Message <span aria-hidden="true">*</span></label>
+              <textarea class="form-input" id="contact-message" name="message" rows="5" placeholder="Your message..." required minlength="10" aria-required="true"></textarea>
+              <span class="form-error">Please write a message (min. 10 characters).</span>
             </div>
             <div class="honeypot-field" aria-hidden="true">
               <label for="contact-hp">Não preencher</label>
               <input type="text" id="contact-hp" name="_gotcha" tabindex="-1" autocomplete="off">
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Mensagem</button>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Message</button>
             <div class="form-alert success" id="form-alert-success" role="alert" tabindex="-1">
-              <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Mensagem enviada com sucesso! Entrarei em contacto brevemente.
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Message sent successfully! I'll get back to you shortly.
             </div>
             <div class="form-alert error" id="form-alert-error" role="alert" tabindex="-1">
-              <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Ocorreu um erro ao enviar a mensagem.
+              <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> An error occurred sending the message.
             </div>
           </form>
         </div>
 
         <!-- Info -->
         <div class="reveal-right">
-          <h2 class="section-title">Informação de Contacto</h2>
-          <p class="section-subtitle">Pode também contactar-me diretamente.</p>
+          <h2 class="section-title">Contact Information</h2>
+          <p class="section-subtitle">You can also reach me directly.</p>
           <div class="contact-info-list">
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></div>
+              <div><span class="contact-info-label">Phone</span><a href="tel:+351912705054">+351 912 705 054</a></div>
+            </div>
             <div class="contact-info-item">
               <div class="contact-info-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></div>
               <div><span class="contact-info-label">Email</span><a href="mailto:joao.rosa@example.com">joao.rosa@example.com</a></div>
@@ -123,7 +132,7 @@
 
   </main>
 
-  <button class="back-to-top" id="back-to-top" aria-label="Voltar ao topo" type="button">
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
     <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
   </button>
 
@@ -132,24 +141,24 @@
       <div class="footer-top">
         <div>
           <div class="footer-brand">JM<span>Rosa</span></div>
-          <p class="footer-desc">Engenheiro focado em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais. A construir a ponte entre modelos e código.</p>
-          <div class="footer-social-row" aria-label="Redes sociais">
+          <p class="footer-desc">Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software. Building the bridge between models and code.</p>
+          <div class="footer-social-row" aria-label="Social media">
             <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
             <a href="https://linkedin.com/in/joaomiguelrosa" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
             <a href="mailto:joao.rosa@example.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Navegação</h3>
+          <h3 class="footer-heading">Navigation</h3>
           <div class="footer-links">
-            <a href="index.html">Início</a>
-            <a href="projects.html">Projetos</a>
-            <a href="about.html">Sobre Mim</a>
-            <a href="contact.html">Contacto</a>
+            <a href="index.html">Home</a>
+            <a href="projects.html">Projects</a>
+            <a href="about.html">About Me</a>
+            <a href="contact.html">Contact</a>
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Tecnologias</h3>
+          <h3 class="footer-heading">Technologies</h3>
           <div class="footer-links">
             <a href="projects.html">SysML v2</a>
             <a href="projects.html">ECSS / PUS</a>
@@ -158,7 +167,8 @@
           </div>
         </div>
         <div>
-          <h3 class="footer-heading">Contacto</h3>
+          <h3 class="footer-heading">Contact</h3>
+          <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joao.rosa@example.com">joao.rosa@example.com</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
           <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
@@ -166,8 +176,8 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Santos Rosa. Todos os direitos reservados.</p>
-        <p class="footer-tech">Feito com <i class="fa-solid fa-heart" aria-hidden="true"></i> usando HTML5, CSS3 &amp; JavaScript</p>
+        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Rosa. All rights reserved.</p>
+        <p class="footer-tech">Made with <i class="fa-solid fa-heart" aria-hidden="true"></i> using HTML5, CSS3 &amp; JavaScript</p>
       </div>
     </div>
   </footer>

@@ -9,5 +9,5 @@
   <rect x="60" y="60" width="680" height="280" rx="16" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity="0.3"/>
   <path d="M375,150 h10v-15h10v15h10v-25h10v25h10v-10h10v10h10" stroke="#38bdf8" stroke-width="2.5" fill="none"/><path d="M365,155 q35,-12 80,0" stroke="#38bdf8" stroke-width="2" fill="none"/>
   <text x="400" y="250" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="28" fill="#f1f5f9">Docker Dev Environment</text>
-  <text x="400" y="290" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="14" fill="#94a3b8">João Miguel Santos Rosa</text>
+  <text x="400" y="290" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="14" fill="#94a3b8">João Miguel Rosa</text>
 </svg>

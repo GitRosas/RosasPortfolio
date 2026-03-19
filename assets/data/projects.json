@@ -2,7 +2,7 @@
   {
     "id": "karvel-mb",
     "title": "Karvel Message Bus Model",
-    "description": "Modelação SysML v2 do Message Bus no contexto Karvel; requisitos, atividades e sequência alinhados com documentação interna.",
+    "description": "SysML v2 modeling of the Message Bus in the Karvel context; requirements, activities and sequence aligned with internal documentation.",
     "image": "assets/img/projects/karvel-mb.svg",
     "tags": ["SysML v2", "MBSE", "ESA", "Message Bus"],
     "links": {
@@ -14,7 +14,7 @@
   {
     "id": "cdp4-comet",
     "title": "CDP4-COMET Experiments",
-    "description": "Experiências de interoperabilidade segundo ECSS-E-TM-10-25; exploração de modelos e trocas de dados.",
+    "description": "Interoperability experiments according to ECSS-E-TM-10-25; exploration of models and data exchange.",
     "image": "assets/img/projects/cdp4.svg",
     "tags": ["ECSS", "CDP4", "Python"],
     "links": {
@@ -26,7 +26,7 @@
   {
     "id": "syson-wsl",
     "title": "SysON Local Setup",
-    "description": "Deployment local de SysON via Docker/WSL, com troubleshooting e notas de desempenho.",
+    "description": "Local deployment of SysON via Docker/WSL, with troubleshooting and performance notes.",
     "image": "assets/img/projects/syson.svg",
     "tags": ["Docker", "WSL", "DevOps"],
     "links": {
@@ -38,7 +38,7 @@
   {
     "id": "ecss-pus-parser",
     "title": "ECSS PUS Packet Parser",
-    "description": "Parser em C++ para pacotes PUS (Packet Utilization Standard) com validação de checksums e descodificação de serviços.",
+    "description": "C++ parser for PUS (Packet Utilization Standard) packets with checksum validation and service decoding.",
     "image": "assets/img/projects/pus-parser.svg",
     "tags": ["C++", "ECSS", "PUS", "Space Systems"],
     "links": {
@@ -49,8 +49,8 @@
   },
   {
     "id": "portfolio-site",
-    "title": "Portefólio Pessoal",
-    "description": "Site de portefólio responsivo com Dark Mode, filtros dinâmicos e geração de conteúdo a partir de JSON.",
+    "title": "Personal Portfolio",
+    "description": "Responsive portfolio website with Dark Mode, dynamic filters and content generation from JSON.",
     "image": "assets/img/projects/portfolio.svg",
     "tags": ["HTML5", "CSS3", "JavaScript"],
     "links": {
@@ -62,7 +62,7 @@
   {
     "id": "docker-dev-env",
     "title": "Docker Dev Environment",
-    "description": "Ambiente de desenvolvimento containerizado com Docker Compose para projetos multi-serviço, incluindo hot-reload e debugging remoto.",
+    "description": "Containerized development environment with Docker Compose for multi-service projects, including hot-reload and remote debugging.",
     "image": "assets/img/projects/docker-dev.svg",
     "tags": ["Docker", "DevOps", "WSL", "Python"],
     "links": {
@@ -74,7 +74,7 @@
   {
     "id": "sysml-v2-linter",
     "title": "SysML v2 Linter",
-    "description": "Ferramenta de linting para ficheiros SysML v2 que verifica conformidade sintática, semântica de tipos e boas práticas de modelação.",
+    "description": "Linting tool for SysML v2 files that checks syntactic compliance, type semantics and modeling best practices.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["SysML v2", "Python", "MBSE", "Tooling"],
     "links": {
@@ -86,7 +86,7 @@
   {
     "id": "mission-planner-api",
     "title": "Mission Planner REST API",
-    "description": "API REST em Python/FastAPI para planeamento de missões espaciais, com gestão de timeline, recursos e restrições orbitais.",
+    "description": "REST API in Python/FastAPI for space mission planning, with timeline management, resources and orbital constraints.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["Python", "REST API", "Space Systems", "FastAPI"],
     "links": {
@@ -98,7 +98,7 @@
   {
     "id": "tm-tc-dashboard",
     "title": "TM/TC Dashboard",
-    "description": "Dashboard web para visualização em tempo real de telemetria e telecomandos de satélites, com gráficos interativos e alertas.",
+    "description": "Web dashboard for real-time visualization of satellite telemetry and telecommands, with interactive graphs and alerts.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["JavaScript", "HTML5", "CSS3", "Space Systems"],
     "links": {
@@ -110,7 +110,7 @@
   {
     "id": "ecss-req-tracer",
     "title": "ECSS Requirements Tracer",
-    "description": "Ferramenta de rastreabilidade de requisitos ECSS-E-ST-10C com matriz de cobertura, importação de documentos e exportação para SysML v2.",
+    "description": "ECSS-E-ST-10C requirements traceability tool with coverage matrix, document import and export to SysML v2.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["ECSS", "Python", "MBSE", "Requirements"],
     "links": {
@@ -122,7 +122,7 @@
   {
     "id": "ci-cd-space-pipeline",
     "title": "CI/CD Space Pipeline",
-    "description": "Pipeline CI/CD especializado para software espacial com verificação de normas ECSS, testes unitários automatizados e deployment em ambientes de simulação.",
+    "description": "Specialized CI/CD pipeline for space software with ECSS standards verification, automated unit tests and deployment in simulation environments.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["DevOps", "Docker", "Python", "ECSS"],
     "links": {
@@ -134,7 +134,7 @@
   {
     "id": "sysml-model-diff",
     "title": "SysML Model Diff Tool",
-    "description": "Ferramenta de comparação visual e textual entre versões de modelos SysML v2, com deteção de conflitos e merge assistido.",
+    "description": "Visual and textual comparison tool between SysML v2 model versions, with conflict detection and assisted merge.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["SysML v2", "Python", "Tooling", "Git"],
     "links": {
@@ -146,7 +146,7 @@
   {
     "id": "orbit-simulator",
     "title": "Orbit Propagator Simulator",
-    "description": "Simulador de propagação orbital em Python com modelos SGP4 e Keplerianos, visualização 3D da trajetória e previsão de passagens.",
+    "description": "Orbital propagation simulator in Python with SGP4 and Keplerian models, 3D trajectory visualization and pass prediction.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["Python", "Space Systems", "Simulation"],
     "links": {
@@ -158,7 +158,7 @@
   {
     "id": "fdir-engine",
     "title": "FDIR Rules Engine",
-    "description": "Motor de regras FDIR (Fault Detection, Isolation & Recovery) em C++ para deteção autónoma de anomalias em subsistemas de satélite.",
+    "description": "FDIR (Fault Detection, Isolation & Recovery) rules engine in C++ for autonomous anomaly detection in satellite subsystems.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["C++", "Space Systems", "FDIR", "ECSS"],
     "links": {
@@ -170,7 +170,7 @@
   {
     "id": "ground-station-monitor",
     "title": "Ground Station Monitor",
-    "description": "Interface web de monitorização de estações em terra com status em tempo real, agendamento de sessões e log de comunicações.",
+    "description": "Ground station monitoring web interface with real-time status, session scheduling and communication logging.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["JavaScript", "Python", "REST API", "Space Systems"],
     "links": {
@@ -182,7 +182,7 @@
   {
     "id": "power-budget-calc",
     "title": "Power Budget Calculator",
-    "description": "Calculadora de orçamento energético para missões espaciais com modelação de painéis solares, baterias e modos operacionais do satélite.",
+    "description": "Power budget calculator for space missions with modeling of solar panels, batteries and satellite operational modes.",
     "image": "assets/img/projects/generic.svg",
     "tags": ["Python", "Space Systems", "Simulation", "MBSE"],
     "links": {
