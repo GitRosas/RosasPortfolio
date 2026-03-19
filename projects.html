@@ -134,6 +134,28 @@
     </div>
   </footer>
 
+  <!-- Project Detail Modal -->
+  <div class="project-modal" id="project-modal" role="dialog" aria-hidden="true" aria-labelledby="modal-title">
+    <div class="project-modal-overlay" id="modal-overlay"></div>
+    <div class="project-modal-content">
+      <button class="project-modal-close" id="modal-close" type="button" aria-label="Fechar modal">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <div class="project-modal-body">
+        <div class="project-modal-image">
+          <img id="modal-image" src="" alt="" loading="eager">
+        </div>
+        <div class="project-modal-info">
+          <div class="project-modal-year" id="modal-year"></div>
+          <h2 class="project-modal-title" id="modal-title"></h2>
+          <p class="project-modal-description" id="modal-description"></p>
+          <div class="project-modal-tags" id="modal-tags"></div>
+          <div class="project-modal-links" id="modal-links"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="assets/js/main.js" defer></script>
 </body>
 </html>

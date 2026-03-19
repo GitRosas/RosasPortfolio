@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initCardTilt();
   initProjectsPage();
   initFeaturedProjects();
+  initProjectModal();
   initContactForm();
+  initCardGlow();
+  initHeroParallax();
+  initSmoothStagger();
 });
 
 /* ---- Page Loader ---- */
@@ -256,12 +260,12 @@ function initProjectsPage() {
   const searchInput = document.getElementById('project-search');
   const filtersContainer = document.getElementById('project-filters');
   const resultsCount = document.getElementById('results-count');
-  let allProjects = [], activeTag = 'Todos';
+  let activeTag = 'Todos';
 
   fetch('assets/data/projects.json')
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(data => {
-      allProjects = data;
+      allProjectsData = data;
       renderFilters(data, filtersContainer);
       renderProjects(data, grid);
       updateCount(data.length, resultsCount);
@@ -270,14 +274,14 @@ function initProjectsPage() {
       grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>Erro ao carregar projetos.</p></div>';
     });
 
-  if (searchInput) searchInput.addEventListener('input', () => applyFilters(allProjects, activeTag, searchInput.value, grid, resultsCount));
+  if (searchInput) searchInput.addEventListener('input', () => applyFilters(allProjectsData, activeTag, searchInput.value, grid, resultsCount));
   if (filtersContainer) filtersContainer.addEventListener('click', e => {
     const btn = e.target.closest('.filter-tag');
     if (!btn) return;
     activeTag = btn.dataset.tag;
     filtersContainer.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    applyFilters(allProjects, activeTag, searchInput ? searchInput.value : '', grid, resultsCount);
+    applyFilters(allProjectsData, activeTag, searchInput ? searchInput.value : '', grid, resultsCount);
   });
 }
 
@@ -287,7 +291,10 @@ function initFeaturedProjects() {
   if (!grid) return;
   fetch('assets/data/projects.json')
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-    .then(data => renderProjects(data.slice(0, 3), grid))
+    .then(data => {
+      allProjectsData = data;
+      renderProjects(data.slice(0, 3), grid);
+    })
     .catch(() => { grid.innerHTML = '<p style="color:var(--text-muted);text-align:center">Não foi possível carregar os projetos.</p>'; });
 }
 
@@ -318,7 +325,7 @@ function renderProjects(projects, grid) {
     return;
   }
   grid.innerHTML = projects.map(p => `
-    <article class="project-card">
+    <article class="project-card" data-project-id="${esc(p.id)}" style="cursor:pointer;" role="button" tabindex="0">
       <div class="project-card-img-wrapper">
         <img src="${esc(p.image)}" alt="Projeto: ${esc(p.title)}" class="project-card-img" loading="lazy">
         <div class="project-card-overlay">
@@ -330,8 +337,8 @@ function renderProjects(projects, grid) {
         <p class="project-card-desc">${esc(p.description)}</p>
         <div class="project-card-tags">${p.tags.map(t => `<span class="project-card-tag">${esc(t)}</span>`).join('')}</div>
         <div class="project-card-links">
-          ${p.links.github && p.links.github !== '#' ? `<a href="${esc(p.links.github)}" class="project-card-link" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>` : ''}
-          ${p.links.demo && p.links.demo !== '#' ? `<a href="${esc(p.links.demo)}" class="project-card-link" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>` : ''}
+          ${p.links.github && p.links.github !== '#' ? `<a href="${esc(p.links.github)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>` : ''}
+          ${p.links.demo && p.links.demo !== '#' ? `<a href="${esc(p.links.demo)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>` : ''}
         </div>
       </div>
     </article>
@@ -339,11 +346,83 @@ function renderProjects(projects, grid) {
   grid.querySelectorAll('.project-card-img').forEach(img => {
     img.addEventListener('error', () => img.classList.add('img-error'), { once: true });
   });
+  grid.querySelectorAll('.project-card').forEach(card => {
+    const onOpen = e => {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+      openProjectModal(card.dataset.projectId);
+    };
+    card.addEventListener('click', onOpen);
+    card.addEventListener('keydown', onOpen);
+  });
 }
 
 function updateCount(count, el) {
   if (!el) return;
   el.textContent = `${count} projeto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`;
+}
+
+/* ---- Project Modal ---- */
+let allProjectsData = [];
+
+function initProjectModal() {
+  const modal = document.getElementById('project-modal');
+  const closeBtn = document.getElementById('modal-close');
+  const overlay = document.getElementById('modal-overlay');
+  if (!modal || !closeBtn || !overlay) return;
+
+  const closeModal = () => {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  });
+}
+
+function openProjectModal(projectId) {
+  if (!allProjectsData.length) return;
+  const project = allProjectsData.find(p => p.id === projectId);
+  if (!project) return;
+
+  const modal = document.getElementById('project-modal');
+  const img = document.getElementById('modal-image');
+  const title = document.getElementById('modal-title');
+  const desc = document.getElementById('modal-description');
+  const year = document.getElementById('modal-year');
+  const tags = document.getElementById('modal-tags');
+  const links = document.getElementById('modal-links');
+
+  if (img) {
+    img.src = project.image;
+    img.alt = `Projeto: ${project.title}`;
+  }
+  if (title) title.textContent = project.title;
+  if (desc) desc.textContent = project.description;
+  if (year) year.textContent = project.year ? String(project.year) : '';
+  if (tags) {
+    tags.innerHTML = project.tags.map(t => `<span>${esc(t)}</span>`).join('');
+  }
+  if (links) {
+    let linksHtml = '';
+    if (project.links.github && project.links.github !== '#') {
+      linksHtml += `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>`;
+    }
+    if (project.links.demo && project.links.demo !== '#') {
+      linksHtml += `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>`;
+    }
+    links.innerHTML = linksHtml;
+  }
+
+  if (modal) {
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 /* ---- Contact Form ---- */
@@ -385,6 +464,76 @@ function initContactForm() {
       }
     }
   });
+}
+
+/* ---- Card Glow (cursor-following radial glow) ---- */
+function initCardGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if ('ontouchstart' in window) return;
+  document.addEventListener('mousemove', e => {
+    const card = e.target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--glow-x', x + 'px');
+    card.style.setProperty('--glow-y', y + 'px');
+    if (!card.classList.contains('has-glow')) card.classList.add('has-glow');
+  });
+  document.addEventListener('mouseleave', e => {
+    const card = e.target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
+    if (card) card.classList.remove('has-glow');
+  }, true);
+}
+
+/* ---- Hero Parallax on Scroll ---- */
+function initHeroParallax() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const text = hero.querySelector('.hero-text');
+  const avatar = hero.querySelector('.hero-avatar-wrapper');
+  const grid = hero.querySelector('.hero-grid-pattern');
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const heroH = hero.offsetHeight;
+      if (y < heroH) {
+        const ratio = y / heroH;
+        if (text) text.style.transform = `translateY(${ratio * 60}px)`;
+        if (avatar) avatar.style.transform = `translateY(${ratio * 40}px) scale(${1 - ratio * 0.1})`;
+        if (grid) grid.style.transform = `translateY(${ratio * 25}px)`;
+      }
+      ticking = false;
+    });
+  }, { passive: true });
+}
+
+/* ---- Smooth Stagger for grids ---- */
+function initSmoothStagger() {
+  const grids = document.querySelectorAll('.services-grid, .tech-strip, .projects-grid, .skills-grid, .contact-info-list');
+  if (!grids.length) return;
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      observer.unobserve(entry.target);
+      const children = entry.target.children;
+      Array.from(children).forEach((child, i) => {
+        child.style.opacity = '0';
+        child.style.transform = 'translateY(25px)';
+        setTimeout(() => {
+          child.style.transition = 'opacity .6s cubic-bezier(.23,1,.32,1), transform .6s cubic-bezier(.23,1,.32,1)';
+          child.style.opacity = '1';
+          child.style.transform = 'translateY(0)';
+        }, i * 100);
+      });
+    });
+  }, { threshold: 0.1 });
+  grids.forEach(g => observer.observe(g));
 }
 
 /* ---- Escape HTML ---- */
