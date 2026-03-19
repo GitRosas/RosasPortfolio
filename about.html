@@ -1,48 +1,26 @@
 <!doctype html>
-<!-- path: about.html -->
-<html lang="pt-PT" class="">
+<html lang="pt-PT" class="theme-dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sobre — João Miguel Santos Rosa</title>
-
-  <!-- SEO Meta -->
   <meta name="description" content="Sobre João Miguel Santos Rosa — Formação, experiência, competências e percurso em MBSE, SysML v2 e software para sistemas espaciais.">
   <meta name="author" content="João Miguel Santos Rosa">
   <link rel="canonical" href="https://gitrosas.github.io/about.html">
-
-  <!-- Open Graph -->
   <meta property="og:type" content="profile">
   <meta property="og:title" content="Sobre — João Miguel Santos Rosa">
   <meta property="og:description" content="Formação, experiência e competências em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais.">
   <meta property="og:url" content="https://gitrosas.github.io/about.html">
   <meta property="og:image" content="https://gitrosas.github.io/assets/img/avatar.svg">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Sobre — João Miguel Santos Rosa">
   <meta name="twitter:description" content="Formação, experiência e competências em MBSE, SysML v2 e sistemas espaciais.">
-
-  <!-- Favicon -->
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-
-  <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS/1WR6zNiB2O4SonBnDJb1zKlQhINFOAu" crossorigin="anonymous">
-
-  <!-- Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/styles.css">
-
-  <!-- JSON-LD: Person -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -51,271 +29,183 @@
     "jobTitle": "MBSE & Software Engineer (Space Systems)",
     "url": "https://gitrosas.github.io/",
     "image": "https://gitrosas.github.io/assets/img/avatar.svg",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Coimbra",
-      "addressCountry": "PT"
-    },
-    "sameAs": [
-      "https://github.com/GitRosas",
-      "https://linkedin.com/in/joaomiguelrosa"
-    ]
+    "address": { "@type": "PostalAddress", "addressLocality": "Coimbra", "addressCountry": "PT" },
+    "sameAs": [ "https://github.com/GitRosas", "https://linkedin.com/in/joaomiguelrosa" ]
   }
   </script>
 </head>
 <body>
 
-  <!-- Page Loader -->
-  <div class="page-loader" aria-hidden="true">
-    <div class="loader-spinner"></div>
-  </div>
-
-  <!-- Skip to content -->
+  <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
   <a class="skip-link" href="#main-content">Saltar para o conteúdo</a>
 
-  <!-- ===== Navbar ===== -->
-  <nav class="navbar navbar-expand-lg fixed-top" aria-label="Navegação principal">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">JM<span>Rosa</span></a>
-
-      <div class="d-flex align-items-center gap-2 order-lg-last">
-        <button
-          class="btn-theme-toggle"
-          id="theme-toggle"
-          type="button"
-          aria-label="Mudar para modo escuro"
-          title="Alternar tema"
-        >
+  <nav class="navbar" id="navbar" aria-label="Navegação principal">
+    <div class="container navbar-inner">
+      <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="nav-link">Início</a></li>
+        <li><a href="projects.html" class="nav-link">Projetos</a></li>
+        <li><a href="about.html" class="nav-link">Sobre</a></li>
+        <li><a href="contact.html" class="nav-link">Contacto</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema">
           <i class="fa-solid fa-moon" aria-hidden="true"></i>
           <i class="fa-solid fa-sun" aria-hidden="true"></i>
         </button>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Abrir menu de navegação"
-        >
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
+        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Abrir menu" aria-expanded="false">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
-      </div>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto me-3">
-          <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
-          <li class="nav-item"><a class="nav-link" href="projects.html">Projetos</a></li>
-          <li class="nav-item"><a class="nav-link" href="about.html">Sobre</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contacto</a></li>
-        </ul>
       </div>
     </div>
   </nav>
 
-  <!-- ===== Main Content ===== -->
   <main id="main-content">
 
-    <!-- Page Header -->
-    <section class="page-header" aria-labelledby="page-title">
-      <div class="container page-header-inner">
-        <h1 id="page-title">Sobre Mim</h1>
+    <section class="page-header">
+      <div class="container">
+        <h1>Sobre Mim</h1>
         <p>Percurso, competências e formação.</p>
       </div>
     </section>
 
-    <!-- Bio Section -->
-    <section class="section-padding" aria-labelledby="bio-heading">
-      <div class="container">
-        <div class="row align-items-start g-5">
-          <div class="col-lg-4 text-center reveal-left">
-            <img
-              src="assets/img/avatar.svg"
-              alt="Fotografia de João Miguel Santos Rosa"
-              class="about-avatar mb-3"
-              loading="lazy"
-            >
-            <h2 class="h5 mt-2" id="bio-heading">João Miguel Santos Rosa</h2>
-            <p class="text-muted mb-1">MBSE &amp; Software Engineer</p>
-            <p class="text-muted"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Coimbra, Portugal</p>
-
-            <a href="#" class="btn-primary-custom mt-2" aria-label="Descarregar Curriculum Vitae (PDF)">
-              <i class="fa-solid fa-download" aria-hidden="true"></i> Descarregar CV
-            </a>
-          </div>
-
-          <div class="col-lg-8 reveal-right">
-            <p class="about-bio">
-              Sou engenheiro com foco em <strong>Model-Based Systems Engineering (MBSE)</strong> e
-              desenvolvimento de software para <strong>sistemas espaciais</strong>. Trabalho com
-              <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o
-              <strong>Packet Utilization Standard (PUS)</strong>, aplicando modelação e código
-              para traduzir requisitos complexos em arquiteturas claras e verificáveis.
-            </p>
-            <p class="about-bio">
-              O meu percurso combina engenharia de sistemas com desenvolvimento prático — desde
-              modelação de requisitos e atividades em SysML v2, até deployment de ferramentas
-              com Docker e automação de pipelines. Acredito que a ponte entre o modelo e o código
-              é onde se gera o maior valor em projetos de engenharia complexos.
-            </p>
-            <p class="about-bio">
-              Nos tempos livres, exploro novas ferramentas open-source, contribuo para projetos
-              no GitHub e estudo a evolução das normas de engenharia de sistemas no contexto
-              europeu (ESA/ECSS).
-            </p>
-          </div>
+    <!-- Bio -->
+    <section class="section">
+      <div class="container bio-grid">
+        <div class="bio-sidebar reveal-left">
+          <img src="assets/img/avatar.svg" alt="Fotografia de João Miguel Santos Rosa" class="avatar" loading="lazy">
+          <h2 class="bio-name">João Miguel Santos Rosa</h2>
+          <p class="bio-role">MBSE &amp; Software Engineer</p>
+          <p class="bio-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Coimbra, Portugal</p>
+          <a href="#" class="btn btn-primary"><i class="fa-solid fa-download" aria-hidden="true"></i> Descarregar CV</a>
+        </div>
+        <div class="bio-content reveal-right">
+          <p>Sou engenheiro com foco em <strong>Model-Based Systems Engineering (MBSE)</strong> e desenvolvimento de software para <strong>sistemas espaciais</strong>. Trabalho com <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o <strong>Packet Utilization Standard (PUS)</strong>, aplicando modelação e código para traduzir requisitos complexos em arquiteturas claras e verificáveis.</p>
+          <p>O meu percurso combina engenharia de sistemas com desenvolvimento prático — desde modelação de requisitos e atividades em SysML v2, até deployment de ferramentas com Docker e automação de pipelines. Acredito que a ponte entre o modelo e o código é onde se gera o maior valor em projetos de engenharia complexos.</p>
+          <p>Nos tempos livres, exploro novas ferramentas open-source, contribuo para projetos no GitHub e estudo a evolução das normas de engenharia de sistemas no contexto europeu (ESA/ECSS).</p>
         </div>
       </div>
     </section>
 
     <!-- Experience & Education -->
-    <section class="section-padding bg-section-alt" aria-labelledby="experience-heading">
-      <div class="container">
-        <div class="row g-5">
-
-          <!-- Experience -->
-          <div class="col-lg-6 reveal-left">
-            <h2 class="section-title" id="experience-heading">
-              <i class="fa-solid fa-briefcase text-primary-custom" aria-hidden="true"></i> Experiência
-            </h2>
-            <div class="timeline mt-4">
-              <div class="timeline-item">
-                <span class="timeline-date">2025 — Presente</span>
-                <h3 class="timeline-title">MBSE &amp; Software Engineer</h3>
-                <span class="timeline-org">Empresa Placeholder, Lda.</span>
-                <p class="timeline-desc">
-                  Modelação de sistemas com SysML v2, desenvolvimento de ferramentas internas
-                  em Python/C++ e integração com normas ECSS para missões espaciais europeias.
-                </p>
-              </div>
-              <div class="timeline-item">
-                <span class="timeline-date">2023 — 2025</span>
-                <h3 class="timeline-title">Estágio em Engenharia de Sistemas</h3>
-                <span class="timeline-org">Laboratório Placeholder</span>
-                <p class="timeline-desc">
-                  Apoio à modelação de requisitos e especificações segundo ECSS-E-TM-10-25;
-                  experimentação com CDP4-COMET e SysON.
-                </p>
-              </div>
+    <section class="section section-alt">
+      <div class="container two-col">
+        <div class="reveal-left">
+          <h2 class="section-title"><i class="fa-solid fa-briefcase icon-accent" aria-hidden="true"></i> Experiência</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="timeline-date">2025 — Presente</span>
+              <h3 class="timeline-title">MBSE &amp; Software Engineer</h3>
+              <span class="timeline-org">Empresa Placeholder, Lda.</span>
+              <p class="timeline-desc">Modelação de sistemas com SysML v2, desenvolvimento de ferramentas internas em Python/C++ e integração com normas ECSS para missões espaciais europeias.</p>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-date">2023 — 2025</span>
+              <h3 class="timeline-title">Estágio em Engenharia de Sistemas</h3>
+              <span class="timeline-org">Laboratório Placeholder</span>
+              <p class="timeline-desc">Apoio à modelação de requisitos segundo ECSS-E-TM-10-25; experimentação com CDP4-COMET e SysON.</p>
             </div>
           </div>
-
-          <!-- Education -->
-          <div class="col-lg-6 reveal-right">
-            <h2 class="section-title" id="education-heading">
-              <i class="fa-solid fa-graduation-cap text-primary-custom" aria-hidden="true"></i> Formação
-            </h2>
-            <div class="timeline mt-4">
-              <div class="timeline-item">
-                <span class="timeline-date">2020 — 2025</span>
-                <h3 class="timeline-title">Mestrado Integrado em Engenharia Informática</h3>
-                <span class="timeline-org">Universidade de Coimbra</span>
-                <p class="timeline-desc">
-                  Especialização em engenharia de software e sistemas. Dissertação sobre
-                  aplicação de SysML v2 em engenharia de sistemas espaciais.
-                </p>
-              </div>
-              <div class="timeline-item">
-                <span class="timeline-date">2017 — 2020</span>
-                <h3 class="timeline-title">Ensino Secundário — Ciências e Tecnologias</h3>
-                <span class="timeline-org">Escola Secundária Placeholder, Coimbra</span>
-                <p class="timeline-desc">
-                  Conclusão com média elevada nas áreas de Matemática e Física.
-                </p>
-              </div>
+        </div>
+        <div class="reveal-right">
+          <h2 class="section-title"><i class="fa-solid fa-graduation-cap icon-accent" aria-hidden="true"></i> Formação</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="timeline-date">2020 — 2025</span>
+              <h3 class="timeline-title">Mestrado Integrado em Engenharia Informática</h3>
+              <span class="timeline-org">Universidade de Coimbra</span>
+              <p class="timeline-desc">Especialização em engenharia de software e sistemas. Dissertação sobre aplicação de SysML v2 em engenharia de sistemas espaciais.</p>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-date">2017 — 2020</span>
+              <h3 class="timeline-title">Ensino Secundário — Ciências e Tecnologias</h3>
+              <span class="timeline-org">Escola Secundária Placeholder, Coimbra</span>
+              <p class="timeline-desc">Conclusão com média elevada nas áreas de Matemática e Física.</p>
             </div>
           </div>
-
         </div>
       </div>
     </section>
 
     <!-- Skills -->
-    <section class="section-padding" aria-labelledby="skills-heading">
+    <section class="section" aria-labelledby="skills-heading">
       <div class="container">
         <h2 class="section-title" id="skills-heading">Competências</h2>
         <p class="section-subtitle">Organizado por domínio e área de conhecimento.</p>
-
-        <div class="row g-4">
-          <!-- Domains -->
-          <div class="col-md-4 reveal">
-            <h3 class="skill-group-title"><i class="fa-solid fa-satellite text-primary-custom" aria-hidden="true"></i> Domínios</h3>
-            <div>
-              <span class="skill-badge">MBSE</span>
-              <span class="skill-badge">SysML v2</span>
-              <span class="skill-badge">ECSS</span>
-              <span class="skill-badge">PUS</span>
-              <span class="skill-badge">Systems Engineering</span>
-              <span class="skill-badge">Space Systems</span>
+        <div class="skills-grid">
+          <div class="reveal">
+            <h3 class="skill-group-title"><i class="fa-solid fa-satellite icon-accent" aria-hidden="true"></i> Domínios</h3>
+            <div class="skill-badges">
+              <span class="skill-badge">MBSE</span><span class="skill-badge">SysML v2</span><span class="skill-badge">ECSS</span><span class="skill-badge">PUS</span><span class="skill-badge">Systems Engineering</span><span class="skill-badge">Space Systems</span>
             </div>
           </div>
-
-          <!-- Technologies -->
-          <div class="col-md-4 reveal">
-            <h3 class="skill-group-title"><i class="fa-solid fa-code text-primary-custom" aria-hidden="true"></i> Tecnologias</h3>
-            <div>
-              <span class="skill-badge">C/C++</span>
-              <span class="skill-badge">Python</span>
-              <span class="skill-badge">JavaScript</span>
-              <span class="skill-badge">HTML5</span>
-              <span class="skill-badge">CSS3</span>
-              <span class="skill-badge">Bootstrap</span>
-              <span class="skill-badge">Docker</span>
-              <span class="skill-badge">Git</span>
+          <div class="reveal">
+            <h3 class="skill-group-title"><i class="fa-solid fa-code icon-accent" aria-hidden="true"></i> Tecnologias</h3>
+            <div class="skill-badges">
+              <span class="skill-badge">C/C++</span><span class="skill-badge">Python</span><span class="skill-badge">JavaScript</span><span class="skill-badge">HTML5</span><span class="skill-badge">CSS3</span><span class="skill-badge">Docker</span><span class="skill-badge">Git</span>
             </div>
           </div>
-
-          <!-- Tools -->
-          <div class="col-md-4 reveal">
-            <h3 class="skill-group-title"><i class="fa-solid fa-wrench text-primary-custom" aria-hidden="true"></i> Ferramentas</h3>
-            <div>
-              <span class="skill-badge">CDP4-COMET</span>
-              <span class="skill-badge">SysON</span>
-              <span class="skill-badge">Cameo (SysML v2)</span>
-              <span class="skill-badge">VS Code</span>
-              <span class="skill-badge">WSL</span>
-              <span class="skill-badge">Docker Compose</span>
+          <div class="reveal">
+            <h3 class="skill-group-title"><i class="fa-solid fa-wrench icon-accent" aria-hidden="true"></i> Ferramentas</h3>
+            <div class="skill-badges">
+              <span class="skill-badge">CDP4-COMET</span><span class="skill-badge">SysON</span><span class="skill-badge">Cameo (SysML v2)</span><span class="skill-badge">VS Code</span><span class="skill-badge">WSL</span><span class="skill-badge">Docker Compose</span>
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
   </main>
 
-  <!-- Back to Top -->
   <button class="back-to-top" id="back-to-top" aria-label="Voltar ao topo" type="button">
     <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
   </button>
 
-  <!-- ===== Footer ===== -->
-  <footer class="site-footer">
-    <div class="container text-center">
-      <div class="footer-social mb-3" aria-label="Redes sociais">
-        <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-          <i class="fa-brands fa-github" aria-hidden="true"></i>
-        </a>
-        <a href="https://linkedin.com/in/joaomiguelrosa" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-          <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
-        </a>
-        <a href="mailto:joao.rosa@example.com" aria-label="Email">
-          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-        </a>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand">JM<span>Rosa</span></div>
+          <p class="footer-desc">Engenheiro focado em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais. A construir a ponte entre modelos e código.</p>
+          <div class="footer-social-row" aria-label="Redes sociais">
+            <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
+            <a href="https://linkedin.com/in/joaomiguelrosa" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="mailto:joao.rosa@example.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
+          </div>
+        </div>
+        <div>
+          <h3 class="footer-heading">Navegação</h3>
+          <div class="footer-links">
+            <a href="index.html">Início</a>
+            <a href="projects.html">Projetos</a>
+            <a href="about.html">Sobre Mim</a>
+            <a href="contact.html">Contacto</a>
+          </div>
+        </div>
+        <div>
+          <h3 class="footer-heading">Tecnologias</h3>
+          <div class="footer-links">
+            <a href="projects.html">SysML v2</a>
+            <a href="projects.html">ECSS / PUS</a>
+            <a href="projects.html">Python &amp; C++</a>
+            <a href="projects.html">Docker &amp; DevOps</a>
+          </div>
+        </div>
+        <div>
+          <h3 class="footer-heading">Contacto</h3>
+          <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joao.rosa@example.com">joao.rosa@example.com</a></div>
+          <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://linkedin.com/in/joaomiguelrosa" target="_blank" rel="noopener noreferrer">joaomiguelrosa</a></div>
+        </div>
       </div>
-      <p class="footer-copy mb-0">
-        &copy; <span id="footer-year">2026</span> João Miguel Santos Rosa. Todos os direitos reservados.
-      </p>
+      <div class="footer-bottom">
+        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Santos Rosa. Todos os direitos reservados.</p>
+        <p class="footer-tech">Feito com <i class="fa-solid fa-heart" aria-hidden="true"></i> usando HTML5, CSS3 &amp; JavaScript</p>
+      </div>
     </div>
   </footer>
 
-  <!-- Bootstrap 5 JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-  <!-- Custom JS -->
   <script src="assets/js/main.js" defer></script>
-
 </body>
 </html>

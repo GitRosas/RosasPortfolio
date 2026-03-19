@@ -52,7 +52,7 @@
     "title": "Portefólio Pessoal",
     "description": "Site de portefólio responsivo com Dark Mode, filtros dinâmicos e geração de conteúdo a partir de JSON.",
     "image": "assets/img/projects/portfolio.svg",
-    "tags": ["HTML5", "CSS3", "JavaScript", "Bootstrap"],
+    "tags": ["HTML5", "CSS3", "JavaScript"],
     "links": {
       "github": "https://github.com/GitRosas",
       "demo": "#"
@@ -70,5 +70,125 @@
       "demo": "#"
     },
     "year": 2025
+  },
+  {
+    "id": "sysml-v2-linter",
+    "title": "SysML v2 Linter",
+    "description": "Ferramenta de linting para ficheiros SysML v2 que verifica conformidade sintática, semântica de tipos e boas práticas de modelação.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["SysML v2", "Python", "MBSE", "Tooling"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "mission-planner-api",
+    "title": "Mission Planner REST API",
+    "description": "API REST em Python/FastAPI para planeamento de missões espaciais, com gestão de timeline, recursos e restrições orbitais.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "REST API", "Space Systems", "FastAPI"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "tm-tc-dashboard",
+    "title": "TM/TC Dashboard",
+    "description": "Dashboard web para visualização em tempo real de telemetria e telecomandos de satélites, com gráficos interativos e alertas.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["JavaScript", "HTML5", "CSS3", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "ecss-req-tracer",
+    "title": "ECSS Requirements Tracer",
+    "description": "Ferramenta de rastreabilidade de requisitos ECSS-E-ST-10C com matriz de cobertura, importação de documentos e exportação para SysML v2.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["ECSS", "Python", "MBSE", "Requirements"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "ci-cd-space-pipeline",
+    "title": "CI/CD Space Pipeline",
+    "description": "Pipeline CI/CD especializado para software espacial com verificação de normas ECSS, testes unitários automatizados e deployment em ambientes de simulação.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["DevOps", "Docker", "Python", "ECSS"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "sysml-model-diff",
+    "title": "SysML Model Diff Tool",
+    "description": "Ferramenta de comparação visual e textual entre versões de modelos SysML v2, com deteção de conflitos e merge assistido.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["SysML v2", "Python", "Tooling", "Git"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "orbit-simulator",
+    "title": "Orbit Propagator Simulator",
+    "description": "Simulador de propagação orbital em Python com modelos SGP4 e Keplerianos, visualização 3D da trajetória e previsão de passagens.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "Space Systems", "Simulation"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "fdir-engine",
+    "title": "FDIR Rules Engine",
+    "description": "Motor de regras FDIR (Fault Detection, Isolation & Recovery) em C++ para deteção autónoma de anomalias em subsistemas de satélite.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["C++", "Space Systems", "FDIR", "ECSS"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
+  },
+  {
+    "id": "ground-station-monitor",
+    "title": "Ground Station Monitor",
+    "description": "Interface web de monitorização de estações em terra com status em tempo real, agendamento de sessões e log de comunicações.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["JavaScript", "Python", "REST API", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
+  },
+  {
+    "id": "power-budget-calc",
+    "title": "Power Budget Calculator",
+    "description": "Calculadora de orçamento energético para missões espaciais com modelação de painéis solares, baterias e modos operacionais do satélite.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "Space Systems", "Simulation", "MBSE"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
   }
 ]
