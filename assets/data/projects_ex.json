@@ -1,0 +1,194 @@
+[
+  {
+    "id": "karvel-mb",
+    "title": "Karvel Message Bus Model",
+    "description": "SysML v2 modeling of the Message Bus in the Karvel context; requirements, activities and sequence aligned with internal documentation.",
+    "image": "assets/img/projects/karvel-mb.svg",
+    "tags": ["SysML v2", "MBSE", "ESA", "Message Bus"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "cdp4-comet",
+    "title": "CDP4-COMET Experiments",
+    "description": "Interoperability experiments according to ECSS-E-TM-10-25; exploration of models and data exchange.",
+    "image": "assets/img/projects/cdp4.svg",
+    "tags": ["ECSS", "CDP4", "Python"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "syson-wsl",
+    "title": "SysON Local Setup",
+    "description": "Local deployment of SysON via Docker/WSL, with troubleshooting and performance notes.",
+    "image": "assets/img/projects/syson.svg",
+    "tags": ["Docker", "WSL", "DevOps"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "ecss-pus-parser",
+    "title": "ECSS PUS Packet Parser",
+    "description": "C++ parser for PUS (Packet Utilization Standard) packets with checksum validation and service decoding.",
+    "image": "assets/img/projects/pus-parser.svg",
+    "tags": ["C++", "ECSS", "PUS", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "portfolio-site",
+    "title": "Personal Portfolio",
+    "description": "Responsive portfolio website with Dark Mode, dynamic filters and content generation from JSON.",
+    "image": "assets/img/projects/portfolio.svg",
+    "tags": ["HTML5", "CSS3", "JavaScript"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "docker-dev-env",
+    "title": "Docker Dev Environment",
+    "description": "Containerized development environment with Docker Compose for multi-service projects, including hot-reload and remote debugging.",
+    "image": "assets/img/projects/docker-dev.svg",
+    "tags": ["Docker", "DevOps", "WSL", "Python"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "sysml-v2-linter",
+    "title": "SysML v2 Linter",
+    "description": "Linting tool for SysML v2 files that checks syntactic compliance, type semantics and modeling best practices.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["SysML v2", "Python", "MBSE", "Tooling"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "mission-planner-api",
+    "title": "Mission Planner REST API",
+    "description": "REST API in Python/FastAPI for space mission planning, with timeline management, resources and orbital constraints.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "REST API", "Space Systems", "FastAPI"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "tm-tc-dashboard",
+    "title": "TM/TC Dashboard",
+    "description": "Web dashboard for real-time visualization of satellite telemetry and telecommands, with interactive graphs and alerts.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["JavaScript", "HTML5", "CSS3", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "ecss-req-tracer",
+    "title": "ECSS Requirements Tracer",
+    "description": "ECSS-E-ST-10C requirements traceability tool with coverage matrix, document import and export to SysML v2.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["ECSS", "Python", "MBSE", "Requirements"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "ci-cd-space-pipeline",
+    "title": "CI/CD Space Pipeline",
+    "description": "Specialized CI/CD pipeline for space software with ECSS standards verification, automated unit tests and deployment in simulation environments.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["DevOps", "Docker", "Python", "ECSS"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "sysml-model-diff",
+    "title": "SysML Model Diff Tool",
+    "description": "Visual and textual comparison tool between SysML v2 model versions, with conflict detection and assisted merge.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["SysML v2", "Python", "Tooling", "Git"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2026
+  },
+  {
+    "id": "orbit-simulator",
+    "title": "Orbit Propagator Simulator",
+    "description": "Orbital propagation simulator in Python with SGP4 and Keplerian models, 3D trajectory visualization and pass prediction.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "Space Systems", "Simulation"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2025
+  },
+  {
+    "id": "fdir-engine",
+    "title": "FDIR Rules Engine",
+    "description": "FDIR (Fault Detection, Isolation & Recovery) rules engine in C++ for autonomous anomaly detection in satellite subsystems.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["C++", "Space Systems", "FDIR", "ECSS"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
+  },
+  {
+    "id": "ground-station-monitor",
+    "title": "Ground Station Monitor",
+    "description": "Ground station monitoring web interface with real-time status, session scheduling and communication logging.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["JavaScript", "Python", "REST API", "Space Systems"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
+  },
+  {
+    "id": "power-budget-calc",
+    "title": "Power Budget Calculator",
+    "description": "Power budget calculator for space missions with modeling of solar panels, batteries and satellite operational modes.",
+    "image": "assets/img/projects/generic.svg",
+    "tags": ["Python", "Space Systems", "Simulation", "MBSE"],
+    "links": {
+      "github": "https://github.com/GitRosas",
+      "demo": "#"
+    },
+    "year": 2024
+  }
+]

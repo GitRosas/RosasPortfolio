@@ -141,18 +141,38 @@ const I18N = {
       bioP3: 'In my spare time, I explore new open-source tools, contribute to projects on GitHub and study the evolution of systems engineering standards in the European context (ESA/ECSS).',
       experienceTitle: 'Experience',
       educationTitle: 'Education',
-      exp1Title: 'MBSE & Software Engineer',
-      exp1Org: 'Placeholder Company, Lda.',
-      exp1Desc: 'Systems modeling with SysML v2, development of internal tools in Python/C++ and integration with ECSS standards for European space missions.',
-      exp2Title: 'Systems Engineering Internship',
-      exp2Org: 'Placeholder Lab',
-      exp2Desc: 'Support for requirements modeling according to ECSS-E-TM-10-25; experimentation with CDP4-COMET and SysON.',
-      edu1Title: "Integrated Master's in Computer Engineering",
-      edu1Org: 'University of Coimbra',
-      edu1Desc: 'Specialization in software and systems engineering. Dissertation on SysML v2 application in space systems engineering.',
-      edu2Title: 'Secondary Education - Science and Technology',
-      edu2Org: 'Placeholder Secondary School, Coimbra',
-      edu2Desc: 'Completion with high average in Mathematics and Physics.',
+      exp1Date: 'Feb 2026 - Present',
+      exp1Title: 'Software & Systems Engineer',
+      exp1Org: 'Critical Software - Internship',
+      exp1Desc: "Curricular internship as part of a Bachelor's degree in Software Engineering - Information Systems. Coimbra, Portugal (Hybrid).",
+      exp2Date: 'Feb 2023 - Present',
+      exp2Title: 'Football Referee',
+      exp2Org: 'Associação de Futebol de Coimbra',
+      exp2Desc: 'Coimbra, Portugal.',
+      exp3Date: 'Nov 2023 - Nov 2023',
+      exp3Title: 'Volunteer Staff',
+      exp3Org: 'Web Summit - Temporary',
+      exp3Desc: 'Lisbon, Portugal (On-site).',
+      exp4Date: 'Jun 2022 - Jul 2022',
+      exp4Title: 'Software Developer',
+      exp4Org: 'Prologica - Internship',
+      exp4Desc: 'São João da Madeira, Aveiro, Portugal.',
+      exp5Date: 'Apr 2022 - Apr 2022',
+      exp5Title: 'Software Developer',
+      exp5Org: 'Arrabal-AID - Internship',
+      exp5Desc: 'Málaga, Andalusia, Spain (On-site).',
+      exp6Date: 'Jun 2021 - Jun 2021',
+      exp6Title: 'Software Developer',
+      exp6Org: 'Prologica - Internship',
+      exp6Desc: 'São João da Madeira, Aveiro, Portugal.',
+      edu1Date: 'Sep 2022 - 2026',
+      edu1Title: "Bachelor's degree, Software Engineering",
+      edu1Org: 'Instituto Superior de Engenharia de Coimbra',
+      edu1Desc: 'Branch: Information Systems. AEISEC: Member of the Sports Section (2025).',
+      edu2Date: 'Sep 2019 - Sep 2022',
+      edu2Title: '12th grade, Technician in Computer Systems Management and Programming',
+      edu2Org: 'Escola Secundária Serafim Leite',
+      edu2Desc: 'Final grade: 17.',
       skillsTitle: 'Skills',
       skillsSubtitle: 'Organized by domain and area of knowledge.',
       domains: 'Domains',
@@ -303,18 +323,38 @@ const I18N = {
       bioP3: 'Nos tempos livres, exploro novas ferramentas open-source, contribuo para projetos no GitHub e estudo a evolucao das normas de engenharia de sistemas no contexto europeu (ESA/ECSS).',
       experienceTitle: 'Experiencia',
       educationTitle: 'Formacao',
-      exp1Title: 'Engenheiro de MBSE e Software',
-      exp1Org: 'Empresa Placeholder, Lda.',
-      exp1Desc: 'Modelacao de sistemas com SysML v2, desenvolvimento de ferramentas internas em Python/C++ e integracao com normas ECSS para missoes espaciais europeias.',
-      exp2Title: 'Estagio em Engenharia de Sistemas',
-      exp2Org: 'Laboratorio Placeholder',
-      exp2Desc: 'Apoio a modelacao de requisitos segundo ECSS-E-TM-10-25; experimentacao com CDP4-COMET e SysON.',
-      edu1Title: 'Mestrado Integrado em Engenharia Informatica',
-      edu1Org: 'Universidade de Coimbra',
-      edu1Desc: 'Especializacao em engenharia de software e sistemas. Dissertacao sobre aplicacao de SysML v2 em engenharia de sistemas espaciais.',
-      edu2Title: 'Ensino Secundario - Ciencias e Tecnologias',
-      edu2Org: 'Escola Secundaria Placeholder, Coimbra',
-      edu2Desc: 'Conclusao com media elevada em Matematica e Fisica.',
+      exp1Date: 'fev 2026 - o momento',
+      exp1Title: 'Software & Systems Engineer',
+      exp1Org: 'Critical Software - Estágio',
+      exp1Desc: 'Estágio curricular no âmbito da licenciatura em Engenharia de Software - Sistemas de Informação. Coimbra, Portugal (Híbrida).',
+      exp2Date: 'fev 2023 - o momento',
+      exp2Title: 'Football Referee',
+      exp2Org: 'Associação de Futebol de Coimbra',
+      exp2Desc: 'Coimbra, Portugal.',
+      exp3Date: 'nov 2023 - nov 2023',
+      exp3Title: 'Volunteer Staff',
+      exp3Org: 'Web Summit - Temporário',
+      exp3Desc: 'Lisboa, Portugal (Presencial).',
+      exp4Date: 'jun 2022 - jul 2022',
+      exp4Title: 'Software Developer',
+      exp4Org: 'Prologica - Estágio',
+      exp4Desc: 'São João da Madeira, Aveiro, Portugal.',
+      exp5Date: 'abr 2022 - abr 2022',
+      exp5Title: 'Software Developer',
+      exp5Org: 'Arrabal-AID - Estágio',
+      exp5Desc: 'Málaga, Andaluzia, Espanha (Presencial).',
+      exp6Date: 'jun 2021 - jun 2021',
+      exp6Title: 'Software Developer',
+      exp6Org: 'Prologica - Estágio',
+      exp6Desc: 'São João da Madeira, Aveiro, Portugal.',
+      edu1Date: 'set 2022 - 2026',
+      edu1Title: 'Licenciatura em Engenharia de Software',
+      edu1Org: 'Instituto Superior de Engenharia de Coimbra',
+      edu1Desc: 'Ramo: Sistemas de Informação. AEISEC: Membro da Secção de Desporto (2025).',
+      edu2Date: 'set 2019 - set 2022',
+      edu2Title: '12.º ano, Técnico de Gestão e Programação de Sistemas Informáticos',
+      edu2Org: 'Escola Secundária Serafim Leite',
+      edu2Desc: 'Nota final: 17.',
       skillsTitle: 'Competencias',
       skillsSubtitle: 'Organizadas por dominio e area de conhecimento.',
       domains: 'Dominios',
@@ -600,40 +640,34 @@ function applyTranslations() {
     const timelines = document.querySelectorAll('.timeline');
     if (timelines[0]) {
       const items = timelines[0].querySelectorAll('.timeline-item');
-      if (items[0]) {
-        const t1 = items[0].querySelector('.timeline-title');
-        const o1 = items[0].querySelector('.timeline-org');
-        const d1 = items[0].querySelector('.timeline-desc');
-        if (t1) t1.textContent = t('about.exp1Title');
-        if (o1) o1.textContent = t('about.exp1Org');
-        if (d1) d1.textContent = t('about.exp1Desc');
-      }
-      if (items[1]) {
-        const t2 = items[1].querySelector('.timeline-title');
-        const o2 = items[1].querySelector('.timeline-org');
-        const d2 = items[1].querySelector('.timeline-desc');
-        if (t2) t2.textContent = t('about.exp2Title');
-        if (o2) o2.textContent = t('about.exp2Org');
-        if (d2) d2.textContent = t('about.exp2Desc');
+      for (let index = 0; index < 6; index += 1) {
+        const item = items[index];
+        if (!item) continue;
+        const key = `about.exp${index + 1}`;
+        const date = item.querySelector('.timeline-date');
+        const title = item.querySelector('.timeline-title');
+        const org = item.querySelector('.timeline-org');
+        const desc = item.querySelector('.timeline-desc');
+        if (date) date.textContent = t(`${key}Date`);
+        if (title) title.textContent = t(`${key}Title`);
+        if (org) org.textContent = t(`${key}Org`);
+        if (desc) desc.textContent = t(`${key}Desc`);
       }
     }
     if (timelines[1]) {
       const items = timelines[1].querySelectorAll('.timeline-item');
-      if (items[0]) {
-        const t1 = items[0].querySelector('.timeline-title');
-        const o1 = items[0].querySelector('.timeline-org');
-        const d1 = items[0].querySelector('.timeline-desc');
-        if (t1) t1.textContent = t('about.edu1Title');
-        if (o1) o1.textContent = t('about.edu1Org');
-        if (d1) d1.textContent = t('about.edu1Desc');
-      }
-      if (items[1]) {
-        const t2 = items[1].querySelector('.timeline-title');
-        const o2 = items[1].querySelector('.timeline-org');
-        const d2 = items[1].querySelector('.timeline-desc');
-        if (t2) t2.textContent = t('about.edu2Title');
-        if (o2) o2.textContent = t('about.edu2Org');
-        if (d2) d2.textContent = t('about.edu2Desc');
+      for (let index = 0; index < 2; index += 1) {
+        const item = items[index];
+        if (!item) continue;
+        const key = `about.edu${index + 1}`;
+        const date = item.querySelector('.timeline-date');
+        const title = item.querySelector('.timeline-title');
+        const org = item.querySelector('.timeline-org');
+        const desc = item.querySelector('.timeline-desc');
+        if (date) date.textContent = t(`${key}Date`);
+        if (title) title.textContent = t(`${key}Title`);
+        if (org) org.textContent = t(`${key}Org`);
+        if (desc) desc.textContent = t(`${key}Desc`);
       }
     }
 
@@ -1382,7 +1416,7 @@ function initLoginForm() {
   const passwordInput = document.getElementById('login-password');
 
   const validEmail = 'admin@admin.com';
-  const validPassword = 'admin1234';
+  const validPassword = 'admin';
 
   form.addEventListener('submit', e => {
     e.preventDefault();
