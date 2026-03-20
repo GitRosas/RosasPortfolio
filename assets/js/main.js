@@ -91,8 +91,8 @@ const I18N = {
       footerNavigation: 'Navigation',
       footerTechnologies: 'Technologies',
       footerContact: 'Contact',
-      footerDesc: 'Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software. Building the bridge between models and code.',
-      footerMadeWith: 'Made with HTML5, CSS3 & JavaScript',
+      footerDesc: 'Engineer working with MBSE, SysML v2, ECSS/PUS and software for space systems - focused on connecting system models with the code that actually brings them to life.',
+      footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
       location: 'Coimbra, Portugal',
       tech1: 'SysML v2',
       tech2: 'ECSS / PUS',
@@ -101,11 +101,11 @@ const I18N = {
     },
     home: {
       heroHi: "Hi, I'm",
-      heroBioHtml: 'Engineer focused on <strong>MBSE/SysML v2</strong>, <strong>ECSS/PUS</strong> and space systems software. I build models, tools and solutions that bridge systems engineering and code.',
+      heroBioHtml: 'Software & Systems Engineering student and intern at Critical Software,focused on <strong>MBSE/SysML v2</strong>  and <strong>ECSS/PUS</strong>. For now I build models,  tools and solutions that bridge systems engineering and code.',
       btnViewProjects: 'View Projects',
       btnGetInTouch: 'Get in Touch',
       scroll: 'scroll',
-      roles: ['MBSE Engineer', 'SysML v2 Specialist', 'Software Developer', 'Space Systems Enthusiast'],
+      roles: ['Software Engineer', 'Systems Engineer', 'Football Referee', 'Photographer'],
       statProjects: 'Projects',
       statTechnologies: 'Technologies',
       statYears: 'Years Experience',
@@ -134,11 +134,11 @@ const I18N = {
     about: {
       headerTitle: 'About Me',
       headerSubtitle: 'Journey, skills and education.',
-      bioRole: 'MBSE & Software Engineer',
+      bioRole: 'Software & Systems Engineer',
       btnDownloadCv: 'Download CV',
-      bioP1: "I'm an engineer focused on <strong>Model-Based Systems Engineering (MBSE)</strong> and software development for <strong>space systems</strong>. I work with <strong>SysML v2</strong>, <strong>ECSS</strong> standards and the <strong>Packet Utilization Standard (PUS)</strong>, applying modeling and code to translate complex requirements into clear and verifiable architectures.",
-      bioP2: 'My journey combines systems engineering with practical development - from requirements modeling and activities in SysML v2, to tool deployment with Docker and pipeline automation. I believe the bridge between the model and code is where the greatest value is generated in complex engineering projects.',
-      bioP3: 'In my spare time, I explore new open-source tools, contribute to projects on GitHub and study the evolution of systems engineering standards in the European context (ESA/ECSS).',
+      bioP1: "I'm a <strong>Software &amp; Systems Engineering</strong> student currently working as a <strong>Software &amp; Systems Engineer Intern</strong> at <strong>Critical Software</strong>, focused on <strong>Model-Based Systems Engineering (MBSE)</strong> for critical and space-related systems.",
+      bioP2: 'I work with <strong>SysML v2</strong>, <strong>ECSS</strong> standards and the <strong>Packet Utilization Standard (PUS)</strong>, transforming complex requirements into structured, traceable and verifiable system architectures, while connecting models with implementation in Linux-based environments. Previously, I gained experience as a <strong>Software Developer Intern</strong>, working with <strong>C#</strong>, <strong>ASP.NET MVC</strong>, <strong>SQL Azure</strong> and web technologies, building a solid foundation in software development.',
+      bioP3: 'Alongside my technical path, I have been a <strong>football referee</strong> for over three years, developing strong decision-making, communication and leadership skills under pressure. I am particularly interested in bridging systems engineering and software development, where models and code come together to create real impact.',
       experienceTitle: 'Experience',
       educationTitle: 'Education',
       exp1Date: 'Feb 2026 - Present',
@@ -273,8 +273,8 @@ const I18N = {
       footerNavigation: 'Navegacao',
       footerTechnologies: 'Tecnologias',
       footerContact: 'Contacto',
-      footerDesc: 'Engenheiro focado em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais. A construir a ponte entre modelos e codigo.',
-      footerMadeWith: 'Feito com HTML5, CSS3 e JavaScript',
+      footerDesc: 'Engenheiro a trabalhar com MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais - focado em conectar modelos de sistemas com o codigo que realmente os traz a vida.',
+      footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
       location: 'Coimbra, Portugal',
       tech1: 'SysML v2',
       tech2: 'ECSS / PUS',
@@ -318,9 +318,9 @@ const I18N = {
       headerSubtitle: 'Percurso, competencias e formacao.',
       bioRole: 'Engenheiro de MBSE e Software',
       btnDownloadCv: 'Descarregar CV',
-      bioP1: 'Sou engenheiro focado em <strong>Engenharia de Sistemas Baseada em Modelos (MBSE)</strong> e desenvolvimento de software para <strong>sistemas espaciais</strong>. Trabalho com <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o <strong>Packet Utilization Standard (PUS)</strong>, aplicando modelacao e codigo para transformar requisitos complexos em arquiteturas claras e verificaveis.',
-      bioP2: 'O meu percurso combina engenharia de sistemas com desenvolvimento pratico - desde modelacao de requisitos e atividades em SysML v2, ate deploy de ferramentas com Docker e automacao de pipelines. Acredito que a ponte entre modelo e codigo e onde se gera mais valor em projetos de engenharia complexos.',
-      bioP3: 'Nos tempos livres, exploro novas ferramentas open-source, contribuo para projetos no GitHub e estudo a evolucao das normas de engenharia de sistemas no contexto europeu (ESA/ECSS).',
+      bioP1: 'Sou estudante de <strong>Engenharia de Software e Sistemas</strong>, atualmente a realizar um estágio como <strong>Software & Systems Engineer</strong> na <strong>Critical Software</strong>, com foco em <strong>Engenharia de Sistemas Baseada em Modelos (MBSE)</strong> para sistemas críticos e espaciais.',
+      bioP2: 'Trabalho com <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o <strong>Packet Utilization Standard (PUS)</strong>, transformando requisitos complexos em arquiteturas de sistema estruturadas, rastreáveis e verificáveis, ligando modelos à implementação em ambientes Linux. Anteriormente, adquiri experiência como estagiário de <strong>Desenvolvimento de Software</strong>, trabalhando com <strong>C#</strong>, <strong>ASP.NET MVC</strong>, <strong>SQL Azure</strong> e tecnologias web, construindo uma base sólida em desenvolvimento de software.',
+      bioP3: 'Em paralelo com o meu percurso técnico, sou <strong>árbitro de futebol</strong> há mais de três anos, desenvolvendo competências sólidas de tomada de decisão, comunicação e liderança sob pressão. Tenho especial interesse em criar pontes entre engenharia de sistemas e desenvolvimento de software, onde modelos e código se unem para gerar impacto real.',
       experienceTitle: 'Experiencia',
       educationTitle: 'Formacao',
       exp1Date: 'fev 2026 - o momento',
@@ -1150,7 +1150,7 @@ function initParticles() {
 function initTypingEffect() {
   const el = document.getElementById('typed-role');
   if (!el) return;
-  const roles = i18nValue('home.roles') || ['MBSE Engineer', 'SysML v2 Specialist', 'Software Developer', 'Space Systems Enthusiast'];
+  const roles = i18nValue('home.roles') || ['Software Engineer', 'Systems Engineer', 'Football Referee', 'Photographer'];
   let roleIdx = 0, charIdx = 0, deleting = false, pause = 0;
 
   function type() {
