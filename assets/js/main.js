@@ -5,6 +5,7 @@ let allProjectsData = [];
 document.addEventListener('DOMContentLoaded', () => {
   initPageLoader();
   initTheme();
+  initAuthNavigation();
   initNavbar();
   initMobileMenu();
   initScrollReveal();
@@ -18,10 +19,123 @@ document.addEventListener('DOMContentLoaded', () => {
   initFeaturedProjects();
   initProjectModal();
   initContactForm();
+  initLoginForm();
+  initPortfolioSlider();
   initCardGlow();
   initHeroParallax();
   initSmoothStagger();
 });
+
+const AUTH_STORAGE_KEY = 'portfolioAuth';
+const AUTH_SESSION_MS = 20 * 60 * 1000;
+
+/* ---- Auth Navigation ---- */
+function initAuthNavigation() {
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const loggedIn = isAuthenticated();
+
+  if (currentPage === 'portfolio.html' && !loggedIn) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const navLinksContainer = document.getElementById('nav-links');
+  if (!navLinksContainer) return;
+
+  let loginLink = navLinksContainer.querySelector('a.nav-link[href="login.html"], a.nav-link[data-auth-link="logout"]');
+  if (!loginLink) return;
+
+  const loginListItem = loginLink.closest('li');
+
+  if (loggedIn) {
+    ensurePortfolioMenuItem(navLinksContainer, loginListItem);
+    scheduleAutoLogout();
+    loginLink.textContent = 'Logout';
+    loginLink.setAttribute('href', '#');
+    loginLink.setAttribute('data-auth-link', 'logout');
+    loginLink.classList.add('nav-link-auth');
+    loginLink.classList.remove('active');
+    loginLink.removeAttribute('aria-current');
+  } else {
+    removePortfolioMenuItem(navLinksContainer);
+    loginLink.textContent = 'Login';
+    loginLink.setAttribute('href', 'login.html');
+    loginLink.removeAttribute('data-auth-link');
+    loginLink.classList.add('nav-link-auth');
+  }
+
+  navLinksContainer.addEventListener('click', e => {
+    const logoutLink = e.target.closest('a[data-auth-link="logout"]');
+    if (!logoutLink) return;
+    e.preventDefault();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    window.location.href = 'login.html';
+  });
+}
+
+function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
+  let portfolioItem = navLinksContainer.querySelector('li[data-auth-item="portfolio"]');
+  if (!portfolioItem) {
+    portfolioItem = document.createElement('li');
+    portfolioItem.setAttribute('data-auth-item', 'portfolio');
+    const link = document.createElement('a');
+    link.href = 'portfolio.html';
+    link.className = 'nav-link';
+    link.textContent = 'Portfolio';
+    portfolioItem.appendChild(link);
+    navLinksContainer.insertBefore(portfolioItem, loginListItem);
+  }
+}
+
+function removePortfolioMenuItem(navLinksContainer) {
+  const portfolioItem = navLinksContainer.querySelector('li[data-auth-item="portfolio"]');
+  if (portfolioItem) portfolioItem.remove();
+}
+
+function isAuthenticated() {
+  try {
+    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!authData) return false;
+    const parsed = JSON.parse(authData);
+    if (!parsed || !parsed.email || !parsed.expiresAt) return false;
+
+    const expiresAt = Date.parse(parsed.expiresAt);
+    if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return false;
+    }
+
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function scheduleAutoLogout() {
+  try {
+    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!authData) return;
+    const parsed = JSON.parse(authData);
+    const expiresAt = Date.parse(parsed.expiresAt || '');
+    if (!Number.isFinite(expiresAt)) return;
+
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      if (!window.location.pathname.endsWith('login.html')) {
+        window.location.href = 'login.html';
+      }
+      return;
+    }
+
+    window.setTimeout(() => {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      window.location.href = 'login.html';
+    }, remaining);
+  } catch (_) {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+}
 
 /* ---- Page Loader ---- */
 function initPageLoader() {
@@ -442,6 +556,115 @@ function initContactForm() {
       }
     }
   });
+}
+
+/* ---- Login Form ---- */
+function initLoginForm() {
+  const form = document.getElementById('login-form');
+  if (!form) return;
+
+  const alertSuccess = document.getElementById('login-alert-success');
+  const alertError = document.getElementById('login-alert-error');
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+
+  const validEmail = 'admin@admin.com';
+  const validPassword = 'admin1234';
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    if (alertSuccess) alertSuccess.style.display = 'none';
+    if (alertError) alertError.style.display = 'none';
+    form.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
+
+    let valid = true;
+    form.querySelectorAll('[required]').forEach(input => {
+      if (!input.value.trim() || !input.checkValidity()) {
+        input.closest('.form-group').classList.add('invalid');
+        valid = false;
+      }
+    });
+
+    if (!valid) {
+      const first = form.querySelector('.form-group.invalid .form-input');
+      if (first) first.focus();
+      return;
+    }
+
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    if (email === validEmail && password === validPassword) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        email,
+        loggedInAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + AUTH_SESSION_MS).toISOString()
+      }));
+
+      if (alertSuccess) {
+        alertSuccess.style.display = 'block';
+        alertSuccess.focus();
+      }
+
+      setTimeout(() => {
+        window.location.href = 'portfolio.html';
+      }, 900);
+      return;
+    }
+
+    if (alertError) {
+      alertError.textContent = 'Invalid credentials. Please check your email and password.';
+      alertError.style.display = 'block';
+      alertError.focus();
+    }
+
+    if (emailInput) emailInput.closest('.form-group').classList.add('invalid');
+    if (passwordInput) passwordInput.closest('.form-group').classList.add('invalid');
+  });
+}
+
+/* ---- Portfolio Slider ---- */
+function initPortfolioSlider() {
+  const slider = document.getElementById('portfolio-slider');
+  if (!slider) return;
+
+  const track = slider.querySelector('.portfolio-track');
+  const slides = Array.from(slider.querySelectorAll('.portfolio-slide'));
+  const prevBtn = document.getElementById('portfolio-prev');
+  const nextBtn = document.getElementById('portfolio-next');
+  const dots = Array.from(slider.querySelectorAll('.portfolio-dot'));
+  if (!track || !slides.length || !prevBtn || !nextBtn) return;
+
+  let current = 0;
+
+  const render = () => {
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((dot, i) => {
+      const isActive = i === current;
+      dot.classList.toggle('active', isActive);
+      dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  };
+
+  prevBtn.addEventListener('click', () => {
+    current = (current - 1 + slides.length) % slides.length;
+    render();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    current = (current + 1) % slides.length;
+    render();
+  });
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      current = i;
+      render();
+    });
+  });
+
+  render();
 }
 
 /* ---- Card Glow (cursor-following radial glow) ---- */

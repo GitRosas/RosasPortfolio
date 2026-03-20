@@ -3,40 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects — João Miguel Rosa</title>
-  <meta name="description" content="Complete list of projects by João Miguel Rosa — MBSE, SysML v2, ECSS, space software and more.">
-  <meta name="author" content="João Miguel Rosa">
-  <link rel="canonical" href="https://gitrosas.github.io/projects.html">
+  <title>Login - Joao Miguel Rosa</title>
+  <meta name="description" content="Login page for Joao Miguel Rosa portfolio.">
+  <meta name="author" content="Joao Miguel Rosa">
+  <link rel="canonical" href="https://gitrosas.github.io/login.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Projects — João Miguel Rosa">
-  <meta property="og:description" content="Complete list of projects — MBSE, SysML v2, ECSS, space software and DevOps tools.">
-  <meta property="og:url" content="https://gitrosas.github.io/projects.html">
-  <meta property="og:image" content="https://gitrosas.github.io/assets/img/avatar.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Projects — João Miguel Rosa">
-  <meta name="twitter:description" content="Complete list of projects — MBSE, SysML v2, ECSS, space software and DevOps tools.">
+  <meta property="og:title" content="Login - Joao Miguel Rosa">
+  <meta property="og:description" content="Access the portfolio login page.">
+  <meta property="og:url" content="https://gitrosas.github.io/login.html">
+  <meta property="og:image" content="https://gitrosas.github.io/assets/img/foto.jpg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Login - Joao Miguel Rosa">
+  <meta name="twitter:description" content="Access the portfolio login page.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="assets/css/styles.css">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Projects — João Miguel Rosa",
-    "url": "https://gitrosas.github.io/projects.html",
-    "description": "Complete list of systems engineering and software projects."
-  }
-  </script>
 </head>
 <body>
 
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <!-- Navbar -->
   <nav class="navbar" id="navbar" aria-label="Main navigation">
     <div class="container navbar-inner">
       <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
@@ -60,30 +50,47 @@
   </nav>
 
   <main id="main-content">
-
-    <!-- Page Header -->
     <section class="page-header">
       <div class="container">
-        <h1 id="page-title">Projects</h1>
-        <p>Explore all projects by area or search by keyword.</p>
+        <h1>Login</h1>
+        <p>Sign in to continue.</p>
       </div>
     </section>
 
-    <!-- Projects -->
-    <section class="section" aria-labelledby="page-title">
-      <div class="container reveal">
-        <div class="projects-controls">
-          <div class="search-wrapper">
-            <i class="fa-solid fa-search" aria-hidden="true"></i>
-            <input type="search" class="search-input" id="project-search" placeholder="Search projects..." aria-label="Search projects by title or description">
-          </div>
-          <span class="results-count" id="results-count" aria-live="polite">Loading...</span>
+    <section class="section">
+      <div class="container">
+        <div class="reveal" style="max-width: 640px; margin: 0 auto;">
+          <h2 class="section-title">Access</h2>
+          <p class="section-subtitle">Use your credentials to sign in.</p>
+
+          <form id="login-form" class="contact-form" novalidate>
+            <div class="form-group">
+              <label for="login-email" class="form-label">Email <span aria-hidden="true">*</span></label>
+              <input type="email" class="form-input" id="login-email" name="email" placeholder="name@example.com" required autocomplete="email" aria-required="true">
+              <span class="form-error">Please enter a valid email address.</span>
+            </div>
+            <div class="form-group">
+              <label for="login-password" class="form-label">Password <span aria-hidden="true">*</span></label>
+              <input type="password" class="form-input" id="login-password" name="password" placeholder="Your password" required minlength="8" autocomplete="current-password" aria-required="true">
+              <span class="form-error">Please enter your password (min. 8 characters).</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Login</button>
+
+            <div class="form-alert success" id="login-alert-success" role="alert" tabindex="-1">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Login successful. Redirecting...
+            </div>
+            <div class="form-alert error" id="login-alert-error" role="alert" tabindex="-1">
+              <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Invalid credentials.
+            </div>
+          </form>
+
+          <p class="section-subtitle" style="margin-top: 1rem;">
+            Demo login: admin@admin.com / admin1234
+          </p>
         </div>
-        <div class="filter-tags" id="project-filters" aria-label="Filter projects by tag"></div>
-        <div class="projects-grid" id="projects-grid"></div>
       </div>
     </section>
-
   </main>
 
   <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
@@ -109,6 +116,7 @@
             <a href="projects.html">Projects</a>
             <a href="about.html">About Me</a>
             <a href="contact.html">Contact</a>
+            <a href="login.html">Login</a>
           </div>
         </div>
         <div>
@@ -125,38 +133,16 @@
           <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joaorosa.aveiro@gmail.com">joaorosa.aveiro@gmail.com</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">João Miguel Rosa</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">https://github.com/GitRosas</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/joaorosa0409/</a></div>
         </div>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Rosa. All rights reserved.</p>
-        <p class="footer-tech">Made with <i class="fa-solid fa-heart" aria-hidden="true"></i> using HTML5, CSS3 &amp; JavaScript</p>
+        <p class="footer-copy">&copy; <span id="footer-year">2026</span> Joao Miguel Rosa. All rights reserved.</p>
+        <p class="footer-tech">Made with HTML5, CSS3 &amp; JavaScript</p>
       </div>
     </div>
   </footer>
-
-  <!-- Project Detail Modal -->
-  <div class="project-modal" id="project-modal" role="dialog" aria-hidden="true" aria-labelledby="modal-title">
-    <div class="project-modal-overlay" id="modal-overlay"></div>
-    <div class="project-modal-content">
-      <button class="project-modal-close" id="modal-close" type="button" aria-label="Close modal">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
-      <div class="project-modal-body">
-        <div class="project-modal-image">
-          <img id="modal-image" src="" alt="" loading="eager">
-        </div>
-        <div class="project-modal-info">
-          <div class="project-modal-year" id="modal-year"></div>
-          <h2 class="project-modal-title" id="modal-title"></h2>
-          <p class="project-modal-description" id="modal-description"></p>
-          <div class="project-modal-tags" id="modal-tags"></div>
-          <div class="project-modal-links" id="modal-links"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="assets/js/main.js" defer></script>
 </body>
