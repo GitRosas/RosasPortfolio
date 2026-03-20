@@ -5,6 +5,8 @@ let allProjectsData = [];
 document.addEventListener('DOMContentLoaded', () => {
   initPageLoader();
   initTheme();
+  initLanguageToggle();
+  initAnalyticsTracking();
   initAuthNavigation();
   initNavbar();
   initMobileMenu();
@@ -21,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initLoginForm();
   initPortfolioSlider();
+  initPortfolioLightbox();
+  initDashboard();
   initCardGlow();
   initHeroParallax();
   initSmoothStagger();
@@ -28,13 +32,688 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const AUTH_STORAGE_KEY = 'portfolioAuth';
 const AUTH_SESSION_MS = 20 * 60 * 1000;
+const LANGUAGE_STORAGE_KEY = 'portfolioLang';
+const ANALYTICS_STORAGE_KEY = 'portfolioAnalytics';
+let clientIpPromise = null;
+let analyticsWriteQueue = Promise.resolve();
+
+const I18N = {
+  en: {
+    nav: {
+      home: 'Home',
+      projects: 'Projects',
+      about: 'About Me',
+      contact: 'Contact',
+      login: 'Login',
+      logout: 'Logout',
+      portfolio: 'Portfolio',
+      dashboard: 'Dashboard'
+    },
+    pages: {
+      loginTitle: 'Login',
+      loginSubtitle: 'Sign in to continue.',
+      accessTitle: 'Access',
+      accessSubtitle: 'Use your credentials to sign in.',
+      portfolioTitle: 'Portfolio',
+      portfolioSubtitle: 'Exclusive gallery visible after login.',
+      sliderTitle: 'Image Slider',
+      sliderSubtitle: '10 photos and project visuals in a private carousel.',
+      dashboardTitle: 'Dashboard',
+      dashboardSubtitle: 'Private analytics and session details.',
+      quickActions: 'Quick Actions',
+      analyticsSummary: 'Analytics Summary',
+      recentEvents: 'Recent Events'
+    },
+    labels: {
+      email: 'Email',
+      password: 'Password',
+      loginSuccess: 'Login successful. Redirecting...',
+      loginInvalid: 'Invalid credentials.',
+      lastLogin: 'Last Login',
+      dashboardVisits: 'Dashboard Visits',
+      portfolioVisits: 'Portfolio Visits',
+      cvClicks: 'CV Clicks',
+      formSubmits: 'Contact Form Sends',
+      githubClicks: 'GitHub Clicks',
+      linkedinClicks: 'LinkedIn Clicks',
+      loginEvents: 'Logins',
+      siteEntries: 'Site Entries',
+      ip: 'IP',
+      noEvents: 'No events registered yet.',
+      editProfile: 'Edit Profile',
+      managePortfolio: 'Manage Portfolio',
+      openContact: 'Open Contact Page'
+    },
+    common: {
+      skipToContent: 'Skip to main content',
+      switchToPortuguese: 'Switch to Portuguese',
+      switchToEnglish: 'Switch to English',
+      footerNavigation: 'Navigation',
+      footerTechnologies: 'Technologies',
+      footerContact: 'Contact',
+      footerDesc: 'Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software. Building the bridge between models and code.',
+      footerMadeWith: 'Made with HTML5, CSS3 & JavaScript',
+      location: 'Coimbra, Portugal',
+      tech1: 'SysML v2',
+      tech2: 'ECSS / PUS',
+      tech3: 'Python & C++',
+      tech4: 'Docker & DevOps'
+    },
+    home: {
+      heroHi: "Hi, I'm",
+      heroBioHtml: 'Engineer focused on <strong>MBSE/SysML v2</strong>, <strong>ECSS/PUS</strong> and space systems software. I build models, tools and solutions that bridge systems engineering and code.',
+      btnViewProjects: 'View Projects',
+      btnGetInTouch: 'Get in Touch',
+      scroll: 'scroll',
+      roles: ['MBSE Engineer', 'SysML v2 Specialist', 'Software Developer', 'Space Systems Enthusiast'],
+      statProjects: 'Projects',
+      statTechnologies: 'Technologies',
+      statYears: 'Years Experience',
+      statDedication: 'Dedication',
+      tagWhatIDo: 'What I Do',
+      expertiseTitle: 'Areas of Expertise',
+      expertiseSubtitle: 'Domains where I transform complex requirements into concrete solutions.',
+      service1Title: 'Model-Based Systems Engineering',
+      service1Desc: 'Systems modeling with SysML v2 - requirements, architecture, behavior and integrated traceability from concept to verification.',
+      service2Title: 'Space Systems Software',
+      service2Desc: 'Development of tools and parsers in C++ and Python aligned with ECSS standards and the Packet Utilization Standard (PUS).',
+      service3Title: 'DevOps & Automation',
+      service3Desc: 'Containerized environments with Docker, CI/CD pipelines, and continuous integration for engineering and space software projects.',
+      tagTechStack: 'Tech Stack',
+      techTitle: 'Technologies & Tools',
+      techSubtitle: 'The tools I use daily to build and model.',
+      tagPortfolio: 'Portfolio',
+      featuredTitle: 'Featured Projects',
+      featuredSubtitle: 'Some of my recent work.',
+      btnViewAll: 'View All Projects',
+      ctaTitle: "Let's Work Together?",
+      ctaSubtitle: 'Have an interesting project or want to discuss MBSE and space systems? Get in touch.',
+      btnSendMessage: 'Send Message',
+      btnCallMe: 'Call Me'
+    },
+    about: {
+      headerTitle: 'About Me',
+      headerSubtitle: 'Journey, skills and education.',
+      bioRole: 'MBSE & Software Engineer',
+      btnDownloadCv: 'Download CV',
+      bioP1: "I'm an engineer focused on <strong>Model-Based Systems Engineering (MBSE)</strong> and software development for <strong>space systems</strong>. I work with <strong>SysML v2</strong>, <strong>ECSS</strong> standards and the <strong>Packet Utilization Standard (PUS)</strong>, applying modeling and code to translate complex requirements into clear and verifiable architectures.",
+      bioP2: 'My journey combines systems engineering with practical development - from requirements modeling and activities in SysML v2, to tool deployment with Docker and pipeline automation. I believe the bridge between the model and code is where the greatest value is generated in complex engineering projects.',
+      bioP3: 'In my spare time, I explore new open-source tools, contribute to projects on GitHub and study the evolution of systems engineering standards in the European context (ESA/ECSS).',
+      experienceTitle: 'Experience',
+      educationTitle: 'Education',
+      exp1Title: 'MBSE & Software Engineer',
+      exp1Org: 'Placeholder Company, Lda.',
+      exp1Desc: 'Systems modeling with SysML v2, development of internal tools in Python/C++ and integration with ECSS standards for European space missions.',
+      exp2Title: 'Systems Engineering Internship',
+      exp2Org: 'Placeholder Lab',
+      exp2Desc: 'Support for requirements modeling according to ECSS-E-TM-10-25; experimentation with CDP4-COMET and SysON.',
+      edu1Title: "Integrated Master's in Computer Engineering",
+      edu1Org: 'University of Coimbra',
+      edu1Desc: 'Specialization in software and systems engineering. Dissertation on SysML v2 application in space systems engineering.',
+      edu2Title: 'Secondary Education - Science and Technology',
+      edu2Org: 'Placeholder Secondary School, Coimbra',
+      edu2Desc: 'Completion with high average in Mathematics and Physics.',
+      skillsTitle: 'Skills',
+      skillsSubtitle: 'Organized by domain and area of knowledge.',
+      domains: 'Domains',
+      technologies: 'Technologies',
+      tools: 'Tools'
+    },
+    projects: {
+      headerTitle: 'Projects',
+      headerSubtitle: 'Explore all projects by area or search by keyword.',
+      searchPlaceholder: 'Search projects...',
+      searchAria: 'Search projects by title or description',
+      loading: 'Loading...',
+      all: 'All',
+      foundSuffix: 'found',
+      foundSingular: 'project',
+      foundPlural: 'projects',
+      noResults: 'No results found.',
+      loadError: 'Error loading projects.'
+    },
+    contact: {
+      headerTitle: 'Contact',
+      headerSubtitle: 'Have a question or proposal? Send me a message.',
+      formTitle: 'Send Message',
+      formSubtitle: "Fill out the form below and I'll get back to you shortly.",
+      labelName: 'Name',
+      labelEmail: 'Email',
+      labelSubject: 'Subject',
+      labelMessage: 'Message',
+      placeholderName: 'Your name',
+      placeholderEmail: 'name@example.com',
+      placeholderSubject: 'Email subject',
+      placeholderMessage: 'Your message...',
+      errorName: 'Please enter your name (min. 2 characters).',
+      errorEmail: 'Please enter a valid email address.',
+      errorSubject: 'Please enter a subject (min. 3 characters).',
+      errorMessage: 'Please write a message (min. 10 characters).',
+      submit: 'Send Message',
+      success: "Message sent successfully! I'll get back to you shortly.",
+      error: 'An error occurred sending the message.',
+      infoTitle: 'Contact Information',
+      infoSubtitle: 'You can also reach me directly.',
+      phone: 'Phone',
+      linkedin: 'LinkedIn',
+      github: 'GitHub',
+      locationLabel: 'Location'
+    }
+  },
+  pt: {
+    nav: {
+      home: 'Inicio',
+      projects: 'Projetos',
+      about: 'Sobre Mim',
+      contact: 'Contacto',
+      login: 'Entrar',
+      logout: 'Sair',
+      portfolio: 'Portfolio',
+      dashboard: 'Painel'
+    },
+    pages: {
+      loginTitle: 'Entrar',
+      loginSubtitle: 'Inicia sessao para continuar.',
+      accessTitle: 'Acesso',
+      accessSubtitle: 'Usa as tuas credenciais para entrar.',
+      portfolioTitle: 'Portfolio',
+      portfolioSubtitle: 'Galeria exclusiva visivel apos login.',
+      sliderTitle: 'Slider de Imagens',
+      sliderSubtitle: '10 fotos e visuais de projetos num carrossel privado.',
+      dashboardTitle: 'Painel',
+      dashboardSubtitle: 'Analiticas privadas e detalhes da sessao.',
+      quickActions: 'Acoes Rapidas',
+      analyticsSummary: 'Resumo de Analiticas',
+      recentEvents: 'Eventos Recentes'
+    },
+    labels: {
+      email: 'Email',
+      password: 'Password',
+      loginSuccess: 'Login com sucesso. A redirecionar...',
+      loginInvalid: 'Credenciais invalidas.',
+      lastLogin: 'Ultimo Login',
+      dashboardVisits: 'Visitas ao Painel',
+      portfolioVisits: 'Visitas ao Portfolio',
+      cvClicks: 'Cliques no CV',
+      formSubmits: 'Envios do Formulario',
+      githubClicks: 'Cliques no GitHub',
+      linkedinClicks: 'Cliques no LinkedIn',
+      loginEvents: 'Logins',
+      siteEntries: 'Entradas no Site',
+      ip: 'IP',
+      noEvents: 'Ainda nao existem eventos.',
+      editProfile: 'Editar Perfil',
+      managePortfolio: 'Gerir Portfolio',
+      openContact: 'Abrir Pagina de Contacto'
+    },
+    common: {
+      skipToContent: 'Saltar para o conteudo principal',
+      switchToPortuguese: 'Mudar para Portugues',
+      switchToEnglish: 'Mudar para Ingles',
+      footerNavigation: 'Navegacao',
+      footerTechnologies: 'Tecnologias',
+      footerContact: 'Contacto',
+      footerDesc: 'Engenheiro focado em MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais. A construir a ponte entre modelos e codigo.',
+      footerMadeWith: 'Feito com HTML5, CSS3 e JavaScript',
+      location: 'Coimbra, Portugal',
+      tech1: 'SysML v2',
+      tech2: 'ECSS / PUS',
+      tech3: 'Python e C++',
+      tech4: 'Docker e DevOps'
+    },
+    home: {
+      heroHi: 'Ola, eu sou',
+      heroBioHtml: 'Engenheiro focado em <strong>MBSE/SysML v2</strong>, <strong>ECSS/PUS</strong> e software para sistemas espaciais. Desenvolvo modelos, ferramentas e solucoes que ligam engenharia de sistemas e codigo.',
+      btnViewProjects: 'Ver Projetos',
+      btnGetInTouch: 'Entrar em Contacto',
+      scroll: 'descer',
+      roles: ['Engenheiro MBSE', 'Especialista SysML v2', 'Programador de Software', 'Entusiasta de Sistemas Espaciais'],
+      statProjects: 'Projetos',
+      statTechnologies: 'Tecnologias',
+      statYears: 'Anos de Experiencia',
+      statDedication: 'Dedicacao',
+      tagWhatIDo: 'O Que Faco',
+      expertiseTitle: 'Areas de Especializacao',
+      expertiseSubtitle: 'Dominios onde transformo requisitos complexos em solucoes concretas.',
+      service1Title: 'Engenharia de Sistemas Baseada em Modelos',
+      service1Desc: 'Modelacao de sistemas com SysML v2 - requisitos, arquitetura, comportamento e rastreabilidade integrada do conceito a verificacao.',
+      service2Title: 'Software para Sistemas Espaciais',
+      service2Desc: 'Desenvolvimento de ferramentas e parsers em C++ e Python alinhados com normas ECSS e o Packet Utilization Standard (PUS).',
+      service3Title: 'DevOps e Automacao',
+      service3Desc: 'Ambientes contentorizados com Docker, pipelines CI/CD e integracao continua para projetos de engenharia e software espacial.',
+      tagTechStack: 'Stack Tecnologica',
+      techTitle: 'Tecnologias e Ferramentas',
+      techSubtitle: 'Ferramentas que uso diariamente para modelar e desenvolver.',
+      tagPortfolio: 'Portfolio',
+      featuredTitle: 'Projetos em Destaque',
+      featuredSubtitle: 'Alguns dos meus trabalhos recentes.',
+      btnViewAll: 'Ver Todos os Projetos',
+      ctaTitle: 'Vamos Trabalhar Juntos?',
+      ctaSubtitle: 'Tens um projeto interessante ou queres falar sobre MBSE e sistemas espaciais? Fala comigo.',
+      btnSendMessage: 'Enviar Mensagem',
+      btnCallMe: 'Ligar'
+    },
+    about: {
+      headerTitle: 'Sobre Mim',
+      headerSubtitle: 'Percurso, competencias e formacao.',
+      bioRole: 'Engenheiro de MBSE e Software',
+      btnDownloadCv: 'Descarregar CV',
+      bioP1: 'Sou engenheiro focado em <strong>Engenharia de Sistemas Baseada em Modelos (MBSE)</strong> e desenvolvimento de software para <strong>sistemas espaciais</strong>. Trabalho com <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o <strong>Packet Utilization Standard (PUS)</strong>, aplicando modelacao e codigo para transformar requisitos complexos em arquiteturas claras e verificaveis.',
+      bioP2: 'O meu percurso combina engenharia de sistemas com desenvolvimento pratico - desde modelacao de requisitos e atividades em SysML v2, ate deploy de ferramentas com Docker e automacao de pipelines. Acredito que a ponte entre modelo e codigo e onde se gera mais valor em projetos de engenharia complexos.',
+      bioP3: 'Nos tempos livres, exploro novas ferramentas open-source, contribuo para projetos no GitHub e estudo a evolucao das normas de engenharia de sistemas no contexto europeu (ESA/ECSS).',
+      experienceTitle: 'Experiencia',
+      educationTitle: 'Formacao',
+      exp1Title: 'Engenheiro de MBSE e Software',
+      exp1Org: 'Empresa Placeholder, Lda.',
+      exp1Desc: 'Modelacao de sistemas com SysML v2, desenvolvimento de ferramentas internas em Python/C++ e integracao com normas ECSS para missoes espaciais europeias.',
+      exp2Title: 'Estagio em Engenharia de Sistemas',
+      exp2Org: 'Laboratorio Placeholder',
+      exp2Desc: 'Apoio a modelacao de requisitos segundo ECSS-E-TM-10-25; experimentacao com CDP4-COMET e SysON.',
+      edu1Title: 'Mestrado Integrado em Engenharia Informatica',
+      edu1Org: 'Universidade de Coimbra',
+      edu1Desc: 'Especializacao em engenharia de software e sistemas. Dissertacao sobre aplicacao de SysML v2 em engenharia de sistemas espaciais.',
+      edu2Title: 'Ensino Secundario - Ciencias e Tecnologias',
+      edu2Org: 'Escola Secundaria Placeholder, Coimbra',
+      edu2Desc: 'Conclusao com media elevada em Matematica e Fisica.',
+      skillsTitle: 'Competencias',
+      skillsSubtitle: 'Organizadas por dominio e area de conhecimento.',
+      domains: 'Dominios',
+      technologies: 'Tecnologias',
+      tools: 'Ferramentas'
+    },
+    projects: {
+      headerTitle: 'Projetos',
+      headerSubtitle: 'Explora todos os projetos por area ou pesquisa por palavra-chave.',
+      searchPlaceholder: 'Pesquisar projetos...',
+      searchAria: 'Pesquisar projetos por titulo ou descricao',
+      loading: 'A carregar...',
+      all: 'Todos',
+      foundSuffix: 'encontrados',
+      foundSingular: 'projeto',
+      foundPlural: 'projetos',
+      noResults: 'Sem resultados.',
+      loadError: 'Erro ao carregar projetos.'
+    },
+    contact: {
+      headerTitle: 'Contacto',
+      headerSubtitle: 'Tens uma questao ou proposta? Envia-me uma mensagem.',
+      formTitle: 'Enviar Mensagem',
+      formSubtitle: 'Preenche o formulario abaixo e entrarei em contacto contigo em breve.',
+      labelName: 'Nome',
+      labelEmail: 'Email',
+      labelSubject: 'Assunto',
+      labelMessage: 'Mensagem',
+      placeholderName: 'O teu nome',
+      placeholderEmail: 'nome@exemplo.com',
+      placeholderSubject: 'Assunto do email',
+      placeholderMessage: 'A tua mensagem...',
+      errorName: 'Por favor indica o teu nome (min. 2 caracteres).',
+      errorEmail: 'Por favor indica um email valido.',
+      errorSubject: 'Por favor indica um assunto (min. 3 caracteres).',
+      errorMessage: 'Por favor escreve uma mensagem (min. 10 caracteres).',
+      submit: 'Enviar Mensagem',
+      success: 'Mensagem enviada com sucesso! Responderei em breve.',
+      error: 'Ocorreu um erro ao enviar a mensagem.',
+      infoTitle: 'Informacao de Contacto',
+      infoSubtitle: 'Tambem podes contactar-me diretamente.',
+      phone: 'Telefone',
+      linkedin: 'LinkedIn',
+      github: 'GitHub',
+      locationLabel: 'Localizacao'
+    }
+  }
+};
+
+function getCurrentLanguage() {
+  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return saved === 'pt' ? 'pt' : 'en';
+}
+
+function i18nValue(path) {
+  const lang = getCurrentLanguage();
+  const parts = path.split('.');
+  let ref = I18N[lang];
+  for (const part of parts) {
+    if (!ref || typeof ref !== 'object') return undefined;
+    ref = ref[part];
+  }
+  return ref;
+}
+
+function t(path) {
+  const ref = i18nValue(path);
+  return typeof ref === 'string' ? ref : path;
+}
+
+function initLanguageToggle() {
+  const actions = document.querySelector('.navbar-actions');
+  if (!actions) return;
+
+  let langBtn = document.getElementById('lang-toggle');
+  if (!langBtn) {
+    langBtn = document.createElement('button');
+    langBtn.id = 'lang-toggle';
+    langBtn.type = 'button';
+    langBtn.className = 'btn-lang-toggle';
+    actions.insertBefore(langBtn, actions.firstChild);
+  }
+
+  const syncLabel = () => {
+    const lang = getCurrentLanguage();
+    langBtn.textContent = lang === 'en' ? 'PT' : 'EN';
+    langBtn.setAttribute('aria-label', lang === 'en' ? t('common.switchToPortuguese') : t('common.switchToEnglish'));
+  };
+
+  langBtn.addEventListener('click', () => {
+    const next = getCurrentLanguage() === 'en' ? 'pt' : 'en';
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    applyTranslations();
+    syncLabel();
+  });
+
+  applyTranslations();
+  syncLabel();
+}
+
+function applyTranslations() {
+  const setText = (selector, key) => {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = t(key);
+  };
+
+  const setHtml = (selector, key) => {
+    const el = document.querySelector(selector);
+    if (el) el.innerHTML = i18nValue(key) || t(key);
+  };
+
+  const setAttr = (selector, attr, key) => {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, t(key));
+  };
+
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+  const navMap = [
+    ['index.html', 'nav.home'],
+    ['projects.html', 'nav.projects'],
+    ['about.html', 'nav.about'],
+    ['contact.html', 'nav.contact']
+  ];
+
+  navMap.forEach(([href, key]) => {
+    document.querySelectorAll(`a.nav-link[href="${href}"]`).forEach(link => {
+      link.textContent = t(key);
+    });
+  });
+
+  document.querySelectorAll('a.nav-link[href="login.html"]').forEach(link => {
+    link.textContent = t('nav.login');
+  });
+
+  document.querySelectorAll('a[data-auth-link="logout"]').forEach(link => {
+    link.textContent = t('nav.logout');
+  });
+
+  document.querySelectorAll('a[href="portfolio.html"]').forEach(link => {
+    if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
+      link.textContent = t('nav.portfolio');
+    }
+  });
+
+  document.querySelectorAll('a[href="dashboard.html"]').forEach(link => {
+    if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
+      link.textContent = t('nav.dashboard');
+    }
+  });
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+  });
+
+  setText('.skip-link', 'common.skipToContent');
+
+  const footerCols = document.querySelectorAll('.footer-top > div');
+  if (footerCols.length >= 4) {
+        const navLinks = footerCols[1].querySelectorAll('.footer-links a');
+        navLinks.forEach(link => {
+          const href = (link.getAttribute('href') || '').toLowerCase();
+          if (href === 'index.html') link.textContent = t('nav.home');
+          if (href === 'projects.html') link.textContent = t('nav.projects');
+          if (href === 'about.html') link.textContent = t('nav.about');
+          if (href === 'contact.html') link.textContent = t('nav.contact');
+          if (href === 'portfolio.html') link.textContent = t('nav.portfolio');
+          if (href === 'dashboard.html') link.textContent = t('nav.dashboard');
+        });
+
+    const heading1 = footerCols[1].querySelector('.footer-heading');
+    const heading2 = footerCols[2].querySelector('.footer-heading');
+    const heading3 = footerCols[3].querySelector('.footer-heading');
+    if (heading1) heading1.textContent = t('common.footerNavigation');
+    if (heading2) heading2.textContent = t('common.footerTechnologies');
+    if (heading3) heading3.textContent = t('common.footerContact');
+
+    const techLinks = footerCols[2].querySelectorAll('.footer-links a');
+    if (techLinks[0]) techLinks[0].textContent = t('common.tech1');
+    if (techLinks[1]) techLinks[1].textContent = t('common.tech2');
+    if (techLinks[2]) techLinks[2].textContent = t('common.tech3');
+    if (techLinks[3]) techLinks[3].textContent = t('common.tech4');
+
+    const location = footerCols[3].querySelector('.footer-contact-item span');
+    if (location) location.textContent = t('common.location');
+  }
+
+  setText('.footer-desc', 'common.footerDesc');
+  const footerTech = document.querySelector('.footer-tech');
+  if (footerTech) {
+    if (footerTech.querySelector('.fa-heart')) {
+      footerTech.innerHTML = getCurrentLanguage() === 'pt'
+        ? 'Feito com <i class="fa-solid fa-heart" aria-hidden="true"></i> HTML5, CSS3 e JavaScript'
+        : 'Made with <i class="fa-solid fa-heart" aria-hidden="true"></i> using HTML5, CSS3 &amp; JavaScript';
+    } else {
+      footerTech.textContent = t('common.footerMadeWith');
+    }
+  }
+
+  if (currentPage === 'index.html' || currentPage === '') {
+    const heroSubtitle = document.querySelector('.hero-subtitle');
+    if (heroSubtitle) {
+      heroSubtitle.innerHTML = `<span class="wave-emoji">👋</span> ${t('home.heroHi')}`;
+    }
+    setHtml('.hero-bio', 'home.heroBioHtml');
+
+    const viewProjectsBtn = document.querySelector('.hero-buttons a[href="projects.html"]');
+    if (viewProjectsBtn) viewProjectsBtn.innerHTML = `<i class="fa-solid fa-rocket" aria-hidden="true"></i> ${t('home.btnViewProjects')}`;
+    const contactBtn = document.querySelector('.hero-buttons a[href="contact.html"]');
+    if (contactBtn) contactBtn.innerHTML = `<i class="fa-solid fa-envelope" aria-hidden="true"></i> ${t('home.btnGetInTouch')}`;
+    setText('.scroll-indicator span', 'home.scroll');
+
+    const statLabels = document.querySelectorAll('.stat-label');
+    if (statLabels[0]) statLabels[0].textContent = t('home.statProjects');
+    if (statLabels[1]) statLabels[1].textContent = t('home.statTechnologies');
+    if (statLabels[2]) statLabels[2].textContent = t('home.statYears');
+    if (statLabels[3]) statLabels[3].textContent = t('home.statDedication');
+
+    setText('.section[aria-labelledby="services-heading"] .section-tag', 'home.tagWhatIDo');
+    setText('#services-heading', 'home.expertiseTitle');
+    setText('.section[aria-labelledby="services-heading"] .section-subtitle', 'home.expertiseSubtitle');
+
+    const serviceCards = document.querySelectorAll('.services-grid .service-card');
+    if (serviceCards[0]) {
+      const h3 = serviceCards[0].querySelector('h3');
+      const p = serviceCards[0].querySelector('p');
+      if (h3) h3.textContent = t('home.service1Title');
+      if (p) p.textContent = t('home.service1Desc');
+    }
+    if (serviceCards[1]) {
+      const h3 = serviceCards[1].querySelector('h3');
+      const p = serviceCards[1].querySelector('p');
+      if (h3) h3.textContent = t('home.service2Title');
+      if (p) p.textContent = t('home.service2Desc');
+    }
+    if (serviceCards[2]) {
+      const h3 = serviceCards[2].querySelector('h3');
+      const p = serviceCards[2].querySelector('p');
+      if (h3) h3.textContent = t('home.service3Title');
+      if (p) p.textContent = t('home.service3Desc');
+    }
+
+    setText('.section[aria-labelledby="tech-heading"] .section-tag', 'home.tagTechStack');
+    setText('#tech-heading', 'home.techTitle');
+    setText('.section[aria-labelledby="tech-heading"] .section-subtitle', 'home.techSubtitle');
+
+    setText('.section[aria-labelledby="featured-heading"] .section-tag', 'home.tagPortfolio');
+    setText('#featured-heading', 'home.featuredTitle');
+    setText('.section[aria-labelledby="featured-heading"] .section-subtitle', 'home.featuredSubtitle');
+    const viewAllBtn = document.querySelector('.section-cta a[href="projects.html"]');
+    if (viewAllBtn) viewAllBtn.innerHTML = `${t('home.btnViewAll')} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>`;
+
+    setText('.cta-banner h2', 'home.ctaTitle');
+    setText('.cta-banner p', 'home.ctaSubtitle');
+    const sendBtn = document.querySelector('.cta-banner a[href="contact.html"]');
+    if (sendBtn) sendBtn.innerHTML = `<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> ${t('home.btnSendMessage')}`;
+    const callBtn = document.querySelector('.cta-banner a[href^="tel:"]');
+    if (callBtn) callBtn.innerHTML = `<i class="fa-solid fa-phone" aria-hidden="true"></i> ${t('home.btnCallMe')}`;
+  }
+
+  if (currentPage === 'about.html') {
+    setText('.page-header h1', 'about.headerTitle');
+    setText('.page-header p', 'about.headerSubtitle');
+    setText('.bio-role', 'about.bioRole');
+    const bioLocation = document.querySelector('.bio-location');
+    if (bioLocation) bioLocation.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${t('common.location')}`;
+    const cvBtn = document.querySelector('.bio-sidebar .btn.btn-primary');
+    if (cvBtn) cvBtn.innerHTML = `<i class="fa-solid fa-download" aria-hidden="true"></i> ${t('about.btnDownloadCv')}`;
+
+    const bioParagraphs = document.querySelectorAll('.bio-content p');
+    if (bioParagraphs[0]) bioParagraphs[0].innerHTML = i18nValue('about.bioP1');
+    if (bioParagraphs[1]) bioParagraphs[1].innerHTML = i18nValue('about.bioP2');
+    if (bioParagraphs[2]) bioParagraphs[2].innerHTML = i18nValue('about.bioP3');
+
+    const sectionTitles = document.querySelectorAll('.two-col .section-title');
+    if (sectionTitles[0]) sectionTitles[0].innerHTML = `<i class="fa-solid fa-briefcase icon-accent" aria-hidden="true"></i> ${t('about.experienceTitle')}`;
+    if (sectionTitles[1]) sectionTitles[1].innerHTML = `<i class="fa-solid fa-graduation-cap icon-accent" aria-hidden="true"></i> ${t('about.educationTitle')}`;
+
+    const timelines = document.querySelectorAll('.timeline');
+    if (timelines[0]) {
+      const items = timelines[0].querySelectorAll('.timeline-item');
+      if (items[0]) {
+        const t1 = items[0].querySelector('.timeline-title');
+        const o1 = items[0].querySelector('.timeline-org');
+        const d1 = items[0].querySelector('.timeline-desc');
+        if (t1) t1.textContent = t('about.exp1Title');
+        if (o1) o1.textContent = t('about.exp1Org');
+        if (d1) d1.textContent = t('about.exp1Desc');
+      }
+      if (items[1]) {
+        const t2 = items[1].querySelector('.timeline-title');
+        const o2 = items[1].querySelector('.timeline-org');
+        const d2 = items[1].querySelector('.timeline-desc');
+        if (t2) t2.textContent = t('about.exp2Title');
+        if (o2) o2.textContent = t('about.exp2Org');
+        if (d2) d2.textContent = t('about.exp2Desc');
+      }
+    }
+    if (timelines[1]) {
+      const items = timelines[1].querySelectorAll('.timeline-item');
+      if (items[0]) {
+        const t1 = items[0].querySelector('.timeline-title');
+        const o1 = items[0].querySelector('.timeline-org');
+        const d1 = items[0].querySelector('.timeline-desc');
+        if (t1) t1.textContent = t('about.edu1Title');
+        if (o1) o1.textContent = t('about.edu1Org');
+        if (d1) d1.textContent = t('about.edu1Desc');
+      }
+      if (items[1]) {
+        const t2 = items[1].querySelector('.timeline-title');
+        const o2 = items[1].querySelector('.timeline-org');
+        const d2 = items[1].querySelector('.timeline-desc');
+        if (t2) t2.textContent = t('about.edu2Title');
+        if (o2) o2.textContent = t('about.edu2Org');
+        if (d2) d2.textContent = t('about.edu2Desc');
+      }
+    }
+
+    setText('#skills-heading', 'about.skillsTitle');
+    setText('#skills-heading + .section-subtitle', 'about.skillsSubtitle');
+    const skillTitles = document.querySelectorAll('.skill-group-title');
+    if (skillTitles[0]) skillTitles[0].innerHTML = `<i class="fa-solid fa-satellite icon-accent" aria-hidden="true"></i> ${t('about.domains')}`;
+    if (skillTitles[1]) skillTitles[1].innerHTML = `<i class="fa-solid fa-code icon-accent" aria-hidden="true"></i> ${t('about.technologies')}`;
+    if (skillTitles[2]) skillTitles[2].innerHTML = `<i class="fa-solid fa-wrench icon-accent" aria-hidden="true"></i> ${t('about.tools')}`;
+  }
+
+  if (currentPage === 'projects.html') {
+    setText('.page-header h1', 'projects.headerTitle');
+    setText('.page-header p', 'projects.headerSubtitle');
+    setAttr('#project-search', 'placeholder', 'projects.searchPlaceholder');
+    setAttr('#project-search', 'aria-label', 'projects.searchAria');
+    setText('#results-count', 'projects.loading');
+  }
+
+  if (currentPage === 'contact.html') {
+    setText('.page-header h1', 'contact.headerTitle');
+    setText('.page-header p', 'contact.headerSubtitle');
+    setText('.contact-grid .reveal-left .section-title', 'contact.formTitle');
+    setText('.contact-grid .reveal-left .section-subtitle', 'contact.formSubtitle');
+
+    const setLabel = (forId, key) => {
+      const label = document.querySelector(`label[for="${forId}"]`);
+      if (!label) return;
+      const star = label.querySelector('span[aria-hidden="true"]');
+      label.textContent = `${t(key)} `;
+      if (star) label.appendChild(star);
+    };
+
+    setLabel('contact-name', 'contact.labelName');
+    setLabel('contact-email', 'contact.labelEmail');
+    setLabel('contact-subject', 'contact.labelSubject');
+    setLabel('contact-message', 'contact.labelMessage');
+
+    setAttr('#contact-name', 'placeholder', 'contact.placeholderName');
+    setAttr('#contact-email', 'placeholder', 'contact.placeholderEmail');
+    setAttr('#contact-subject', 'placeholder', 'contact.placeholderSubject');
+    setAttr('#contact-message', 'placeholder', 'contact.placeholderMessage');
+
+    const formErrors = document.querySelectorAll('.contact-form .form-error');
+    if (formErrors[0]) formErrors[0].textContent = t('contact.errorName');
+    if (formErrors[1]) formErrors[1].textContent = t('contact.errorEmail');
+    if (formErrors[2]) formErrors[2].textContent = t('contact.errorSubject');
+    if (formErrors[3]) formErrors[3].textContent = t('contact.errorMessage');
+
+    const submitBtn = document.querySelector('#contact-form button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> ${t('contact.submit')}`;
+
+    const successAlert = document.getElementById('form-alert-success');
+    if (successAlert) successAlert.innerHTML = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> ${t('contact.success')}`;
+    const errorAlert = document.getElementById('form-alert-error');
+    if (errorAlert) errorAlert.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> ${t('contact.error')}`;
+
+    setText('.contact-grid .reveal-right .section-title', 'contact.infoTitle');
+    setText('.contact-grid .reveal-right .section-subtitle', 'contact.infoSubtitle');
+
+    const infoLabels = document.querySelectorAll('.contact-info-label');
+    if (infoLabels[0]) infoLabels[0].textContent = t('contact.phone');
+    if (infoLabels[1]) infoLabels[1].textContent = t('contact.labelEmail');
+    if (infoLabels[2]) infoLabels[2].textContent = t('contact.linkedin');
+    if (infoLabels[3]) infoLabels[3].textContent = t('contact.github');
+    if (infoLabels[4]) infoLabels[4].textContent = t('contact.locationLabel');
+  }
+
+  document.documentElement.lang = getCurrentLanguage() === 'pt' ? 'pt' : 'en';
+}
 
 /* ---- Auth Navigation ---- */
 function initAuthNavigation() {
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const pathname = window.location.pathname.toLowerCase();
+  const currentPage = pathname.split('/').pop() || 'index.html';
   const loggedIn = isAuthenticated();
 
-  if (currentPage === 'portfolio.html' && !loggedIn) {
+  const isPortfolioRoute = currentPage === 'portfolio.html' || currentPage === 'portfolio';
+  const isDashboardRoute = currentPage === 'dashboard.html' || currentPage === 'dashboard';
+  if ((isPortfolioRoute || isDashboardRoute) && !loggedIn) {
     window.location.href = 'login.html';
     return;
   }
@@ -49,8 +728,9 @@ function initAuthNavigation() {
 
   if (loggedIn) {
     ensurePortfolioMenuItem(navLinksContainer, loginListItem);
+    ensureDashboardMenuItem(navLinksContainer, loginListItem);
     scheduleAutoLogout();
-    loginLink.textContent = 'Logout';
+    loginLink.textContent = t('nav.logout');
     loginLink.setAttribute('href', '#');
     loginLink.setAttribute('data-auth-link', 'logout');
     loginLink.classList.add('nav-link-auth');
@@ -58,7 +738,8 @@ function initAuthNavigation() {
     loginLink.removeAttribute('aria-current');
   } else {
     removePortfolioMenuItem(navLinksContainer);
-    loginLink.textContent = 'Login';
+    removeDashboardMenuItem(navLinksContainer);
+    loginLink.textContent = t('nav.login');
     loginLink.setAttribute('href', 'login.html');
     loginLink.removeAttribute('data-auth-link');
     loginLink.classList.add('nav-link-auth');
@@ -68,6 +749,7 @@ function initAuthNavigation() {
     const logoutLink = e.target.closest('a[data-auth-link="logout"]');
     if (!logoutLink) return;
     e.preventDefault();
+    trackEvent('logout_click');
     localStorage.removeItem(AUTH_STORAGE_KEY);
     window.location.href = 'login.html';
   });
@@ -81,15 +763,34 @@ function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
     const link = document.createElement('a');
     link.href = 'portfolio.html';
     link.className = 'nav-link';
-    link.textContent = 'Portfolio';
+    link.textContent = t('nav.portfolio');
     portfolioItem.appendChild(link);
     navLinksContainer.insertBefore(portfolioItem, loginListItem);
+  }
+}
+
+function ensureDashboardMenuItem(navLinksContainer, loginListItem) {
+  let dashboardItem = navLinksContainer.querySelector('li[data-auth-item="dashboard"]');
+  if (!dashboardItem) {
+    dashboardItem = document.createElement('li');
+    dashboardItem.setAttribute('data-auth-item', 'dashboard');
+    const link = document.createElement('a');
+    link.href = 'dashboard.html';
+    link.className = 'nav-link';
+    link.textContent = t('nav.dashboard');
+    dashboardItem.appendChild(link);
+    navLinksContainer.insertBefore(dashboardItem, loginListItem);
   }
 }
 
 function removePortfolioMenuItem(navLinksContainer) {
   const portfolioItem = navLinksContainer.querySelector('li[data-auth-item="portfolio"]');
   if (portfolioItem) portfolioItem.remove();
+}
+
+function removeDashboardMenuItem(navLinksContainer) {
+  const dashboardItem = navLinksContainer.querySelector('li[data-auth-item="dashboard"]');
+  if (dashboardItem) dashboardItem.remove();
 }
 
 function isAuthenticated() {
@@ -135,6 +836,115 @@ function scheduleAutoLogout() {
   } catch (_) {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   }
+}
+
+function getAnalyticsData() {
+  try {
+    const raw = localStorage.getItem(ANALYTICS_STORAGE_KEY);
+    if (!raw) {
+      return {
+        counts: {
+          site_entry: 0,
+          cv_click: 0,
+          form_submit: 0,
+          github_click: 0,
+          linkedin_click: 0,
+          login_success: 0,
+          dashboard_visit: 0,
+          portfolio_visit: 0
+        },
+        events: []
+      };
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed.counts || !parsed.events) throw new Error('Invalid analytics data');
+    return parsed;
+  } catch (_) {
+    return {
+      counts: {
+        site_entry: 0,
+        cv_click: 0,
+        form_submit: 0,
+        github_click: 0,
+        linkedin_click: 0,
+        login_success: 0,
+        dashboard_visit: 0,
+        portfolio_visit: 0
+      },
+      events: []
+    };
+  }
+}
+
+function saveAnalyticsData(data) {
+  localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(data));
+}
+
+async function getClientIp() {
+  if (clientIpPromise) return clientIpPromise;
+
+  clientIpPromise = (async () => {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      const response = await fetch('https://api64.ipify.org?format=json', {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!response.ok) return 'unknown';
+      const payload = await response.json();
+      return (payload && typeof payload.ip === 'string' && payload.ip.trim()) ? payload.ip.trim() : 'unknown';
+    } catch (_) {
+      return 'unknown';
+    }
+  })();
+
+  return clientIpPromise;
+}
+
+function trackEvent(name, details) {
+  analyticsWriteQueue = analyticsWriteQueue.then(async () => {
+    const data = getAnalyticsData();
+    if (!Object.prototype.hasOwnProperty.call(data.counts, name)) {
+      data.counts[name] = 0;
+    }
+    data.counts[name] += 1;
+    const ip = await getClientIp();
+    data.events.unshift({
+      name,
+      details: details || '',
+      ip,
+      at: new Date().toISOString()
+    });
+    data.events = data.events.slice(0, 40);
+    saveAnalyticsData(data);
+  }).catch(() => {
+    // ignore analytics queue failures
+  });
+
+  return analyticsWriteQueue;
+}
+
+function initAnalyticsTracking() {
+  trackEvent('site_entry');
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPage === 'dashboard.html' || currentPage === 'dashboard') {
+    trackEvent('dashboard_visit');
+  }
+  if (currentPage === 'portfolio.html' || currentPage === 'portfolio') {
+    trackEvent('portfolio_visit');
+  }
+
+  document.addEventListener('click', e => {
+    const anchor = e.target.closest('a[href]');
+    if (!anchor) return;
+    const href = (anchor.getAttribute('href') || '').toLowerCase();
+    if (href.includes('lastcven.pdf')) trackEvent('cv_click');
+    if (href.includes('github.com')) trackEvent('github_click');
+    if (href.includes('linkedin.com')) trackEvent('linkedin_click');
+  });
 }
 
 /* ---- Page Loader ---- */
@@ -306,7 +1116,7 @@ function initParticles() {
 function initTypingEffect() {
   const el = document.getElementById('typed-role');
   if (!el) return;
-  const roles = ['MBSE Engineer', 'SysML v2 Specialist', 'Software Developer', 'Space Systems Enthusiast'];
+  const roles = i18nValue('home.roles') || ['MBSE Engineer', 'SysML v2 Specialist', 'Software Developer', 'Space Systems Enthusiast'];
   let roleIdx = 0, charIdx = 0, deleting = false, pause = 0;
 
   function type() {
@@ -387,7 +1197,7 @@ function initProjectsPage() {
       updateCount(data.length, resultsCount);
     })
     .catch(() => {
-      grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>Error loading projects.</p></div>';
+      grid.innerHTML = `<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>${esc(t('projects.loadError'))}</p></div>`;
     });
 
   if (searchInput) searchInput.addEventListener('input', () => applyFilters(allProjectsData, activeTag, searchInput.value, grid, resultsCount));
@@ -417,7 +1227,7 @@ function renderFilters(projects, container) {
   if (!container) return;
   const tags = new Set();
   projects.forEach(p => p.tags.forEach(t => tags.add(t)));
-  let html = '<button class="filter-tag active" data-tag="All">All</button>';
+  let html = `<button class="filter-tag active" data-tag="All">${esc(t('projects.all'))}</button>`;
   Array.from(tags).sort().forEach(tag => { html += `<button class="filter-tag" data-tag="${esc(tag)}">${esc(tag)}</button>`; });
   container.innerHTML = html;
 }
@@ -435,7 +1245,7 @@ function applyFilters(projects, tag, query, grid, countEl) {
 
 function renderProjects(projects, grid) {
   if (!projects.length) {
-    grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><p>No results found.</p></div>';
+    grid.innerHTML = `<div class="no-results"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><p>${esc(t('projects.noResults'))}</p></div>`;
     return;
   }
   grid.innerHTML = projects.map(p => `
@@ -472,7 +1282,8 @@ function renderProjects(projects, grid) {
 
 function updateCount(count, el) {
   if (!el) return;
-  el.textContent = `${count} project${count !== 1 ? 's' : ''} found${count !== 1 ? '' : ''}`;
+  const unit = count === 1 ? t('projects.foundSingular') : t('projects.foundPlural');
+  el.textContent = `${count} ${unit} ${t('projects.foundSuffix')}`;
 }
 
 /* ---- Project Modal ---- */
@@ -546,6 +1357,8 @@ function initContactForm() {
       return;
     }
 
+    trackEvent('form_submit');
+
     const action = form.getAttribute('action');
     if (!action || action.includes('YOUR_FORM_ID') || action === '#') {
       e.preventDefault();
@@ -601,20 +1414,22 @@ function initLoginForm() {
         loggedInAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + AUTH_SESSION_MS).toISOString()
       }));
+      trackEvent('login_success', email);
 
       if (alertSuccess) {
         alertSuccess.style.display = 'block';
+        alertSuccess.textContent = t('labels.loginSuccess');
         alertSuccess.focus();
       }
 
       setTimeout(() => {
-        window.location.href = 'portfolio.html';
+        window.location.href = 'dashboard.html';
       }, 900);
       return;
     }
 
     if (alertError) {
-      alertError.textContent = 'Invalid credentials. Please check your email and password.';
+      alertError.textContent = t('labels.loginInvalid');
       alertError.style.display = 'block';
       alertError.focus();
     }
@@ -640,6 +1455,7 @@ function initPortfolioSlider() {
 
   const render = () => {
     track.style.transform = `translateX(-${current * 100}%)`;
+    slider.setAttribute('data-current-index', String(current));
     dots.forEach((dot, i) => {
       const isActive = i === current;
       dot.classList.toggle('active', isActive);
@@ -664,7 +1480,174 @@ function initPortfolioSlider() {
     });
   });
 
+  slides.forEach((slide, i) => {
+    const img = slide.querySelector('img');
+    if (!img) return;
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => {
+      const event = new CustomEvent('openPortfolioLightbox', { detail: { index: i } });
+      document.dispatchEvent(event);
+    });
+  });
+
   render();
+}
+
+function initPortfolioLightbox() {
+  const lightbox = document.getElementById('portfolio-lightbox');
+  if (!lightbox) return;
+
+  const image = document.getElementById('portfolio-lightbox-image');
+  const caption = document.getElementById('portfolio-lightbox-caption');
+  const closeBtn = document.getElementById('portfolio-lightbox-close');
+  const prevBtn = document.getElementById('portfolio-lightbox-prev');
+  const nextBtn = document.getElementById('portfolio-lightbox-next');
+  const zoomInBtn = document.getElementById('portfolio-lightbox-zoom-in');
+  const zoomOutBtn = document.getElementById('portfolio-lightbox-zoom-out');
+  const fullscreenBtn = document.getElementById('portfolio-lightbox-fullscreen');
+  const backdrop = lightbox.querySelector('.portfolio-lightbox-backdrop');
+  const images = Array.from(document.querySelectorAll('#portfolio-slider .portfolio-slide img'));
+  if (!image || !closeBtn || !prevBtn || !nextBtn || !zoomInBtn || !zoomOutBtn || !fullscreenBtn || !images.length) return;
+
+  let current = 0;
+  let zoom = 1;
+  let touchStartX = 0;
+
+  const applyZoom = () => {
+    image.style.transform = `scale(${zoom})`;
+  };
+
+  const render = () => {
+    const source = images[current];
+    image.src = source.src;
+    image.alt = source.alt || 'Portfolio image';
+    if (caption) {
+      const slideCaption = source.closest('.portfolio-slide').querySelector('.portfolio-caption');
+      caption.textContent = slideCaption ? slideCaption.textContent : '';
+    }
+    zoom = 1;
+    applyZoom();
+  };
+
+  const open = index => {
+    current = index;
+    render();
+    lightbox.classList.add('active');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const close = () => {
+    lightbox.classList.remove('active');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  const next = () => {
+    current = (current + 1) % images.length;
+    render();
+  };
+
+  const prev = () => {
+    current = (current - 1 + images.length) % images.length;
+    render();
+  };
+
+  document.addEventListener('openPortfolioLightbox', e => {
+    open(Number(e.detail.index) || 0);
+  });
+
+  closeBtn.addEventListener('click', close);
+  nextBtn.addEventListener('click', next);
+  prevBtn.addEventListener('click', prev);
+  if (backdrop) backdrop.addEventListener('click', close);
+
+  zoomInBtn.addEventListener('click', () => {
+    zoom = Math.min(zoom + 0.2, 3);
+    applyZoom();
+  });
+
+  zoomOutBtn.addEventListener('click', () => {
+    zoom = Math.max(zoom - 0.2, 1);
+    applyZoom();
+  });
+
+  fullscreenBtn.addEventListener('click', async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await lightbox.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (_) {
+      // Ignore unsupported fullscreen API failures
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === '+' || e.key === '=') {
+      zoom = Math.min(zoom + 0.2, 3);
+      applyZoom();
+    }
+    if (e.key === '-') {
+      zoom = Math.max(zoom - 0.2, 1);
+      applyZoom();
+    }
+    if (e.key.toLowerCase() === 'f') {
+      fullscreenBtn.click();
+    }
+  });
+
+  image.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  image.addEventListener('touchend', e => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const delta = touchEndX - touchStartX;
+    if (Math.abs(delta) < 40) return;
+    if (delta < 0) next();
+    else prev();
+  }, { passive: true });
+}
+
+function initDashboard() {
+  const root = document.getElementById('dashboard-page');
+  if (!root) return;
+
+  const auth = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '{}');
+  const analytics = getAnalyticsData();
+
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  setText('dashboard-last-login', auth.loggedInAt ? new Date(auth.loggedInAt).toLocaleString() : '-');
+  setText('site-entries', String(analytics.counts.site_entry || 0));
+  setText('dashboard-visits', String(analytics.counts.dashboard_visit || 0));
+  setText('portfolio-visits', String(analytics.counts.portfolio_visit || 0));
+  setText('cv-clicks', String(analytics.counts.cv_click || 0));
+  setText('form-submits', String(analytics.counts.form_submit || 0));
+  setText('github-clicks', String(analytics.counts.github_click || 0));
+  setText('linkedin-clicks', String(analytics.counts.linkedin_click || 0));
+  setText('login-events', String(analytics.counts.login_success || 0));
+
+  const eventsList = document.getElementById('dashboard-events');
+  if (eventsList) {
+    const events = analytics.events.slice(0, 8);
+    if (!events.length) {
+      eventsList.innerHTML = `<li>${esc(t('labels.noEvents'))}</li>`;
+    } else {
+      eventsList.innerHTML = events.map(evt => (
+        `<li><strong>${esc(evt.name)}</strong> - ${esc(new Date(evt.at).toLocaleString())} - ${esc(t('labels.ip'))}: ${esc(evt.ip || 'unknown')}</li>`
+      )).join('');
+    }
+  }
 }
 
 /* ---- Card Glow (cursor-following radial glow) ---- */

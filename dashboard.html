@@ -3,18 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Joao Miguel Rosa</title>
-  <meta name="description" content="Login page for Joao Miguel Rosa portfolio.">
+  <title>Dashboard - Joao Miguel Rosa</title>
+  <meta name="description" content="Private dashboard with analytics and account activity.">
   <meta name="author" content="Joao Miguel Rosa">
-  <link rel="canonical" href="https://gitrosas.github.io/login.html">
+  <link rel="canonical" href="https://gitrosas.github.io/dashboard.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Login - Joao Miguel Rosa">
-  <meta property="og:description" content="Access the portfolio login page.">
-  <meta property="og:url" content="https://gitrosas.github.io/login.html">
+  <meta property="og:title" content="Dashboard - Joao Miguel Rosa">
+  <meta property="og:description" content="Private dashboard with analytics and account activity.">
+  <meta property="og:url" content="https://gitrosas.github.io/dashboard.html">
   <meta property="og:image" content="https://gitrosas.github.io/assets/img/foto.jpg">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Login - Joao Miguel Rosa">
-  <meta name="twitter:description" content="Access the portfolio login page.">
+  <meta name="twitter:title" content="Dashboard - Joao Miguel Rosa">
+  <meta name="twitter:description" content="Private dashboard with analytics and account activity.">
+  <script>
+    (function () {
+      var key = 'portfolioAuth';
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) {
+          window.location.replace('login.html');
+          return;
+        }
+        var session = JSON.parse(raw);
+        var expiresAt = Date.parse((session && session.expiresAt) || '');
+        if (!session || !session.email || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+          localStorage.removeItem(key);
+          window.location.replace('login.html');
+        }
+      } catch (_) {
+        localStorage.removeItem(key);
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,42 +73,68 @@
   <main id="main-content">
     <section class="page-header">
       <div class="container">
-        <h1 data-i18n="pages.loginTitle">Login</h1>
-        <p data-i18n="pages.loginSubtitle">Sign in to continue.</p>
+        <h1 data-i18n="pages.dashboardTitle">Dashboard</h1>
+        <p data-i18n="pages.dashboardSubtitle">Private analytics and session details.</p>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="dashboard-page">
       <div class="container">
-        <div class="reveal" style="max-width: 640px; margin: 0 auto;">
-          <h2 class="section-title" data-i18n="pages.accessTitle">Access</h2>
-          <p class="section-subtitle" data-i18n="pages.accessSubtitle">Use your credentials to sign in.</p>
+        <h2 class="section-title" data-i18n="pages.analyticsSummary">Analytics Summary</h2>
 
-          <form id="login-form" class="contact-form" novalidate>
-            <div class="form-group">
-              <label for="login-email" class="form-label"><span data-i18n="labels.email">Email</span> <span aria-hidden="true">*</span></label>
-              <input type="email" class="form-input" id="login-email" name="email" placeholder="name@example.com" data-i18n-placeholder="labels.email" required autocomplete="email" aria-required="true">
-              <span class="form-error">Please enter a valid email address.</span>
-            </div>
-            <div class="form-group">
-              <label for="login-password" class="form-label"><span data-i18n="labels.password">Password</span> <span aria-hidden="true">*</span></label>
-              <input type="password" class="form-input" id="login-password" name="password" placeholder="Your password" data-i18n-placeholder="labels.password" required minlength="8" autocomplete="current-password" aria-required="true">
-              <span class="form-error">Please enter your password (min. 8 characters).</span>
-            </div>
+        <div class="dashboard-grid reveal">
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.siteEntries">Site Entries</h3>
+            <p id="site-entries">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.lastLogin">Last Login</h3>
+            <p id="dashboard-last-login">-</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.dashboardVisits">Dashboard Visits</h3>
+            <p id="dashboard-visits">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.portfolioVisits">Portfolio Visits</h3>
+            <p id="portfolio-visits">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.loginEvents">Logins</h3>
+            <p id="login-events">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.cvClicks">CV Clicks</h3>
+            <p id="cv-clicks">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.formSubmits">Contact Form Sends</h3>
+            <p id="form-submits">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.githubClicks">GitHub Clicks</h3>
+            <p id="github-clicks">0</p>
+          </article>
+          <article class="dashboard-card">
+            <h3 data-i18n="labels.linkedinClicks">LinkedIn Clicks</h3>
+            <p id="linkedin-clicks">0</p>
+          </article>
+        </div>
 
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Login</button>
-
-            <div class="form-alert success" id="login-alert-success" role="alert" tabindex="-1">
-              <i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span data-i18n="labels.loginSuccess">Login successful. Redirecting...</span>
+        <div class="dashboard-panels reveal">
+          <div class="dashboard-panel">
+            <h3 data-i18n="pages.quickActions">Quick Actions</h3>
+            <div class="dashboard-actions">
+              <a href="about.html" class="btn btn-outline" data-i18n="labels.editProfile">Edit Profile</a>
+              <a href="portfolio.html" class="btn btn-outline" data-i18n="labels.managePortfolio">Manage Portfolio</a>
+              <a href="contact.html" class="btn btn-outline" data-i18n="labels.openContact">Open Contact Page</a>
             </div>
-            <div class="form-alert error" id="login-alert-error" role="alert" tabindex="-1">
-              <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <span data-i18n="labels.loginInvalid">Invalid credentials.</span>
-            </div>
-          </form>
+          </div>
 
-          <p class="section-subtitle" style="margin-top: 1rem;">
-            Demo login: admin@admin.com / admin1234
-          </p>
+          <div class="dashboard-panel">
+            <h3 data-i18n="pages.recentEvents">Recent Events</h3>
+            <ul id="dashboard-events" class="dashboard-events"></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -116,7 +163,6 @@
             <a href="projects.html">Projects</a>
             <a href="about.html">About Me</a>
             <a href="contact.html">Contact</a>
-            <a href="login.html">Login</a>
           </div>
         </div>
         <div>

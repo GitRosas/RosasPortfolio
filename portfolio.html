@@ -15,6 +15,27 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Portfolio Gallery - Joao Miguel Rosa">
   <meta name="twitter:description" content="Private portfolio gallery with project visuals.">
+  <script>
+    (function () {
+      var key = 'portfolioAuth';
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) {
+          window.location.replace('login.html');
+          return;
+        }
+        var session = JSON.parse(raw);
+        var expiresAt = Date.parse((session && session.expiresAt) || '');
+        if (!session || !session.email || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+          localStorage.removeItem(key);
+          window.location.replace('login.html');
+        }
+      } catch (_) {
+        localStorage.removeItem(key);
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,16 +73,16 @@
   <main id="main-content">
     <section class="page-header">
       <div class="container">
-        <h1>Portfolio</h1>
-        <p>Exclusive gallery visible after login.</p>
+        <h1 data-i18n="pages.portfolioTitle">Portfolio</h1>
+        <p data-i18n="pages.portfolioSubtitle">Exclusive gallery visible after login.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
         <div class="reveal">
-          <h2 class="section-title">Image Slider</h2>
-          <p class="section-subtitle">10 photos and project visuals in a private carousel.</p>
+          <h2 class="section-title" data-i18n="pages.sliderTitle">Image Slider</h2>
+          <p class="section-subtitle" data-i18n="pages.sliderSubtitle">10 photos and project visuals in a private carousel.</p>
 
           <div class="portfolio-slider" id="portfolio-slider" aria-roledescription="carousel" aria-label="Portfolio image slider">
             <div class="portfolio-track" id="portfolio-track">
@@ -101,6 +122,28 @@
       </div>
     </section>
   </main>
+
+  <div class="portfolio-lightbox" id="portfolio-lightbox" aria-hidden="true" role="dialog" aria-label="Portfolio Lightbox">
+    <div class="portfolio-lightbox-backdrop"></div>
+    <div class="portfolio-lightbox-content">
+      <div class="portfolio-lightbox-toolbar">
+        <button id="portfolio-lightbox-zoom-out" type="button" aria-label="Zoom out"><i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+        <button id="portfolio-lightbox-zoom-in" type="button" aria-label="Zoom in"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
+        <button id="portfolio-lightbox-fullscreen" type="button" aria-label="Toggle fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+        <button id="portfolio-lightbox-close" type="button" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <button class="portfolio-lightbox-nav prev" id="portfolio-lightbox-prev" type="button" aria-label="Previous image">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <div class="portfolio-lightbox-stage">
+        <img id="portfolio-lightbox-image" src="" alt="">
+      </div>
+      <button class="portfolio-lightbox-nav next" id="portfolio-lightbox-next" type="button" aria-label="Next image">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
+      <div class="portfolio-lightbox-caption" id="portfolio-lightbox-caption"></div>
+    </div>
+  </div>
 
   <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
     <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
