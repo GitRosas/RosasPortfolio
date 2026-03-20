@@ -17,21 +17,22 @@
   <meta name="twitter:description" content="Private dashboard with analytics and account activity.">
   <script>
     (function () {
-      var key = 'portfolioAuth';
       try {
-        var raw = localStorage.getItem(key);
-        if (!raw) {
-          window.location.replace('login.html');
-          return;
-        }
-        var session = JSON.parse(raw);
-        var expiresAt = Date.parse((session && session.expiresAt) || '');
-        if (!session || !session.email || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
-          localStorage.removeItem(key);
+        var sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
+        if (!sbRaw) { window.location.replace('login.html'); return; }
+        var sb = JSON.parse(sbRaw);
+        if (!sb || !sb.access_token) { window.location.replace('login.html'); return; }
+        var exp = sb.expires_at;
+        var loginAt = sb.created_at ? Date.parse(sb.created_at) : NaN;
+        var logoutAt = Number.isFinite(loginAt)
+          ? Math.min(loginAt + 20 * 60 * 1000, exp * 1000)
+          : exp * 1000;
+        if (Date.now() >= logoutAt) {
+          localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
           window.location.replace('login.html');
         }
       } catch (_) {
-        localStorage.removeItem(key);
+        localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
         window.location.replace('login.html');
       }
     })();
@@ -44,7 +45,15 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
+<script type="module">
+  import { supabase } from './assets/js/auth.js';
 
+  const { data } = await supabase.auth.getSession();
+  if (!data?.session) {
+    window.location.href = 'login.html';
+  }
+  
+</script>
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
@@ -179,9 +188,9 @@
           <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joaorosa.aveiro@gmail.com">joaorosa.aveiro@gmail.com</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">https://github.com/GitRosas</a></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/joaorosa0409/</a></div>
-        </div>
+           <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">João Miguel Rosa</a></div>
+         </div>
       </div>
       <div class="footer-bottom">
         <p class="footer-copy">&copy; <span id="footer-year">2026</span> Joao Miguel Rosa. All rights reserved.</p>

@@ -785,6 +785,7 @@ function initAuthNavigation() {
     e.preventDefault();
     trackEvent('logout_click');
     localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
     window.location.href = 'login.html';
   });
 }
@@ -829,17 +830,12 @@ function removeDashboardMenuItem(navLinksContainer) {
 
 function isAuthenticated() {
   try {
-    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!authData) return false;
-    const parsed = JSON.parse(authData);
-    if (!parsed || !parsed.email || !parsed.expiresAt) return false;
-
-    const expiresAt = Date.parse(parsed.expiresAt);
-    if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      return false;
-    }
-
+    const sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
+    if (!sbRaw) return false;
+    const sbSession = JSON.parse(sbRaw);
+    if (!sbSession || !sbSession.access_token) return false;
+    const exp = sbSession.expires_at;
+    if (exp && (Date.now() / 1000) >= exp) return false;
     return true;
   } catch (_) {
     return false;
@@ -848,27 +844,32 @@ function isAuthenticated() {
 
 function scheduleAutoLogout() {
   try {
-    const authData = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!authData) return;
-    const parsed = JSON.parse(authData);
-    const expiresAt = Date.parse(parsed.expiresAt || '');
-    if (!Number.isFinite(expiresAt)) return;
+    const sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
+    if (!sbRaw) return;
+    const sbSession = JSON.parse(sbRaw);
+    const exp = sbSession && sbSession.expires_at;
+    if (!exp) return;
 
-    const remaining = expiresAt - Date.now();
+    // Force 20-minute limit from login time, regardless of Supabase token expiry
+    const loginAt = sbSession.created_at ? Date.parse(sbSession.created_at) : NaN;
+    const twentyMin = 20 * 60 * 1000;
+    const logoutAt = Number.isFinite(loginAt)
+      ? Math.min(loginAt + twentyMin, exp * 1000)
+      : exp * 1000;
+
+    const remaining = logoutAt - Date.now();
     if (remaining <= 0) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      if (!window.location.pathname.endsWith('login.html')) {
-        window.location.href = 'login.html';
-      }
+      localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
+      window.location.href = 'login.html';
       return;
     }
 
     window.setTimeout(() => {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
       window.location.href = 'login.html';
     }, remaining);
   } catch (_) {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
   }
 }
 
@@ -1409,67 +1410,52 @@ function initContactForm() {
 function initLoginForm() {
   const form = document.getElementById('login-form');
   if (!form) return;
+  if (form.dataset.auth === 'supabase-otp') return;
 
   const alertSuccess = document.getElementById('login-alert-success');
-  const alertError = document.getElementById('login-alert-error');
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
+  const alertError   = document.getElementById('login-alert-error');
+  const emailInput   = document.getElementById('login-email');
+  const passInput    = document.getElementById('login-password');
 
-  const validEmail = 'admin@admin.com';
-  const validPassword = 'admin';
+  function showAlert(el) { if (!el) return; el.classList.add('show'); el.setAttribute('aria-hidden', 'false'); el.focus(); }
+  function hideAlert(el) { if (!el) return; el.classList.remove('show'); el.setAttribute('aria-hidden', 'true'); }
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    hideAlert(alertSuccess);
+    hideAlert(alertError);
+    form.querySelectorAll('.form-group').forEach(function (g) { g.classList.remove('invalid'); });
 
-    if (alertSuccess) alertSuccess.style.display = 'none';
-    if (alertError) alertError.style.display = 'none';
-    form.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
-
-    let valid = true;
-    form.querySelectorAll('[required]').forEach(input => {
+    var valid = true;
+    form.querySelectorAll('[required]').forEach(function (input) {
       if (!input.value.trim() || !input.checkValidity()) {
         input.closest('.form-group').classList.add('invalid');
         valid = false;
       }
     });
-
     if (!valid) {
-      const first = form.querySelector('.form-group.invalid .form-input');
+      var first = form.querySelector('.form-group.invalid .form-input');
       if (first) first.focus();
       return;
     }
 
-    const email = emailInput.value.trim().toLowerCase();
-    const password = passwordInput.value;
+    var email    = emailInput.value.trim().toLowerCase();
+    var password = passInput.value;
+    var sb = window.__supabase;
+    if (!sb) { showAlert(alertError); return; }
 
-    if (email === validEmail && password === validPassword) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
-        email,
-        loggedInAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + AUTH_SESSION_MS).toISOString()
-      }));
+    var result = await sb.auth.signInWithPassword({ email: email, password: password });
+
+    if (!result.error) {
       trackEvent('login_success', email);
-
-      if (alertSuccess) {
-        alertSuccess.style.display = 'block';
-        alertSuccess.textContent = t('labels.loginSuccess');
-        alertSuccess.focus();
-      }
-
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 900);
+      showAlert(alertSuccess);
+      setTimeout(function () { window.location.href = 'dashboard.html'; }, 900);
       return;
     }
 
-    if (alertError) {
-      alertError.textContent = t('labels.loginInvalid');
-      alertError.style.display = 'block';
-      alertError.focus();
-    }
-
+    showAlert(alertError);
     if (emailInput) emailInput.closest('.form-group').classList.add('invalid');
-    if (passwordInput) passwordInput.closest('.form-group').classList.add('invalid');
+    if (passInput)  passInput.closest('.form-group').classList.add('invalid');
   });
 }
 
