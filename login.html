@@ -268,9 +268,10 @@
   }
 
   function getCaptchaToken() {
-    if (!window.turnstile) return '';
-    return window.turnstile.getResponse() || '';
-  }
+  const widget = document.querySelector('#cf-turnstile-login');
+  if (!widget) return "";
+  return turnstile.getResponse(widget);
+}
 
   function resetCaptcha() {
     if (window.turnstile) window.turnstile.reset();
