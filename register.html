@@ -166,6 +166,7 @@
     const errText = errEl?.querySelector('span');
     let captchaToken = '';
     let captchaWidgetId = null;
+    let isCaptchaReady = false;
     const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
     const AUTH_URL = 'https://auth.joaomiguelrosa.com';
 
@@ -194,12 +195,15 @@
         'expired-callback': () => { captchaToken = ''; },
         'error-callback': () => { captchaToken = ''; }
       });
+      isCaptchaReady = true;
+      if (submitBtn) submitBtn.disabled = false;
     }
     function resetCaptcha() {
       if (window.turnstile && captchaWidgetId !== null) window.turnstile.reset(captchaWidgetId);
       captchaToken = '';
     }
     renderCaptcha();
+    if (submitBtn) submitBtn.disabled = true;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -222,6 +226,13 @@
         form.querySelector('.form-group.invalid .form-input')?.focus();
         return;
       }
+
+      if (!isCaptchaReady) {
+        if (errText) errText.textContent = 'CAPTCHA is still loading. Please wait a moment.';
+        show(errEl);
+        return;
+      }
+
       const currentCaptchaToken = (window.turnstile && captchaWidgetId !== null)
         ? (window.turnstile.getResponse(captchaWidgetId) || '')
         : captchaToken;

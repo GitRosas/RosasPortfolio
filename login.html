@@ -210,6 +210,7 @@
   let activeEmail = '';
   let captchaWidgetId = null;
   let captchaToken = '';
+  let isCaptchaReady = false;
   let otpPending = false;
   let nextOtpRequestAt = 0;
   let isSubmitting = false;
@@ -270,6 +271,12 @@
     if (loginStep) loginStep.style.display = 'block';
   }
 
+  function setCaptchaButtonsDisabled(disabled) {
+    if (loginButton) loginButton.disabled = disabled;
+    if (otpVerifyBtn) otpVerifyBtn.disabled = disabled;
+    if (otpResendBtn) otpResendBtn.disabled = disabled;
+  }
+
   function renderCaptcha() {
     if (!window.turnstile) {
       window.setTimeout(renderCaptcha, 150);
@@ -283,6 +290,8 @@
       'expired-callback': () => { captchaToken = ''; },
       'error-callback': () => { captchaToken = ''; }
     });
+    isCaptchaReady = true;
+    setCaptchaButtonsDisabled(false);
   }
 
   function getCaptchaToken() {
@@ -318,6 +327,7 @@
   }
 
   renderCaptcha();
+  setCaptchaButtonsDisabled(true);
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -325,6 +335,11 @@
     if (isSubmitting) return;
     hide(loginOk);
     resetLoginError();
+
+    if (!isCaptchaReady) {
+      showLoginError('CAPTCHA is still loading. Please wait a moment.');
+      return;
+    }
 
     const email = loginEmail?.value.trim().toLowerCase() || '';
     const password = loginPassword?.value || '';
@@ -411,6 +426,11 @@
     hide(otpOk);
     resetOtpError();
 
+    if (!isCaptchaReady) {
+      showOtpError('CAPTCHA is still loading. Please wait a moment.');
+      return;
+    }
+
     const otp = otpInput?.value.trim() || '';
     if (!/^\d{8}$/.test(otp) || !activeEmail) {
       showOtpError('Code must be 8 digits.');
@@ -465,6 +485,11 @@
   otpResendBtn?.addEventListener('click', async () => {
     hide(otpOk);
     resetOtpError();
+
+    if (!isCaptchaReady) {
+      showOtpError('CAPTCHA is still loading. Please wait a moment.');
+      return;
+    }
 
     if (!activeEmail) {
       showOtpError(defaultOtpErr);
