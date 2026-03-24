@@ -185,10 +185,35 @@
   <script type="module">
   import { supabase } from './assets/js/auth.js';
 
+  const AUTH_WORKER_URL = 'https://auth.joaomiguelrosa.com';
+  const DASHBOARD_URL = 'https://dashboard.joaomiguelrosa.com';
+
+  function extractAccessToken(payload) {
+    if (!payload) return '';
+    if (typeof payload === 'string') return payload;
+    if (typeof payload.access_token === 'string') return payload.access_token;
+    if (typeof payload.token === 'string') return payload.token;
+    if (payload.session && typeof payload.session.access_token === 'string') return payload.session.access_token;
+    return '';
+  }
+
+  async function openExternalDashboard(sessionLike) {
+    const accessToken = extractAccessToken(sessionLike);
+    if (!accessToken) throw new Error('Missing session token');
+    const res = await fetch(DASHBOARD_URL, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    if (!res.ok) throw new Error(`Dashboard auth failed (${res.status})`);
+    window.location.href = DASHBOARD_URL;
+  }
+
   // Se já existir sessão, vai logo para a dashboard.
   try {
     const { data } = await supabase.auth.getSession();
-    if (data?.session) window.location.href = 'dashboard.html';
+    if (data?.session) await openExternalDashboard(data.session);
   } catch { /* ignora erros de rede aqui */ }
 
   // Elementos do Passo 1 (password)
@@ -331,37 +356,53 @@
       const tokenA = await getFreshCaptchaToken();
 
       // 1) valida credenciais
-      const { error: pwdErr } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-        options: { captchaToken: tokenA }
+      const res = await fetch(AUTH_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'login_password',
+          email,
+          password,
+          captchaToken: tokenA
+        })
       });
-      if (pwdErr) {
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
         showLoginError('Wrong email or password.');
         return;
       }
 
-      // 2) força 2.º passo (sem sessão activa até verificar código)
-      await supabase.auth.signOut();
+      const pwdToken = extractAccessToken(data);
+      if (pwdToken) {
+        await openExternalDashboard(pwdToken);
+        return;
+      }
 
       const tokenB = await getFreshCaptchaToken();
 
-      // 3) envia OTP (graças ao template com {{ .Token }})
-      const { error: otpSendErr } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false, captchaToken: tokenB }
+      // 2) envia OTP
+      const otpReqRes = await fetch(AUTH_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'otp_request',
+          email,
+          captchaToken: tokenB
+        })
       });
+      const otpReqData = await otpReqRes.json();
 
-      if (otpSendErr) {
-        const message = (otpSendErr.message || '').toLowerCase();
-        if (otpSendErr.status === 429 || message.includes('too many')) {
+      if (!otpReqRes.ok || otpReqData.error) {
+        const message = String(otpReqData.error || '').toLowerCase();
+        if (otpReqRes.status === 429 || message.includes('too many')) {
           nextOtpRequestAt = Date.now() + 60_000;
           showLoginError('Too many requests. Wait 60s and try again.');
           return;
         }
-        // Mostra o erro real (útil em localhost)
-        showLoginError(otpSendErr.message || defaultErrText);
-        console.error('OTP send error:', { status: otpSendErr.status, message: otpSendErr.message });
+        showLoginError(otpReqData.error || defaultErrText);
+        console.error('OTP send error:', { status: otpReqRes.status, message: otpReqData.error });
         return;
       }
 
@@ -396,20 +437,32 @@
     try {
       isVerifying = true;
       setButtonLoading(btnVerify, 'Loading...');
-      const { error } = await supabase.auth.verifyOtp({
-        email: loginEmail,
-        token: code,
-        type: 'email'
+      const tokenD = await getFreshCaptchaToken();
+      const otpVerifyRes = await fetch(AUTH_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'otp_verify',
+          email: loginEmail,
+          otp: code,
+          captchaToken: tokenD
+        })
       });
-      if (error) { console.error('verifyOtp error:', error); showOtpError('Wrong verification code.'); return; }
+      const otpVerifyData = await otpVerifyRes.json();
+      if (!otpVerifyRes.ok || otpVerifyData.error) {
+        console.error('verifyOtp error:', { status: otpVerifyRes.status, message: otpVerifyData.error });
+        showOtpError('Wrong verification code.');
+        return;
+      }
 
       verifySucceeded = true;
       if (otpOkText) otpOkText.textContent = 'Code verified. Redirecting...';
       show(otpOk);
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+      await new Promise((resolve) => window.setTimeout(resolve, 800));
+      await openExternalDashboard(otpVerifyData);
     } catch (err) {
       console.error(err);
-      showOtpError('Network error. Try again in a few seconds.');
+      showOtpError('Code verified, but redirect failed. Please try again.');
     } finally {
       isVerifying = false;
       if (!verifySucceeded) resetButton(btnVerify);
@@ -431,19 +484,25 @@
 
       const tokenC = await getFreshCaptchaToken();
 
-      const { error: otpSendErr } = await supabase.auth.signInWithOtp({
-        email: loginEmail,
-        options: { shouldCreateUser: false, captchaToken: tokenC }
+      const otpResendRes = await fetch(AUTH_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'otp_request',
+          email: loginEmail,
+          captchaToken: tokenC
+        })
       });
+      const otpResendData = await otpResendRes.json();
 
-      if (otpSendErr) {
-        const message = (otpSendErr.message || '').toLowerCase();
-        if (otpSendErr.status === 429 || message.includes('too many')) {
+      if (!otpResendRes.ok || otpResendData.error) {
+        const message = String(otpResendData.error || '').toLowerCase();
+        if (otpResendRes.status === 429 || message.includes('too many')) {
           nextOtpRequestAt = Date.now() + 60_000;
           showLoginError('Too many requests. Wait 60s and try again.');
           return;
         }
-        showLoginError(otpSendErr.message || defaultErrText);
+        showLoginError(otpResendData.error || defaultErrText);
         return;
       }
 

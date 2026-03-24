@@ -155,7 +155,6 @@
   </footer>
 
   <script type="module">
-    import { supabase } from './assets/js/auth.js';
 
     const form = document.querySelector('#register-form');
     const emailEl = document.querySelector('#reg-email');
@@ -167,6 +166,7 @@
     let captchaToken = '';
     let captchaWidgetId = null;
     const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
+    const AUTH_WORKER_URL = 'https://auth-proxy.joaorosa-aveiro.workers.dev/';
 
     function show(el) { el?.classList.add('show'); el?.setAttribute('aria-hidden', 'false'); el?.focus(); }
     function hide(el) { el?.classList.remove('show'); el?.setAttribute('aria-hidden', 'true'); }
@@ -229,13 +229,21 @@
 
       try {
         setLoading(submitBtn);
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { captchaToken }
+        const res = await fetch(AUTH_WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'signup',
+            email,
+            password,
+            captchaToken
+          })
         });
-        if (error) {
-          if (errText) errText.textContent = error.message;
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          if (errText) errText.textContent = data.error || 'Unable to create account.';
           show(errEl);
           return;
         }
