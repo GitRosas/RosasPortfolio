@@ -77,7 +77,7 @@
               <span class="form-error">Please enter your password (min. 4 characters).</span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 2rem;">
               <div id="cf-turnstile-login"></div>
             </div>
 
@@ -206,6 +206,10 @@
   const otpErrText= otpErr?.querySelector('span');
   const otpOk     = document.querySelector('#otp-alert-success');
   const otpOkText = otpOk?.querySelector('span');
+  const captchaContainer = document.querySelector('#cf-turnstile-login');
+  const captchaGroup = captchaContainer?.closest('.form-group');
+  const captchaOriginalParent = captchaGroup?.parentElement || null;
+  const captchaOriginalNextSibling = captchaGroup?.nextElementSibling || null;
 
   // Estado
   let loginEmail = '';
@@ -218,6 +222,8 @@
   const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
   const defaultErrText = errText ? errText.textContent : 'Invalid credentials.';
   const defaultOtpErrText = otpErrText ? otpErrText.textContent : 'Invalid or expired code. Try again or resend.';
+
+  if (captchaGroup) captchaGroup.style.display = 'none';
 
   // Se já existir token persistido, vai logo para a dashboard.
   try {
@@ -303,63 +309,41 @@
   }
 
   async function requestCaptcha(timeoutMs = 120000) {
-    const overlayId = 'captcha-overlay';
-    const hostId = 'cf-turnstile-dynamic';
-    const overlay = document.getElementById(overlayId);
-    const host = document.getElementById(hostId);
-
-    if (!overlay || !host) {
-      throw new Error('captcha overlay missing');
+    if (!captchaContainer || !captchaGroup) {
+      throw new Error('captcha container missing');
     }
 
-    overlay.style.display = 'flex';
-    host.innerHTML = '';
+    const isOtpVisible = otpStep && otpStep.style.display !== 'none';
+    if (isOtpVisible) {
+      const otpActions = otpStep.querySelector('.btn-row');
+      if (otpActions) {
+        otpStep.insertBefore(captchaGroup, otpActions);
+      } else {
+        otpStep.appendChild(captchaGroup);
+      }
+    } else if (captchaOriginalParent) {
+      if (captchaOriginalNextSibling && captchaOriginalNextSibling.parentElement === captchaOriginalParent) {
+        captchaOriginalParent.insertBefore(captchaGroup, captchaOriginalNextSibling);
+      } else {
+        captchaOriginalParent.appendChild(captchaGroup);
+      }
+    }
 
-    return await new Promise((resolve, reject) => {
-      let done = false;
-      let widgetId = null;
-      const startedAt = Date.now();
+    captchaGroup.style.display = 'block';
+    renderCaptcha();
 
-      const cleanup = () => {
-        overlay.style.display = 'none';
-        if (window.turnstile && widgetId !== null && typeof window.turnstile.remove === 'function') {
-          try { window.turnstile.remove(widgetId); } catch {}
+    try {
+      return await getFreshCaptchaToken(timeoutMs);
+    } finally {
+      captchaGroup.style.display = 'none';
+      if (captchaOriginalParent) {
+        if (captchaOriginalNextSibling && captchaOriginalNextSibling.parentElement === captchaOriginalParent) {
+          captchaOriginalParent.insertBefore(captchaGroup, captchaOriginalNextSibling);
+        } else {
+          captchaOriginalParent.appendChild(captchaGroup);
         }
-        host.innerHTML = '';
-      };
-
-      const finish = (fn) => {
-        if (done) return;
-        done = true;
-        cleanup();
-        fn();
-      };
-
-      const poll = () => {
-        if (done) return;
-        if (Date.now() - startedAt >= timeoutMs) {
-          finish(() => reject(new Error('captcha timeout')));
-          return;
-        }
-        if (!window.turnstile) {
-          window.setTimeout(poll, 100);
-          return;
-        }
-
-        try {
-          widgetId = window.turnstile.render(`#${hostId}`, {
-            sitekey: TURNSTILE_SITE_KEY,
-            callback: (token) => finish(() => resolve(token)),
-            'expired-callback': () => finish(() => reject(new Error('captcha expired'))),
-            'error-callback': () => finish(() => reject(new Error('captcha error')))
-          });
-        } catch {
-          finish(() => reject(new Error('captcha render failed')));
-        }
-      };
-
-      poll();
-    });
+      }
+    }
   }
 
   async function callAuthWorker(type, payload) {
