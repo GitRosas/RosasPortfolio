@@ -185,119 +185,98 @@
   <script type="module">
   import { supabase } from './assets/js/auth.js';
 
-  const AUTH_WORKER_URL = 'https://auth.joaomiguelrosa.com';
+  const AUTH_URL = 'https://auth.joaomiguelrosa.com';
   const DASHBOARD_URL = 'https://dashboard.joaomiguelrosa.com';
+  const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
 
-  function extractAccessToken(payload) {
-    if (!payload) return '';
-    if (typeof payload === 'string') return payload;
-    if (typeof payload.access_token === 'string') return payload.access_token;
-    if (typeof payload.token === 'string') return payload.token;
-    if (payload.session && typeof payload.session.access_token === 'string') return payload.session.access_token;
-    return '';
-  }
-
-  async function openExternalDashboard(sessionLike) {
-    const accessToken = extractAccessToken(sessionLike);
-    if (!accessToken) throw new Error('Missing session token');
-    const res = await fetch(DASHBOARD_URL, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-    if (!res.ok) throw new Error(`Dashboard auth failed (${res.status})`);
-    window.location.href = DASHBOARD_URL;
-  }
-
-  // Se já existir sessão, vai logo para a dashboard.
-  try {
-    const { data } = await supabase.auth.getSession();
-    if (data?.session) await openExternalDashboard(data.session);
-  } catch { /* ignora erros de rede aqui */ }
-
-  // Elementos do Passo 1 (password)
-  const form      = document.querySelector('#login-form');
+  const loginForm = document.querySelector('#login-form');
   const loginStep = document.querySelector('#login-step');
-  const emailEl   = document.querySelector('#login-email');
-  const passEl    = document.querySelector('#login-password');
-  const submitBtn = form?.querySelector('button[type="submit"]');
-  const okMsg     = document.querySelector('#login-alert-success');
-  const errMsg    = document.querySelector('#login-alert-error');
-  const errText   = errMsg?.querySelector('span');
+  const loginEmail = document.querySelector('#login-email');
+  const loginPassword = document.querySelector('#login-password');
+  const loginButton = loginForm?.querySelector('button[type="submit"]');
+  const loginOk = document.querySelector('#login-alert-success');
+  const loginErr = document.querySelector('#login-alert-error');
+  const loginErrText = loginErr?.querySelector('span');
 
-  // Elementos do Passo 2 (OTP)
-  const otpStep   = document.querySelector('#otp-step');
-  const otpInput  = document.querySelector('#otp-code');
-  const btnVerify = document.querySelector('#otp-verify');
-  const btnResend = document.querySelector('#otp-resend');
-  const btnCancel = document.querySelector('#otp-cancel');
-  const otpErr    = document.querySelector('#otp-alert-error');
-  const otpErrText= otpErr?.querySelector('span');
-  const otpOk     = document.querySelector('#otp-alert-success');
-  const otpOkText = otpOk?.querySelector('span');
+  const otpStep = document.querySelector('#otp-step');
+  const otpInput = document.querySelector('#otp-code');
+  const otpVerifyBtn = document.querySelector('#otp-verify');
+  const otpResendBtn = document.querySelector('#otp-resend');
+  const otpCancelBtn = document.querySelector('#otp-cancel');
+  const otpOk = document.querySelector('#otp-alert-success');
+  const otpErr = document.querySelector('#otp-alert-error');
+  const otpErrText = otpErr?.querySelector('span');
 
-  // Estado
-  let loginEmail = '';
-  let nextOtpRequestAt = 0;   // cooldown para evitar 429
+  let activeEmail = '';
+  let captchaWidgetId = null;
+  let captchaToken = '';
+  let otpPending = false;
+  let nextOtpRequestAt = 0;
   let isSubmitting = false;
   let isVerifying = false;
-  let otpPending = false;
-  let captchaToken = '';
-  let captchaWidgetId = null;
-  const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
-  const defaultErrText = errText ? errText.textContent : 'Invalid credentials.';
-  const defaultOtpErrText = otpErrText ? otpErrText.textContent : 'Invalid or expired code. Try again or resend.';
 
-  // Helpers UI
-  function show(el){ el?.classList.add('show'); el?.setAttribute('aria-hidden','false'); el?.focus(); }
-  function hide(el){ el?.classList.remove('show'); el?.setAttribute('aria-hidden','true'); }
-  function setButtonLoading(button, label) {
+  const defaultLoginErr = loginErrText ? loginErrText.textContent : 'Invalid credentials.';
+  const defaultOtpErr = otpErrText ? otpErrText.textContent : 'Invalid or expired code. Try again or resend.';
+
+  function show(el) { el?.classList.add('show'); el?.setAttribute('aria-hidden', 'false'); }
+  function hide(el) { el?.classList.remove('show'); el?.setAttribute('aria-hidden', 'true'); }
+
+  function setLoading(button, label) {
     if (!button) return;
     if (!button.dataset.originalHtml) button.dataset.originalHtml = button.innerHTML;
     button.disabled = true;
     button.innerHTML = `<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> ${label}`;
   }
-  function resetButton(button) {
+
+  function resetLoading(button) {
     if (!button) return;
     button.disabled = false;
     if (button.dataset.originalHtml) button.innerHTML = button.dataset.originalHtml;
   }
+
   function showLoginError(message) {
-    if (errText) errText.textContent = message || defaultErrText;
-    hide(okMsg);
-    show(errMsg);
+    if (loginErrText) loginErrText.textContent = message || defaultLoginErr;
+    hide(loginOk);
+    show(loginErr);
   }
+
   function resetLoginError() {
-    if (errText) errText.textContent = defaultErrText;
-    hide(errMsg);
+    if (loginErrText) loginErrText.textContent = defaultLoginErr;
+    hide(loginErr);
   }
+
   function showOtpError(message) {
-    if (otpErrText) otpErrText.textContent = message || defaultOtpErrText;
+    if (otpErrText) otpErrText.textContent = message || defaultOtpErr;
     hide(otpOk);
     show(otpErr);
   }
+
   function resetOtpError() {
-    if (otpErrText) otpErrText.textContent = defaultOtpErrText;
+    if (otpErrText) otpErrText.textContent = defaultOtpErr;
     hide(otpErr);
   }
-  function revealOTPUI(){
+
+  function revealOtpStep() {
     if (loginStep) loginStep.style.display = 'none';
-    otpStep.style.display = 'block';
-    otpInput.value = '';
-    resetOtpError(); hide(otpOk);
-    otpInput.focus();
+    if (otpStep) otpStep.style.display = 'block';
+    if (otpInput) otpInput.value = '';
+    hide(otpOk);
+    resetOtpError();
+    otpInput?.focus();
   }
-  function hideOTPUI(){
-    otpStep.style.display = 'none';
+
+  function revealLoginStep() {
+    if (otpStep) otpStep.style.display = 'none';
     if (loginStep) loginStep.style.display = 'block';
   }
+
   function renderCaptcha() {
     if (!window.turnstile) {
       window.setTimeout(renderCaptcha, 150);
       return;
     }
     if (captchaWidgetId !== null) return;
+
     captchaWidgetId = window.turnstile.render('#cf-turnstile-login', {
       sitekey: TURNSTILE_SITE_KEY,
       callback: (token) => { captchaToken = token; },
@@ -305,94 +284,100 @@
       'error-callback': () => { captchaToken = ''; }
     });
   }
+
+  function getCaptchaToken() {
+    if (window.turnstile && captchaWidgetId !== null) {
+      return window.turnstile.getResponse(captchaWidgetId) || '';
+    }
+    return captchaToken || '';
+  }
+
   function resetCaptcha() {
-    if (window.turnstile && captchaWidgetId !== null) window.turnstile.reset(captchaWidgetId);
+    if (window.turnstile && captchaWidgetId !== null) {
+      window.turnstile.reset(captchaWidgetId);
+    }
     captchaToken = '';
   }
-  async function waitForCaptchaToken(timeoutMs = 10000) {
-    const start = Date.now();
-    return await new Promise((resolve, reject) => {
-      (function poll() {
-        if (captchaToken) return resolve(captchaToken);
-        if (Date.now() - start >= timeoutMs) return reject(new Error('captcha timeout'));
-        window.setTimeout(poll, 100);
-      })();
+
+  async function parseJsonSafe(res) {
+    try {
+      return await res.json();
+    } catch (_) {
+      return {};
+    }
+  }
+
+  async function sendDashboardToken(accessToken) {
+    const dashRes = await fetch(DASHBOARD_URL, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
     });
+    if (!dashRes.ok) throw new Error(`Dashboard auth failed (${dashRes.status})`);
   }
-  async function getFreshCaptchaToken(timeoutMs = 10000) {
-    resetCaptcha();
-    return await waitForCaptchaToken(timeoutMs);
-  }
+
   renderCaptcha();
 
-  // PASSO 1: validar password -> enviar OTP
-  form.addEventListener('submit', async (e) => {
+  loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    hide(okMsg);
-    resetLoginError();
 
     if (isSubmitting) return;
-    if (otpPending) { showLoginError('Code already sent. Check your email or click Resend.'); return; }
+    hide(loginOk);
+    resetLoginError();
 
-    const email = emailEl.value.trim();
-    const password = passEl.value;
-    loginEmail = email;
+    const email = loginEmail?.value.trim().toLowerCase() || '';
+    const password = loginPassword?.value || '';
+    activeEmail = email;
 
-    // validações simples
-    if (!email || password.length < 4) { showLoginError(defaultErrText); return; }
+    if (!email || password.length < 4) {
+      showLoginError(defaultLoginErr);
+      return;
+    }
+
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
       return;
     }
 
+    const currentCaptchaToken = getCaptchaToken();
+    if (!currentCaptchaToken) {
+      showLoginError('Please solve CAPTCHA.');
+      return;
+    }
+
     try {
       isSubmitting = true;
-      setButtonLoading(submitBtn, 'Loading...');
+      setLoading(loginButton, 'Loading...');
 
-      const tokenA = await getFreshCaptchaToken();
-
-      // 1) valida credenciais
-      const res = await fetch(AUTH_WORKER_URL, {
+      const loginRes = await fetch(AUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'login_password',
           email,
           password,
-          captchaToken: tokenA
+          captchaToken: currentCaptchaToken
         })
       });
+      const loginData = await parseJsonSafe(loginRes);
 
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        showLoginError('Wrong email or password.');
+      if (!loginRes.ok || loginData.error) {
+        showLoginError(loginData.error || 'Invalid login.');
         return;
       }
 
-      const pwdToken = extractAccessToken(data);
-      if (pwdToken) {
-        await openExternalDashboard(pwdToken);
-        return;
-      }
-
-      const tokenB = await getFreshCaptchaToken();
-
-      // 2) envia OTP
-      const otpReqRes = await fetch(AUTH_WORKER_URL, {
+      const otpReqRes = await fetch(AUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'otp_request',
           email,
-          captchaToken: tokenB
+          captchaToken: currentCaptchaToken
         })
       });
-      const otpReqData = await otpReqRes.json();
+      const otpReqData = await parseJsonSafe(otpReqRes);
 
       if (!otpReqRes.ok || otpReqData.error) {
         const message = String(otpReqData.error || '').toLowerCase();
@@ -401,131 +386,149 @@
           showLoginError('Too many requests. Wait 60s and try again.');
           return;
         }
-        showLoginError(otpReqData.error || defaultErrText);
-        console.error('OTP send error:', { status: otpReqRes.status, message: otpReqData.error });
+        showLoginError(otpReqData.error || defaultLoginErr);
         return;
       }
 
-      nextOtpRequestAt = Date.now() + 60_000; // cooldown
       otpPending = true;
-
-      const okText = okMsg?.querySelector('span');
+      nextOtpRequestAt = Date.now() + 60_000;
+      const okText = loginOk?.querySelector('span');
       if (okText) okText.textContent = 'Verification code sent to your email.';
-      resetButton(submitBtn);
-      show(okMsg);
-      revealOTPUI();
-
+      show(loginOk);
+      revealOtpStep();
+      resetCaptcha();
     } catch (err) {
       console.error(err);
       showLoginError('Network error. Try again in a few seconds.');
     } finally {
       isSubmitting = false;
-      resetButton(submitBtn);
-      resetCaptcha();
+      resetLoading(loginButton);
     }
   });
 
-  // PASSO 2: verificar código (cria sessão se estiver certo)
-  btnVerify.addEventListener('click', async () => {
-    resetOtpError(); hide(otpOk);
-    const code = otpInput.value.trim();
-    let verifySucceeded = false;
-
+  otpVerifyBtn?.addEventListener('click', async () => {
     if (isVerifying) return;
-    if (!/^\d{8}$/.test(code) || !loginEmail) { showOtpError('Wrong verification code.'); return; }
+    hide(otpOk);
+    resetOtpError();
+
+    const otp = otpInput?.value.trim() || '';
+    if (!/^\d{8}$/.test(otp) || !activeEmail) {
+      showOtpError('Code must be 8 digits.');
+      return;
+    }
+
+    const currentCaptchaToken = getCaptchaToken();
+    if (!currentCaptchaToken) {
+      showOtpError('Please solve CAPTCHA.');
+      return;
+    }
 
     try {
       isVerifying = true;
-      setButtonLoading(btnVerify, 'Loading...');
-      const tokenD = await getFreshCaptchaToken();
-      const otpVerifyRes = await fetch(AUTH_WORKER_URL, {
+      setLoading(otpVerifyBtn, 'Loading...');
+
+      const otpVerifyRes = await fetch(AUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'otp_verify',
-          email: loginEmail,
-          otp: code,
-          captchaToken: tokenD
+          email: activeEmail,
+          otp,
+          captchaToken: currentCaptchaToken
         })
       });
-      const otpVerifyData = await otpVerifyRes.json();
+      const otpVerifyData = await parseJsonSafe(otpVerifyRes);
+
       if (!otpVerifyRes.ok || otpVerifyData.error) {
-        console.error('verifyOtp error:', { status: otpVerifyRes.status, message: otpVerifyData.error });
-        showOtpError('Wrong verification code.');
+        showOtpError(otpVerifyData.error || 'Invalid code.');
         return;
       }
 
-      verifySucceeded = true;
-      if (otpOkText) otpOkText.textContent = 'Code verified. Redirecting...';
-      show(otpOk);
-      await new Promise((resolve) => window.setTimeout(resolve, 800));
-      await openExternalDashboard(otpVerifyData);
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.access_token) {
+        showOtpError('Session error.');
+        return;
+      }
+
+      await sendDashboardToken(sessionData.session.access_token);
+      window.location.href = DASHBOARD_URL;
     } catch (err) {
       console.error(err);
       showOtpError('Code verified, but redirect failed. Please try again.');
     } finally {
       isVerifying = false;
-      if (!verifySucceeded) resetButton(btnVerify);
+      resetLoading(otpVerifyBtn);
+      resetCaptcha();
     }
   });
 
-  btnResend.addEventListener('click', async () => {
-    resetOtpError(); hide(otpOk);
+  otpResendBtn?.addEventListener('click', async () => {
+    hide(otpOk);
+    resetOtpError();
 
-    if (!loginEmail) { showOtpError(defaultOtpErrText); return; }
+    if (!activeEmail) {
+      showOtpError(defaultOtpErr);
+      return;
+    }
+
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
       return;
     }
 
+    const currentCaptchaToken = getCaptchaToken();
+    if (!currentCaptchaToken) {
+      showOtpError('Please solve CAPTCHA.');
+      return;
+    }
+
     try {
-      setButtonLoading(btnResend, 'Loading...');
+      setLoading(otpResendBtn, 'Loading...');
 
-      const tokenC = await getFreshCaptchaToken();
-
-      const otpResendRes = await fetch(AUTH_WORKER_URL, {
+      const otpReqRes = await fetch(AUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'otp_request',
-          email: loginEmail,
-          captchaToken: tokenC
+          email: activeEmail,
+          captchaToken: currentCaptchaToken
         })
       });
-      const otpResendData = await otpResendRes.json();
+      const otpReqData = await parseJsonSafe(otpReqRes);
 
-      if (!otpResendRes.ok || otpResendData.error) {
-        const message = String(otpResendData.error || '').toLowerCase();
-        if (otpResendRes.status === 429 || message.includes('too many')) {
+      if (!otpReqRes.ok || otpReqData.error) {
+        const message = String(otpReqData.error || '').toLowerCase();
+        if (otpReqRes.status === 429 || message.includes('too many')) {
           nextOtpRequestAt = Date.now() + 60_000;
           showLoginError('Too many requests. Wait 60s and try again.');
           return;
         }
-        showLoginError(otpResendData.error || defaultErrText);
+        showOtpError(otpReqData.error || defaultOtpErr);
         return;
       }
 
       nextOtpRequestAt = Date.now() + 60_000;
-      const okText = okMsg?.querySelector('span');
+      const okText = loginOk?.querySelector('span');
       if (okText) okText.textContent = 'Verification code resent to your email.';
-      show(okMsg);
-      revealOTPUI();
-    } catch (_) {
-      showLoginError('Please complete the CAPTCHA and try again.');
-    } finally {
-      resetButton(btnResend);
+      show(loginOk);
       resetCaptcha();
+    } catch (err) {
+      console.error(err);
+      showOtpError('Network error. Try again in a few seconds.');
+    } finally {
+      resetLoading(otpResendBtn);
     }
   });
 
-  // Cancelar passo OTP (não reenvia código)
-  btnCancel.addEventListener('click', () => {
+  otpCancelBtn?.addEventListener('click', () => {
     otpPending = false;
-    resetButton(submitBtn);
-    resetButton(btnVerify);
-    resetButton(btnResend);
-    hideOTPUI();
+    resetLoading(loginButton);
+    resetLoading(otpVerifyBtn);
+    resetLoading(otpResendBtn);
+    revealLoginStep();
+    hide(otpOk);
+    resetOtpError();
   });
 </script>
 

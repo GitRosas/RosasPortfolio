@@ -162,11 +162,12 @@
     const submitBtn = document.querySelector('#register-submit');
     const okEl = document.querySelector('#reg-ok');
     const errEl = document.querySelector('#reg-err');
+    const okText = okEl?.querySelector('span');
     const errText = errEl?.querySelector('span');
     let captchaToken = '';
     let captchaWidgetId = null;
     const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
-    const AUTH_WORKER_URL = 'https://auth-proxy.joaorosa-aveiro.workers.dev/';
+    const AUTH_URL = 'https://auth.joaomiguelrosa.com';
 
     function show(el) { el?.classList.add('show'); el?.setAttribute('aria-hidden', 'false'); el?.focus(); }
     function hide(el) { el?.classList.remove('show'); el?.setAttribute('aria-hidden', 'true'); }
@@ -206,7 +207,7 @@
       hide(errEl);
       form.querySelectorAll('.form-group').forEach((group) => group.classList.remove('invalid'));
 
-      const email = emailEl.value.trim();
+      const email = emailEl.value.trim().toLowerCase();
       const password = passEl.value;
       let valid = true;
 
@@ -221,7 +222,11 @@
         form.querySelector('.form-group.invalid .form-input')?.focus();
         return;
       }
-      if (!captchaToken) {
+      const currentCaptchaToken = (window.turnstile && captchaWidgetId !== null)
+        ? (window.turnstile.getResponse(captchaWidgetId) || '')
+        : captchaToken;
+
+      if (!currentCaptchaToken) {
         if (errText) errText.textContent = 'Please complete the CAPTCHA.';
         show(errEl);
         return;
@@ -229,25 +234,31 @@
 
       try {
         setLoading(submitBtn);
-        const res = await fetch(AUTH_WORKER_URL, {
+        const res = await fetch(AUTH_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: 'signup',
             email,
             password,
-            captchaToken
+            captchaToken: currentCaptchaToken
           })
         });
 
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          data = {};
+        }
 
         if (!res.ok || data.error) {
-          if (errText) errText.textContent = data.error || 'Unable to create account.';
+          if (errText) errText.textContent = data.error || 'Error registering.';
           show(errEl);
           return;
         }
 
+        if (okText) okText.textContent = 'Check your email for the magic link!';
         show(okEl);
         form.reset();
       } catch (_) {
