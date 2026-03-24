@@ -1208,13 +1208,11 @@ function initCardTilt() {
     const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 4;
     card.style.transform = `translateY(-6px) perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   });
-  document.addEventListener('mouseleave', (e) => {
-  const target = e.target instanceof Element ? e.target : null;
-  if (!target) return;
-
-  const card = target.closest('.project-card');
-  if (card) card.style.transform = '';
-}, true);
+  document.querySelectorAll('.project-card').forEach(card => {
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
 }
 
 /* ---- Projects Page ---- */
@@ -1687,13 +1685,12 @@ function initCardGlow() {
     card.style.setProperty('--glow-y', y + 'px');
     if (!card.classList.contains('has-glow')) card.classList.add('has-glow');
   });
-  document.addEventListener('mouseleave', (e) => {
-  const target = e.target instanceof Element ? e.target : null;
-  if (!target) return;
-
-  const card = target.closest('._service-card, ._project-card, ._contact-info-item, ._stat-item');
-  if (card) card.classList.remove('has-glow');
-}, true);
+  document.querySelectorAll('._service-card, ._project-card, ._contact-info-item, ._stat-item')
+  .forEach(card => {
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('has-glow');
+    });
+});
 }
 
 /* ---- Hero Parallax on Scroll ---- */
