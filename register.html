@@ -196,14 +196,12 @@
         'error-callback': () => { captchaToken = ''; }
       });
       isCaptchaReady = true;
-      if (submitBtn) submitBtn.disabled = false;
     }
     function resetCaptcha() {
       if (window.turnstile && captchaWidgetId !== null) window.turnstile.reset(captchaWidgetId);
       captchaToken = '';
     }
     renderCaptcha();
-    if (submitBtn) submitBtn.disabled = true;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

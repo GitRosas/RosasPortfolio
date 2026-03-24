@@ -271,12 +271,6 @@
     if (loginStep) loginStep.style.display = 'block';
   }
 
-  function setCaptchaButtonsDisabled(disabled) {
-    if (loginButton) loginButton.disabled = disabled;
-    if (otpVerifyBtn) otpVerifyBtn.disabled = disabled;
-    if (otpResendBtn) otpResendBtn.disabled = disabled;
-  }
-
   function renderCaptcha() {
     if (!window.turnstile) {
       window.setTimeout(renderCaptcha, 150);
@@ -291,7 +285,6 @@
       'error-callback': () => { captchaToken = ''; }
     });
     isCaptchaReady = true;
-    setCaptchaButtonsDisabled(false);
   }
 
   function getCaptchaToken() {
@@ -327,7 +320,6 @@
   }
 
   renderCaptcha();
-  setCaptchaButtonsDisabled(true);
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
