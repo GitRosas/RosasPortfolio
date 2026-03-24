@@ -78,7 +78,7 @@
             </div>
 
             <div class="form-group">
-              <div id="cf-turnstile-login"></div>
+              <div id="cf-turnstile-login" class="cf-turnstile" data-sitekey="0x4AAAAAACtzeB8NcAeAY6qg"></div>
             </div>
 
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Login</button>
@@ -187,7 +187,6 @@
 
   const AUTH_URL = 'https://auth.joaomiguelrosa.com';
   const DASHBOARD_URL = 'https://dashboard.joaomiguelrosa.com';
-  const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
 
   const loginForm = document.querySelector('#login-form');
   const loginStep = document.querySelector('#login-step');
@@ -208,9 +207,6 @@
   const otpErrText = otpErr?.querySelector('span');
 
   let activeEmail = '';
-  let captchaWidgetId = null;
-  let captchaToken = '';
-  let isCaptchaReady = false;
   let otpPending = false;
   let nextOtpRequestAt = 0;
   let isSubmitting = false;
@@ -271,34 +267,13 @@
     if (loginStep) loginStep.style.display = 'block';
   }
 
-  function renderCaptcha() {
-    if (!window.turnstile) {
-      window.setTimeout(renderCaptcha, 150);
-      return;
-    }
-    if (captchaWidgetId !== null) return;
-
-    captchaWidgetId = window.turnstile.render('#cf-turnstile-login', {
-      sitekey: TURNSTILE_SITE_KEY,
-      callback: (token) => { captchaToken = token; },
-      'expired-callback': () => { captchaToken = ''; },
-      'error-callback': () => { captchaToken = ''; }
-    });
-    isCaptchaReady = true;
-  }
-
   function getCaptchaToken() {
-    if (window.turnstile && captchaWidgetId !== null) {
-      return window.turnstile.getResponse(captchaWidgetId) || '';
-    }
-    return captchaToken || '';
+    if (!window.turnstile) return '';
+    return window.turnstile.getResponse() || '';
   }
 
   function resetCaptcha() {
-    if (window.turnstile && captchaWidgetId !== null) {
-      window.turnstile.reset(captchaWidgetId);
-    }
-    captchaToken = '';
+    if (window.turnstile) window.turnstile.reset();
   }
 
   async function parseJsonSafe(res) {
@@ -319,8 +294,6 @@
     if (!dashRes.ok) throw new Error(`Dashboard auth failed (${dashRes.status})`);
   }
 
-  renderCaptcha();
-
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -328,7 +301,7 @@
     hide(loginOk);
     resetLoginError();
 
-    if (!isCaptchaReady) {
+    if (!window.turnstile) {
       showLoginError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
@@ -348,8 +321,8 @@
       return;
     }
 
-    const currentCaptchaToken = getCaptchaToken();
-    if (!currentCaptchaToken) {
+    const captchaToken = getCaptchaToken();
+    if (!captchaToken) {
       showLoginError('Please solve CAPTCHA.');
       return;
     }
@@ -365,7 +338,7 @@
           type: 'login_password',
           email,
           password,
-          captchaToken: currentCaptchaToken
+          captchaToken
         })
       });
       const loginData = await parseJsonSafe(loginRes);
@@ -381,13 +354,18 @@
         body: JSON.stringify({
           type: 'otp_request',
           email,
-          captchaToken: currentCaptchaToken
+          captchaToken
         })
       });
       const otpReqData = await parseJsonSafe(otpReqRes);
 
       if (!otpReqRes.ok || otpReqData.error) {
         const message = String(otpReqData.error || '').toLowerCase();
+        if (otpReqRes.status === 403 || message.includes('captcha')) {
+          resetCaptcha();
+          showLoginError('Invalid CAPTCHA. Please solve CAPTCHA again and retry.');
+          return;
+        }
         if (otpReqRes.status === 429 || message.includes('too many')) {
           nextOtpRequestAt = Date.now() + 60_000;
           showLoginError('Too many requests. Wait 60s and try again.');
@@ -418,7 +396,7 @@
     hide(otpOk);
     resetOtpError();
 
-    if (!isCaptchaReady) {
+    if (!window.turnstile) {
       showOtpError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
@@ -429,8 +407,8 @@
       return;
     }
 
-    const currentCaptchaToken = getCaptchaToken();
-    if (!currentCaptchaToken) {
+    const captchaToken = getCaptchaToken();
+    if (!captchaToken) {
       showOtpError('Please solve CAPTCHA.');
       return;
     }
@@ -446,7 +424,7 @@
           type: 'otp_verify',
           email: activeEmail,
           otp,
-          captchaToken: currentCaptchaToken
+          captchaToken
         })
       });
       const otpVerifyData = await parseJsonSafe(otpVerifyRes);
@@ -478,7 +456,7 @@
     hide(otpOk);
     resetOtpError();
 
-    if (!isCaptchaReady) {
+    if (!window.turnstile) {
       showOtpError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
@@ -494,8 +472,8 @@
       return;
     }
 
-    const currentCaptchaToken = getCaptchaToken();
-    if (!currentCaptchaToken) {
+    const captchaToken = getCaptchaToken();
+    if (!captchaToken) {
       showOtpError('Please solve CAPTCHA.');
       return;
     }
@@ -509,7 +487,7 @@
         body: JSON.stringify({
           type: 'otp_request',
           email: activeEmail,
-          captchaToken: currentCaptchaToken
+          captchaToken
         })
       });
       const otpReqData = await parseJsonSafe(otpReqRes);
