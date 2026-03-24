@@ -207,7 +207,8 @@
   const otpErrText = otpErr?.querySelector('span');
 
   let activeEmail = '';
-  let turnstileWidgetId = null;
+  let captchaWidgetId = null;
+  let captchaToken = '';
   let isCaptchaReady = false;
   let otpPending = false;
   let nextOtpRequestAt = 0;
@@ -274,28 +275,43 @@
       window.setTimeout(renderCaptcha, 150);
       return;
     }
-    if (turnstileWidgetId !== null) return;
+    if (captchaWidgetId !== null) return;
 
-    turnstileWidgetId = window.turnstile.render('#cf-turnstile-login', {
+    captchaWidgetId = window.turnstile.render('#cf-turnstile-login', {
       sitekey: '0x4AAAAAACtzeB8NcAeAY6qg',
-      callback: () => { isCaptchaReady = true; },
-      'expired-callback': () => { isCaptchaReady = false; },
-      'error-callback': () => { isCaptchaReady = false; }
+      callback: (token) => {
+        captchaToken = token || '';
+      },
+      'expired-callback': () => {
+        captchaToken = '';
+      },
+      'error-callback': () => {
+        captchaToken = '';
+      }
     });
     isCaptchaReady = true;
   }
 
-function getCaptchaToken() {
-  if (!window.turnstile || turnstileWidgetId === null) return '';
-  return window.turnstile.getResponse(turnstileWidgetId) || '';
-}
+  async function waitForCaptchaReady(timeoutMs = 8000) {
+    const start = Date.now();
+    while (!isCaptchaReady || !window.turnstile || captchaWidgetId === null) {
+      if (Date.now() - start >= timeoutMs) return false;
+      await new Promise((resolve) => window.setTimeout(resolve, 100));
+    }
+    return true;
+  }
+
+  function getCaptchaToken() {
+    if (!window.turnstile || captchaWidgetId === null) return '';
+    return window.turnstile.getResponse(captchaWidgetId) || captchaToken || '';
+  }
 
 
   function resetCaptcha() {
-    if (window.turnstile && turnstileWidgetId !== null) {
-      window.turnstile.reset(turnstileWidgetId);
-      isCaptchaReady = true;
+    if (window.turnstile && captchaWidgetId !== null) {
+      window.turnstile.reset(captchaWidgetId);
     }
+    captchaToken = '';
   }
 
   async function parseJsonSafe(res) {
@@ -325,7 +341,8 @@ function getCaptchaToken() {
     hide(loginOk);
     resetLoginError();
 
-    if (!window.turnstile || turnstileWidgetId === null || !isCaptchaReady) {
+    const captchaLoaded = await waitForCaptchaReady();
+    if (!captchaLoaded) {
       showLoginError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
@@ -420,7 +437,8 @@ function getCaptchaToken() {
     hide(otpOk);
     resetOtpError();
 
-    if (!window.turnstile || turnstileWidgetId === null || !isCaptchaReady) {
+    const captchaLoaded = await waitForCaptchaReady();
+    if (!captchaLoaded) {
       showOtpError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
@@ -480,7 +498,8 @@ function getCaptchaToken() {
     hide(otpOk);
     resetOtpError();
 
-    if (!window.turnstile || turnstileWidgetId === null || !isCaptchaReady) {
+    const captchaLoaded = await waitForCaptchaReady();
+    if (!captchaLoaded) {
       showOtpError('CAPTCHA is still loading. Please wait a moment.');
       return;
     }
