@@ -301,7 +301,66 @@
     resetCaptcha();
     return await waitForCaptchaToken(timeoutMs);
   }
-  renderCaptcha();
+
+  async function requestCaptcha(timeoutMs = 120000) {
+    const overlayId = 'captcha-overlay';
+    const hostId = 'cf-turnstile-dynamic';
+    const overlay = document.getElementById(overlayId);
+    const host = document.getElementById(hostId);
+
+    if (!overlay || !host) {
+      throw new Error('captcha overlay missing');
+    }
+
+    overlay.style.display = 'flex';
+    host.innerHTML = '';
+
+    return await new Promise((resolve, reject) => {
+      let done = false;
+      let widgetId = null;
+      const startedAt = Date.now();
+
+      const cleanup = () => {
+        overlay.style.display = 'none';
+        if (window.turnstile && widgetId !== null && typeof window.turnstile.remove === 'function') {
+          try { window.turnstile.remove(widgetId); } catch {}
+        }
+        host.innerHTML = '';
+      };
+
+      const finish = (fn) => {
+        if (done) return;
+        done = true;
+        cleanup();
+        fn();
+      };
+
+      const poll = () => {
+        if (done) return;
+        if (Date.now() - startedAt >= timeoutMs) {
+          finish(() => reject(new Error('captcha timeout')));
+          return;
+        }
+        if (!window.turnstile) {
+          window.setTimeout(poll, 100);
+          return;
+        }
+
+        try {
+          widgetId = window.turnstile.render(`#${hostId}`, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token) => finish(() => resolve(token)),
+            'expired-callback': () => finish(() => reject(new Error('captcha expired'))),
+            'error-callback': () => finish(() => reject(new Error('captcha error')))
+          });
+        } catch {
+          finish(() => reject(new Error('captcha render failed')));
+        }
+      };
+
+      poll();
+    });
+  }
 
   async function callAuthWorker(type, payload) {
     const response = await fetch(AUTH_WORKER_URL, {
@@ -365,14 +424,14 @@
       isSubmitting = true;
       setButtonLoading(submitBtn, 'Loading...');
 
-      const tokenA = await getFreshCaptchaToken();
+      const tokenA = await requestCaptcha();
       await callAuthWorker('login_password', {
         email,
         password,
         captchaToken: tokenA
       });
 
-      const tokenB = await getFreshCaptchaToken();
+      const tokenB = await requestCaptcha();
       await callAuthWorker('otp_request', {
         email,
         captchaToken: tokenB
@@ -418,11 +477,11 @@
       isVerifying = true;
       setButtonLoading(btnVerify, 'Loading...');
 
-      const tokenC = await getFreshCaptchaToken();
+      const captcha3 = await requestCaptcha();
       const result = await callAuthWorker('otp_verify', {
         email: loginEmail,
-        token: code,
-        captchaToken: tokenC
+        otp: code,
+        captchaToken: captcha3
       });
 
       saveWorkerAuthPayload(result);
@@ -463,7 +522,7 @@
     try {
       setButtonLoading(btnResend, 'Loading...');
 
-      const tokenD = await getFreshCaptchaToken();
+      const tokenD = await requestCaptcha();
       await callAuthWorker('otp_request', {
         email: loginEmail,
         captchaToken: tokenD
@@ -498,6 +557,12 @@
 </script>
 
 <script src="assets/js/main.js" defer></script>
+
+<div id="captcha-overlay" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
+  <div id="captcha-box" style="background:#111; padding:1rem; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.35); min-width:320px; display:flex; justify-content:center;">
+    <div id="cf-turnstile-dynamic"></div>
+  </div>
+</div>
 
 </body>
 </html>
