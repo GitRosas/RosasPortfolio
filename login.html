@@ -306,6 +306,17 @@
     return window.turnstile.getResponse(captchaWidgetId) || captchaToken || '';
   }
 
+  async function waitForCaptchaToken(timeoutMs = 15000) {
+    const start = Date.now();
+    let token = getCaptchaToken();
+    while (!token) {
+      if (Date.now() - start >= timeoutMs) return '';
+      await new Promise((resolve) => window.setTimeout(resolve, 120));
+      token = getCaptchaToken();
+    }
+    return token;
+  }
+
 
   function resetCaptcha() {
     if (window.turnstile && captchaWidgetId !== null) {
@@ -362,10 +373,15 @@
       return;
     }
 
-    const captchaToken = getCaptchaToken();
+    let captchaToken = getCaptchaToken();
     if (!captchaToken) {
-      showLoginError('Please solve CAPTCHA.');
-      return;
+      showLoginError('Waiting for CAPTCHA validation...');
+      captchaToken = await waitForCaptchaToken();
+      if (!captchaToken) {
+        showLoginError('Please solve CAPTCHA.');
+        return;
+      }
+      resetLoginError();
     }
 
     try {
@@ -449,10 +465,15 @@
       return;
     }
 
-    const captchaToken = getCaptchaToken();
+    let captchaToken = getCaptchaToken();
     if (!captchaToken) {
-      showOtpError('Please solve CAPTCHA.');
-      return;
+      showOtpError('Waiting for CAPTCHA validation...');
+      captchaToken = await waitForCaptchaToken();
+      if (!captchaToken) {
+        showOtpError('Please solve CAPTCHA.');
+        return;
+      }
+      resetOtpError();
     }
 
     try {
@@ -515,10 +536,15 @@
       return;
     }
 
-    const captchaToken = getCaptchaToken();
+    let captchaToken = getCaptchaToken();
     if (!captchaToken) {
-      showOtpError('Please solve CAPTCHA.');
-      return;
+      showOtpError('Waiting for CAPTCHA validation...');
+      captchaToken = await waitForCaptchaToken();
+      if (!captchaToken) {
+        showOtpError('Please solve CAPTCHA.');
+        return;
+      }
+      resetOtpError();
     }
 
     try {
