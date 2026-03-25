@@ -236,6 +236,49 @@
   // Helpers UI
   function show(el){ el?.classList.add('show'); el?.setAttribute('aria-hidden','false'); el?.focus(); }
   function hide(el){ el?.classList.remove('show'); el?.setAttribute('aria-hidden','true'); }
+  function showCooldownPopup(waitSec) {
+    const existing = document.getElementById('resend-cooldown-popup');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'resend-cooldown-popup';
+    popup.setAttribute('role', 'status');
+    popup.setAttribute('aria-live', 'polite');
+    popup.style.cssText = [
+      'position:fixed',
+      'left:50%',
+      'bottom:24px',
+      'transform:translate(-50%, 12px)',
+      'opacity:0',
+      'z-index:10000',
+      'display:flex',
+      'align-items:center',
+      'gap:.55rem',
+      'background:linear-gradient(135deg, rgba(59,130,246,.95), rgba(16,185,129,.92))',
+      'color:#fff',
+      'border:1px solid rgba(255,255,255,.2)',
+      'border-radius:999px',
+      'padding:.7rem 1rem',
+      'font-weight:700',
+      'font-size:.9rem',
+      'box-shadow:0 14px 30px rgba(0,0,0,.28)',
+      'backdrop-filter:blur(8px)',
+      'transition:opacity .22s ease, transform .22s ease'
+    ].join(';');
+    popup.innerHTML = `<i class="fa-solid fa-clock" aria-hidden="true"></i> You can resend in ${waitSec}s.`;
+
+    document.body.appendChild(popup);
+    window.requestAnimationFrame(() => {
+      popup.style.opacity = '1';
+      popup.style.transform = 'translate(-50%, 0)';
+    });
+
+    window.setTimeout(() => {
+      popup.style.opacity = '0';
+      popup.style.transform = 'translate(-50%, 12px)';
+      window.setTimeout(() => popup.remove(), 220);
+    }, 2200);
+  }
   function setButtonLoading(button, label) {
     if (!button) return;
     if (!button.dataset.originalHtml) button.dataset.originalHtml = button.innerHTML;
@@ -499,6 +542,7 @@
     if (!loginEmail) { showOtpError(defaultOtpErrText); return; }
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
+      showCooldownPopup(waitSec);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
       return;
     }
