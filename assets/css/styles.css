@@ -172,6 +172,48 @@ strong, b { color: var(--text); font-weight: 600; }
 }
 .skip-link:focus { top: 1rem; color: #000; }
 
+/* ---- Auth Info Popup (Login/Register) ---- */
+.auth-info-popup {
+  position: relative;
+  margin-bottom: 1rem;
+  position: relative;
+  width: 100%;
+  padding: 1rem 1rem 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, rgba(var(--primary-rgb), .15), rgba(10, 10, 10, .45));
+  box-shadow: var(--glow);
+}
+
+.auth-info-popup p {
+  color: var(--text);
+  margin: 0;
+  padding-right: 2rem;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+
+.auth-info-popup-close {
+  position: absolute;
+  top: .45rem;
+  right: .7rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--fast), background var(--fast);
+}
+
+.auth-info-popup-close:hover {
+  color: var(--text);
+  background: rgba(var(--primary-rgb), .1);
+}
+
 /* ===========================================================
    6. Navbar — pure CSS + JS toggle
    =========================================================== */
@@ -530,7 +572,7 @@ strong, b { color: var(--text); font-weight: 600; }
 /* ===========================================================
    9. Sections
    =========================================================== */
-.section { padding: 6rem 0; }
+.section { padding: 2rem 0; }
 .section-alt {
   background: rgba(255,255,255,.01);
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);

@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initPageLoader();
   initTheme();
   initLanguageToggle();
+  initAuthInfoPopup();
+  initPhoneReveal();
   initAnalyticsTracking();
   initAuthNavigation();
   initNavbar();
@@ -15,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initBackToTop();
   initParticles();
   initTypingEffect();
+  initAutoProjectsCounter();
   initCounterAnimation();
   initCardTilt();
   initProjectsPage();
@@ -93,15 +96,18 @@ const I18N = {
       footerContact: 'Contact',
       footerDesc: 'Engineer working with MBSE, SysML v2, ECSS/PUS and software for space systems - focused on connecting system models with the code that actually brings them to life.',
       footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
+      revealPhone: 'Click to show phone number',
+      phoneRevealed: 'Phone number revealed. Click again to call',
+      callNow: 'Click again to call',
       location: 'Coimbra, Portugal',
       tech1: 'SysML v2',
-      tech2: 'ECSS / PUS',
-      tech3: 'Python & C++',
-      tech4: 'Docker & DevOps'
+      tech2: 'HTML, CSS & JavaScript',
+      tech3: 'Python',
+      tech4: 'C++ & Java'
     },
     home: {
       heroHi: "Hi, I'm",
-      heroBioHtml: 'Software & Systems Engineering student and intern at Critical Software,focused on <strong>MBSE/SysML v2</strong>  and <strong>ECSS/PUS</strong>. For now I build models,  tools and solutions that bridge systems engineering and code.',
+      heroBioHtml: 'Final-year Software & Systems Engineering student completing my degree through a curricular internship at Critical Software, focused on <strong>MBSE/SysML v2</strong>  and <strong>ECSS/PUS</strong> standards, while exploring full stack development and data engineering.',
       btnViewProjects: 'View Projects',
       btnGetInTouch: 'Get in Touch',
       scroll: 'scroll',
@@ -115,10 +121,10 @@ const I18N = {
       expertiseSubtitle: 'Domains where I transform complex requirements into concrete solutions.',
       service1Title: 'Model-Based Systems Engineering',
       service1Desc: 'Systems modeling with SysML v2 - requirements, architecture, behavior and integrated traceability from concept to verification.',
-      service2Title: 'Space Systems Software',
-      service2Desc: 'Development of tools and parsers in C++ and Python aligned with ECSS standards and the Packet Utilization Standard (PUS).',
-      service3Title: 'DevOps & Automation',
-      service3Desc: 'Containerized environments with Docker, CI/CD pipelines, and continuous integration for engineering and space software projects.',
+      service2Title: 'Full Stack Web Developer',
+      service2Desc: 'Development of complete web applications, from responsive interfaces and modern frontend to backend APIs, databases, and robust integrations.',
+      service3Title: 'Database Administration & Data Warehousing',
+      service3Desc: 'Administration and optimization of relational databases, plus data warehousing solutions with ETL pipelines, data quality controls, and reliable reporting.',
       tagTechStack: 'Tech Stack',
       techTitle: 'Technologies & Tools',
       techSubtitle: 'The tools I use daily to build and model.',
@@ -190,7 +196,8 @@ const I18N = {
       foundSingular: 'project',
       foundPlural: 'projects',
       noResults: 'No results found.',
-      loadError: 'Error loading projects.'
+      loadError: 'Error loading projects.',
+      featuredLoadError: 'Could not load projects.'
     },
     contact: {
       headerTitle: 'Contact',
@@ -212,12 +219,22 @@ const I18N = {
       submit: 'Send Message',
       success: "Message sent successfully! I'll get back to you shortly.",
       error: 'An error occurred sending the message.',
+      formNotConfigured: 'The form is not yet configured. See the README for instructions.',
       infoTitle: 'Contact Information',
       infoSubtitle: 'You can also reach me directly.',
       phone: 'Phone',
       linkedin: 'LinkedIn',
       github: 'GitHub',
       locationLabel: 'Location'
+    },
+    authPopup: {
+      loginTitle: 'Welcome Back',
+      loginText: 'Please note that LOGIN exists only to demonstrate a fully functional and secure authentication flow. It gives access to a reserved area with no relevant content. If you find any relevant issue, please',
+      registerTitle: 'Create Your Account',
+      registerText: 'Please note that REGISTER exists only to demonstrate a fully functional and secure registration flow. The created account only accesses a reserved area with no relevant content. If you find any relevant issue, please',
+      contactLink: 'contact me',
+      close: 'Close',
+      continue: 'Continue'
     }
   },
   pt: {
@@ -226,9 +243,9 @@ const I18N = {
       projects: 'Projetos',
       about: 'Sobre Mim',
       contact: 'Contacto',
-      login: 'Entrar',
-      logout: 'Sair',
-      portfolio: 'Portfolio',
+      login: 'LOGIN',
+      logout: 'SAIR',
+      portfolio: 'Portefolio',
       dashboard: 'Painel'
     },
     pages: {
@@ -236,7 +253,7 @@ const I18N = {
       loginSubtitle: 'Inicia sessao para continuar.',
       accessTitle: 'Acesso',
       accessSubtitle: 'Usa as tuas credenciais para entrar.',
-      portfolioTitle: 'Portfolio',
+      portfolioTitle: 'Portefolio',
       portfolioSubtitle: 'Galeria exclusiva visivel apos login.',
       sliderTitle: 'Slider de Imagens',
       sliderSubtitle: '10 fotos e visuais de projetos num carrossel privado.',
@@ -253,7 +270,7 @@ const I18N = {
       loginInvalid: 'Credenciais invalidas.',
       lastLogin: 'Ultimo Login',
       dashboardVisits: 'Visitas ao Painel',
-      portfolioVisits: 'Visitas ao Portfolio',
+      portfolioVisits: 'Visitas ao Portefolio',
       cvClicks: 'Cliques no CV',
       formSubmits: 'Envios do Formulario',
       githubClicks: 'Cliques no GitHub',
@@ -263,7 +280,7 @@ const I18N = {
       ip: 'IP',
       noEvents: 'Ainda nao existem eventos.',
       editProfile: 'Editar Perfil',
-      managePortfolio: 'Gerir Portfolio',
+      managePortfolio: 'Gerir Portefolio',
       openContact: 'Abrir Pagina de Contacto'
     },
     common: {
@@ -272,18 +289,21 @@ const I18N = {
       switchToEnglish: 'Mudar para Ingles',
       footerNavigation: 'Navegacao',
       footerTechnologies: 'Tecnologias',
-      footerContact: 'Contacto',
+      footerContact: 'Contactos',
       footerDesc: 'Engenheiro a trabalhar com MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais - focado em conectar modelos de sistemas com o codigo que realmente os traz a vida.',
       footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
+      revealPhone: 'Clicar para mostrar numero de telefone',
+      phoneRevealed: 'Numero revelado. Clicar novamente para ligar',
+      callNow: 'Clicar novamente para ligar',
       location: 'Coimbra, Portugal',
       tech1: 'SysML v2',
-      tech2: 'ECSS / PUS',
-      tech3: 'Python e C++',
-      tech4: 'Docker e DevOps'
+      tech2: 'HTML, CSS e JavaScript',
+      tech3: 'Python',
+      tech4: 'C++ e Java'
     },
     home: {
       heroHi: 'Ola, eu sou',
-      heroBioHtml: 'Engenheiro focado em <strong>MBSE/SysML v2</strong>, <strong>ECSS/PUS</strong> e software para sistemas espaciais. Desenvolvo modelos, ferramentas e solucoes que ligam engenharia de sistemas e codigo.',
+      heroBioHtml: 'Estudante finalista de Engenharia de Software e de Sistemas, a concluir a licenciatura atraves de um estagio curricular na Critical Software, com foco em <strong>MBSE/SysML v2</strong> e normas <strong>ECSS/PUS</strong>, enquanto exploro desenvolvimento full stack e engenharia de dados.',
       btnViewProjects: 'Ver Projetos',
       btnGetInTouch: 'Entrar em Contacto',
       scroll: 'descer',
@@ -297,14 +317,14 @@ const I18N = {
       expertiseSubtitle: 'Dominios onde transformo requisitos complexos em solucoes concretas.',
       service1Title: 'Engenharia de Sistemas Baseada em Modelos',
       service1Desc: 'Modelacao de sistemas com SysML v2 - requisitos, arquitetura, comportamento e rastreabilidade integrada do conceito a verificacao.',
-      service2Title: 'Software para Sistemas Espaciais',
-      service2Desc: 'Desenvolvimento de ferramentas e parsers em C++ e Python alinhados com normas ECSS e o Packet Utilization Standard (PUS).',
-      service3Title: 'DevOps e Automacao',
-      service3Desc: 'Ambientes contentorizados com Docker, pipelines CI/CD e integracao continua para projetos de engenharia e software espacial.',
+      service2Title: 'Desenvolvimento Web Full Stack',
+      service2Desc: 'Desenvolvimento de aplicacoes web completas, desde interfaces responsivas e frontend moderno ate APIs de backend, bases de dados e integracoes robustas.',
+      service3Title: 'Administracao de Bases de Dados e Data Warehousing',
+      service3Desc: 'Administracao e otimizacao de bases de dados relacionais, com solucoes de data warehousing, pipelines ETL, controlo de qualidade de dados e reporting fiavel.',
       tagTechStack: 'Stack Tecnologica',
       techTitle: 'Tecnologias e Ferramentas',
       techSubtitle: 'Ferramentas que uso diariamente para modelar e desenvolver.',
-      tagPortfolio: 'Portfolio',
+      tagPortfolio: 'Portefolio',
       featuredTitle: 'Projetos em Destaque',
       featuredSubtitle: 'Alguns dos meus trabalhos recentes.',
       btnViewAll: 'Ver Todos os Projetos',
@@ -328,7 +348,7 @@ const I18N = {
       exp1Org: 'Critical Software - Estágio',
       exp1Desc: 'Estágio curricular no âmbito da licenciatura em Engenharia de Software - Sistemas de Informação. Coimbra, Portugal (Híbrida).',
       exp2Date: 'fev 2023 - o momento',
-      exp2Title: 'Football Referee',
+      exp2Title: 'Arbitro de Futebol',
       exp2Org: 'Associação de Futebol de Coimbra',
       exp2Desc: 'Coimbra, Portugal.',
       exp3Date: 'nov 2023 - nov 2023',
@@ -372,7 +392,8 @@ const I18N = {
       foundSingular: 'projeto',
       foundPlural: 'projetos',
       noResults: 'Sem resultados.',
-      loadError: 'Erro ao carregar projetos.'
+      loadError: 'Erro ao carregar projetos.',
+      featuredLoadError: 'Nao foi possivel carregar os projetos.'
     },
     contact: {
       headerTitle: 'Contacto',
@@ -394,12 +415,22 @@ const I18N = {
       submit: 'Enviar Mensagem',
       success: 'Mensagem enviada com sucesso! Responderei em breve.',
       error: 'Ocorreu um erro ao enviar a mensagem.',
+      formNotConfigured: 'O formulario ainda nao esta configurado. Consulta o README para instrucoes.',
       infoTitle: 'Informacao de Contacto',
       infoSubtitle: 'Tambem podes contactar-me diretamente.',
       phone: 'Telefone',
       linkedin: 'LinkedIn',
       github: 'GitHub',
       locationLabel: 'Localizacao'
+    },
+    authPopup: {
+      loginTitle: 'Bem-vindo de volta',
+      loginText: 'Informo que o LOGIN serve apenas para demonstrar uma funcionalidade totalmente funcional e segura. Da acesso a uma area reservada sem conteudo relevante. Se encontrares algum erro relevante, por favor',
+      registerTitle: 'Cria a tua conta',
+      registerText: 'Informo que o REGISTO serve apenas para demonstrar uma funcionalidade totalmente funcional e segura. A conta criada da apenas acesso a uma area reservada sem conteudo relevante. Se encontrares algum erro relevante, por favor',
+      contactLink: 'contacta-me',
+      close: 'Fechar',
+      continue: 'Continuar'
     }
   }
 };
@@ -684,7 +715,23 @@ function applyTranslations() {
     setText('.page-header p', 'projects.headerSubtitle');
     setAttr('#project-search', 'placeholder', 'projects.searchPlaceholder');
     setAttr('#project-search', 'aria-label', 'projects.searchAria');
-    setText('#results-count', 'projects.loading');
+    if (!allProjectsData.length) {
+      setText('#results-count', 'projects.loading');
+    } else {
+      const grid = document.getElementById('projects-grid');
+      const filtersContainer = document.getElementById('project-filters');
+      const resultsCount = document.getElementById('results-count');
+      const searchInput = document.getElementById('project-search');
+      if (grid && filtersContainer && resultsCount) {
+        renderFilters(allProjectsData, filtersContainer);
+        applyFilters(allProjectsData, 'All', searchInput ? searchInput.value : '', grid, resultsCount);
+      }
+    }
+  }
+
+  if ((currentPage === 'index.html' || currentPage === '') && allProjectsData.length) {
+    const featuredGrid = document.getElementById('featured-projects');
+    if (featuredGrid) renderProjects(allProjectsData.slice(0, 3), featuredGrid);
   }
 
   if (currentPage === 'contact.html') {
@@ -736,7 +783,68 @@ function applyTranslations() {
     if (infoLabels[4]) infoLabels[4].textContent = t('contact.locationLabel');
   }
 
+  if (currentPage === 'login.html' || currentPage === 'register.html') {
+    updateAuthInfoPopupText(currentPage);
+  }
+
   document.documentElement.lang = getCurrentLanguage() === 'pt' ? 'pt' : 'en';
+}
+
+function initAuthInfoPopup() {
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPage !== 'login.html' && currentPage !== 'register.html') return;
+
+  const formCard = document.querySelector('main .section .reveal');
+  if (!formCard) return;
+
+  const popup = document.createElement('div');
+  popup.className = 'auth-info-popup';
+  popup.id = 'auth-info-popup';
+  popup.setAttribute('role', 'status');
+  popup.setAttribute('aria-live', 'polite');
+  popup.setAttribute('data-page', currentPage);
+  popup.innerHTML = `
+    <button type="button" class="auth-info-popup-close" id="auth-popup-close" aria-label="Close">&times;</button>
+    <p id="auth-popup-message"></p>
+  `;
+
+  const sectionTitle = formCard.querySelector('.section-title');
+  if (sectionTitle) {
+    formCard.insertBefore(popup, sectionTitle);
+  } else {
+    formCard.prepend(popup);
+  }
+
+  updateAuthInfoPopupText(currentPage);
+
+  const closePopup = () => {
+    popup.style.display = 'none';
+  };
+
+  const closeBtn = document.getElementById('auth-popup-close');
+
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+}
+
+function updateAuthInfoPopupText(currentPage) {
+  const popup = document.getElementById('auth-info-popup');
+  if (!popup) return;
+
+  const page = currentPage || popup.getAttribute('data-page');
+  const message = document.getElementById('auth-popup-message');
+  const closeBtn = document.getElementById('auth-popup-close');
+
+  if (page === 'login.html') {
+    if (message) {
+      message.innerHTML = `${esc(t('authPopup.loginText'))} <a href="contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
+    }
+  } else {
+    if (message) {
+      message.innerHTML = `${esc(t('authPopup.registerText'))} <a href="contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
+    }
+  }
+
+  if (closeBtn) closeBtn.setAttribute('aria-label', t('authPopup.close'));
 }
 
 /* ---- Auth Navigation ---- */
@@ -1093,6 +1201,50 @@ function initBackToTop() {
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
+/* ---- Phone Reveal ---- */
+function initPhoneReveal() {
+  const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+  if (!phoneLinks.length) return;
+
+  phoneLinks.forEach(link => {
+    if (link.dataset.phoneRevealReady === 'true') return;
+
+    const rawHref = link.getAttribute('href') || '';
+    const phoneRaw = rawHref.replace(/^tel:/i, '').trim();
+    const visibleText = (link.textContent || '').trim();
+
+    // Only mask links that visibly show a phone number.
+    if (!/\d/.test(visibleText) || !/\d/.test(phoneRaw)) return;
+
+    link.dataset.phoneRevealReady = 'true';
+    link.dataset.phoneOriginalText = visibleText;
+    link.dataset.phoneOriginalHref = rawHref;
+
+    const digitsOnly = phoneRaw.replace(/\D/g, '');
+    const keepSuffix = digitsOnly.slice(-3);
+    const maskedText = visibleText
+      .replace(/\d/g, '*')
+      .replace(/\*{1,3}\s*$/, keepSuffix);
+
+    link.textContent = maskedText;
+    link.setAttribute('href', '#');
+    link.setAttribute('title', t('common.revealPhone'));
+    link.setAttribute('aria-label', t('common.revealPhone'));
+
+    link.addEventListener('click', event => {
+      const isRevealed = link.dataset.phoneRevealed === 'true';
+      if (isRevealed) return;
+
+      event.preventDefault();
+      link.dataset.phoneRevealed = 'true';
+      link.textContent = link.dataset.phoneOriginalText || visibleText;
+      link.setAttribute('href', link.dataset.phoneOriginalHref || rawHref);
+      link.setAttribute('title', t('common.callNow'));
+      link.setAttribute('aria-label', t('common.phoneRevealed'));
+    });
+  });
+}
+
 /* ---- Particles ---- */
 function initParticles() {
   const canvas = document.getElementById('particles-canvas');
@@ -1196,6 +1348,26 @@ function animateCounter(el) {
   requestAnimationFrame(step);
 }
 
+function initAutoProjectsCounter() {
+  const projectsCounter = document.querySelector('.stats .stat-item:first-child .stat-number');
+  if (!projectsCounter) return;
+
+  fetch('assets/data/projects.json')
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to load projects data');
+      return response.json();
+    })
+    .then(projects => {
+      const totalProjects = Array.isArray(projects) ? projects.length : 0;
+      projectsCounter.dataset.count = String(totalProjects);
+      projectsCounter.textContent = '0';
+      animateCounter(projectsCounter);
+    })
+    .catch(() => {
+      // Keep existing fallback value from HTML when data cannot be loaded.
+    });
+}
+
 /* ---- Card Tilt ---- */
 function initCardTilt() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1254,14 +1426,33 @@ function initFeaturedProjects() {
       allProjectsData = data;
       renderProjects(data.slice(0, 3), grid);
     })
-    .catch(() => { grid.innerHTML = '<p style="color:var(--text-muted);text-align:center">Could not load projects.</p>'; });
+    .catch(() => { grid.innerHTML = `<p style="color:var(--text-muted);text-align:center">${esc(t('projects.featuredLoadError'))}</p>`; });
+}
+
+function getLocalizedProjectText(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const lang = getCurrentLanguage();
+    const localized = value[lang];
+    if (typeof localized === 'string') return localized;
+    if (typeof value.en === 'string') return value.en;
+    if (typeof value.pt === 'string') return value.pt;
+    return '';
+  }
+  return typeof value === 'string' ? value : '';
+}
+
+function getLocalizedProjectTags(tags) {
+  if (!Array.isArray(tags)) return [];
+  return tags
+    .map(tag => getLocalizedProjectText(tag))
+    .filter(Boolean);
 }
 
 /* ---- Render Helpers ---- */
 function renderFilters(projects, container) {
   if (!container) return;
   const tags = new Set();
-  projects.forEach(p => p.tags.forEach(t => tags.add(t)));
+  projects.forEach(p => getLocalizedProjectTags(p.tags).forEach(t => tags.add(t)));
   let html = `<button class="filter-tag active" data-tag="All">${esc(t('projects.all'))}</button>`;
   Array.from(tags).sort().forEach(tag => { html += `<button class="filter-tag" data-tag="${esc(tag)}">${esc(tag)}</button>`; });
   container.innerHTML = html;
@@ -1270,8 +1461,11 @@ function renderFilters(projects, container) {
 function applyFilters(projects, tag, query, grid, countEl) {
   const q = query.toLowerCase().trim();
   const filtered = projects.filter(p => {
-    const matchTag = tag === 'All' || p.tags.includes(tag);
-    const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+    const title = getLocalizedProjectText(p.title).toLowerCase();
+    const description = getLocalizedProjectText(p.description).toLowerCase();
+    const localizedTags = getLocalizedProjectTags(p.tags);
+    const matchTag = tag === 'All' || localizedTags.includes(tag);
+    const matchQ = !q || title.includes(q) || description.includes(q);
     return matchTag && matchQ;
   });
   renderProjects(filtered, grid);
@@ -1286,15 +1480,15 @@ function renderProjects(projects, grid) {
   grid.innerHTML = projects.map(p => `
     <article class="project-card" data-project-id="${esc(p.id)}" role="button" tabindex="0">
       <div class="project-card-img-wrapper">
-        <img src="${esc(p.image)}" alt="Project: ${esc(p.title)}" class="project-card-img" loading="lazy">
+        <img src="${esc(p.image)}" alt="Project: ${esc(getLocalizedProjectText(p.title))}" class="project-card-img" loading="lazy">
         <div class="project-card-overlay">
           ${p.year ? `<span class="project-card-year">${esc(String(p.year))}</span>` : ''}
         </div>
       </div>
       <div class="project-card-body">
-        <h3 class="project-card-title">${esc(p.title)}</h3>
-        <p class="project-card-desc">${esc(p.description)}</p>
-        <div class="project-card-tags">${p.tags.map(t => `<span class="project-card-tag">${esc(t)}</span>`).join('')}</div>
+        <h3 class="project-card-title">${esc(getLocalizedProjectText(p.title))}</h3>
+        <p class="project-card-desc">${esc(getLocalizedProjectText(p.description))}</p>
+        <div class="project-card-tags">${getLocalizedProjectTags(p.tags).map(tag => `<span class="project-card-tag">${esc(tag)}</span>`).join('')}</div>
         <div class="project-card-links">
           ${p.links.github && p.links.github !== '#' ? `<a href="${esc(p.links.github)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>` : ''}
           ${p.links.demo && p.links.demo !== '#' ? `<a href="${esc(p.links.demo)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>` : ''}
@@ -1348,11 +1542,14 @@ function openProjectModal(projectId) {
   if (!project || !modal) return;
 
   const img = document.getElementById('modal-image');
-  if (img) { img.src = project.image; img.alt = `Project: ${project.title}`; }
-  document.getElementById('modal-title').textContent = project.title;
-  document.getElementById('modal-description').textContent = project.description;
+  const projectTitle = getLocalizedProjectText(project.title);
+  const projectDescription = getLocalizedProjectText(project.description);
+  const localizedTags = getLocalizedProjectTags(project.tags);
+  if (img) { img.src = project.image; img.alt = `Project: ${projectTitle}`; }
+  document.getElementById('modal-title').textContent = projectTitle;
+  document.getElementById('modal-description').textContent = projectDescription;
   document.getElementById('modal-year').textContent = project.year || '';
-  document.getElementById('modal-tags').innerHTML = project.tags.map(t => `<span>${esc(t)}</span>`).join('');
+  document.getElementById('modal-tags').innerHTML = localizedTags.map(tag => `<span>${esc(tag)}</span>`).join('');
   document.getElementById('modal-links').innerHTML = [
     project.links.github && project.links.github !== '#' && `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>`,
     project.links.demo && project.links.demo !== '#' && `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>`
@@ -1398,7 +1595,7 @@ function initContactForm() {
     if (!action || action.includes('YOUR_FORM_ID') || action === '#') {
       e.preventDefault();
       if (alertError) {
-        alertError.textContent = 'The form is not yet configured. See the README for instructions.';
+        alertError.textContent = t('contact.formNotConfigured');
         alertError.style.display = 'block';
         alertError.focus();
       }
