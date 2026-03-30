@@ -34,6 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const AUTH_STORAGE_KEY = 'portfolioAuth';
+
+function getCurrentPageName() {
+  const raw = window.location.pathname.split('/').pop();
+  if (raw && raw.includes('.html')) return raw;
+  const href = window.location.href;
+  if (href.includes('register')) return 'register.html';
+  if (href.includes('login')) return 'login.html';
+  if (href.includes('projects')) return 'projects.html';
+  if (href.includes('about')) return 'about.html';
+  if (href.includes('contact')) return 'contact.html';
+  if (href.includes('dashboard')) return 'dashboard.html';
+  if (href.includes('portfolio')) return 'portfolio.html';
+  return 'index.html';
+}
 const LEGACY_AUTH_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
 const AUTH_SESSION_MS = 20 * 60 * 1000;
 const LANGUAGE_STORAGE_KEY = 'portfolioLang';
@@ -503,7 +517,7 @@ function applyTranslations() {
     if (el) el.setAttribute(attr, t(key));
   };
 
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPage = getCurrentPageName();
 
   const navMap = [
     ['index.html', 'nav.home'],
@@ -792,7 +806,7 @@ function applyTranslations() {
 }
 
 function initAuthInfoPopup() {
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPage = getCurrentPageName();
   if (currentPage !== 'login.html' && currentPage !== 'register.html') return;
 
   const formCard = document.querySelector('main .section .reveal');
@@ -1096,7 +1110,7 @@ function trackEvent(name, details) {
 
 function initAnalyticsTracking() {
   trackEvent('site_entry');
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPage = getCurrentPageName();
   if (currentPage === 'dashboard.html' || currentPage === 'dashboard') {
     trackEvent('dashboard_visit');
   }
@@ -1144,7 +1158,7 @@ function initTheme() {
 function initNavbar() {
   const navbar = document.getElementById('navbar');
   if (!navbar) return;
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPage = getCurrentPageName();
   const isHome = currentPage === '' || currentPage === 'index.html';
 
   document.querySelectorAll('.nav-links .nav-link').forEach(link => {
