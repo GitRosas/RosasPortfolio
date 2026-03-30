@@ -144,7 +144,7 @@
           <div class="footer-social-row" aria-label="Social media">
             <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
             <a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
-            <a href="mailto:geral@joaomiguelrosa.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
+            <a href="mailto:joaorosa.aveiro@gmail.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
           </div>
         </div>
         <div>
@@ -154,24 +154,25 @@
             <a href="projects.html">Projects</a>
             <a href="about.html">About Me</a>
             <a href="contact.html">Contact</a>
+            <a href="login.html">Login</a>
           </div>
         </div>
         <div>
           <h3 class="footer-heading">Technologies</h3>
           <div class="footer-links">
             <a href="projects.html">SysML v2</a>
-            <a href="projects.html">HTML, CSS &amp; JavaScript</a>
-            <a href="projects.html">Python</a>
-            <a href="projects.html">C++ &amp; Java</a>
+            <a href="projects.html">ECSS / PUS</a>
+            <a href="projects.html">Python &amp; C++</a>
+            <a href="projects.html">Docker &amp; DevOps</a>
           </div>
         </div>
         <div>
           <h3 class="footer-heading">Contact</h3>
           <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
-          <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:geral@joaomiguelrosa.com">geral@joaomiguelrosa.com</a></div>
+          <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:joaorosa.aveiro@gmail.com">joaorosa.aveiro@gmail.com</a></div>
           <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">João Miguel Rosa</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">https://github.com/GitRosas</a></div>
+          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/joaorosa0409/</a></div>
         </div>
       </div>
       <div class="footer-bottom">
@@ -185,7 +186,8 @@
   const AUTH_WORKER_URL = 'https://auth.joaomiguelrosa.com/';
   const AUTH_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
 
-  const loginForm = document.querySelector('#login-form');
+  // Elementos do Passo 1 (password)
+  const form      = document.querySelector('#login-form');
   const loginStep = document.querySelector('#login-step');
   const emailEl   = document.querySelector('#login-email');
   const passEl    = document.querySelector('#login-password');
@@ -283,120 +285,70 @@
     button.disabled = true;
     button.innerHTML = `<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> ${label}`;
   }
-
-  function resetLoading(button) {
+  function resetButton(button) {
     if (!button) return;
     button.disabled = false;
     if (button.dataset.originalHtml) button.innerHTML = button.dataset.originalHtml;
   }
-
   function showLoginError(message) {
-    if (loginErrText) loginErrText.textContent = message || defaultLoginErr;
-    hide(loginOk);
-    show(loginErr);
+    if (errText) errText.textContent = message || defaultErrText;
+    hide(okMsg);
+    show(errMsg);
   }
-
   function resetLoginError() {
-    if (loginErrText) loginErrText.textContent = defaultLoginErr;
-    hide(loginErr);
+    if (errText) errText.textContent = defaultErrText;
+    hide(errMsg);
   }
-
   function showOtpError(message) {
-    if (otpErrText) otpErrText.textContent = message || defaultOtpErr;
+    if (otpErrText) otpErrText.textContent = message || defaultOtpErrText;
     hide(otpOk);
     show(otpErr);
   }
-
   function resetOtpError() {
-    if (otpErrText) otpErrText.textContent = defaultOtpErr;
+    if (otpErrText) otpErrText.textContent = defaultOtpErrText;
     hide(otpErr);
   }
-
-  function revealOtpStep() {
+  function revealOTPUI(){
     if (loginStep) loginStep.style.display = 'none';
-    if (otpStep) otpStep.style.display = 'block';
-    if (otpInput) otpInput.value = '';
-    hide(otpOk);
-    resetOtpError();
-    otpInput?.focus();
+    otpStep.style.display = 'block';
+    otpInput.value = '';
+    resetOtpError(); hide(otpOk);
+    otpInput.focus();
   }
-
-  function revealLoginStep() {
-    if (otpStep) otpStep.style.display = 'none';
+  function hideOTPUI(){
+    otpStep.style.display = 'none';
     if (loginStep) loginStep.style.display = 'block';
   }
-
   function renderCaptcha() {
     if (!window.turnstile) {
       window.setTimeout(renderCaptcha, 150);
       return;
     }
     if (captchaWidgetId !== null) return;
-
     captchaWidgetId = window.turnstile.render('#cf-turnstile-login', {
-      sitekey: '0x4AAAAAACtzeB8NcAeAY6qg',
-      callback: (token) => {
-        captchaToken = token || '';
-      },
-      'expired-callback': () => {
-        captchaToken = '';
-      },
-      'error-callback': () => {
-        captchaToken = '';
-      }
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token) => { captchaToken = token; },
+      'expired-callback': () => { captchaToken = ''; },
+      'error-callback': () => { captchaToken = ''; }
     });
-    isCaptchaReady = true;
   }
-
-  async function waitForCaptchaReady(timeoutMs = 8000) {
-    const start = Date.now();
-    while (!isCaptchaReady || !window.turnstile || captchaWidgetId === null) {
-      if (Date.now() - start >= timeoutMs) return false;
-      await new Promise((resolve) => window.setTimeout(resolve, 100));
-    }
-    return true;
-  }
-
-  function getCaptchaToken() {
-    if (!window.turnstile || captchaWidgetId === null) return '';
-    return window.turnstile.getResponse(captchaWidgetId) || captchaToken || '';
-  }
-
-  async function waitForCaptchaToken(timeoutMs = 15000) {
-    const start = Date.now();
-    let token = getCaptchaToken();
-    while (!token) {
-      if (Date.now() - start >= timeoutMs) return '';
-      await new Promise((resolve) => window.setTimeout(resolve, 120));
-      token = getCaptchaToken();
-    }
-    return token;
-  }
-
-
   function resetCaptcha() {
-    if (window.turnstile && captchaWidgetId !== null) {
-      window.turnstile.reset(captchaWidgetId);
-    }
+    if (window.turnstile && captchaWidgetId !== null) window.turnstile.reset(captchaWidgetId);
     captchaToken = '';
   }
-
-  async function parseJsonSafe(res) {
-    try {
-      return await res.json();
-    } catch (_) {
-      return {};
-    }
-  }
-
-  async function sendDashboardToken(accessToken) {
-    const dashRes = await fetch(DASHBOARD_URL, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+  async function waitForCaptchaToken(timeoutMs = 10000) {
+    const start = Date.now();
+    return await new Promise((resolve, reject) => {
+      (function poll() {
+        if (captchaToken) return resolve(captchaToken);
+        if (Date.now() - start >= timeoutMs) return reject(new Error('captcha timeout'));
+        window.setTimeout(poll, 100);
+      })();
     });
-    if (!dashRes.ok) throw new Error(`Dashboard auth failed (${dashRes.status})`);
+  }
+  async function getFreshCaptchaToken(timeoutMs = 10000) {
+    resetCaptcha();
+    return await waitForCaptchaToken(timeoutMs);
   }
 
   async function requestCaptcha(timeoutMs = 120000) {
@@ -472,44 +424,27 @@
     return error?.status === 429 || error?.code === 'too_many_requests' || message.includes('too many');
   }
 
-  loginForm?.addEventListener('submit', async (e) => {
+  // PASSO 1: validar password -> enviar OTP
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
 
-    if (isSubmitting) return;
-    hide(loginOk);
+    hide(okMsg);
     resetLoginError();
 
-    const captchaLoaded = await waitForCaptchaReady();
-    if (!captchaLoaded) {
-      showLoginError('CAPTCHA is still loading. Please wait a moment.');
-      return;
-    }
+    if (isSubmitting) return;
+    if (otpPending) { showLoginError('Code already sent. Check your email or click Resend.'); return; }
 
-    const email = loginEmail?.value.trim().toLowerCase() || '';
-    const password = loginPassword?.value || '';
-    activeEmail = email;
-
-    if (!email || password.length < 4) {
-      showLoginError(defaultLoginErr);
-      return;
-    }
+    const email = emailEl.value.trim();
+    const password = passEl.value;
+    loginEmail = email;
 
     if (!email || password.length < 4) { showLoginError(defaultErrText); return; }
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
       return;
-    }
-
-    let captchaToken = getCaptchaToken();
-    if (!captchaToken) {
-      showLoginError('Waiting for CAPTCHA validation...');
-      captchaToken = await waitForCaptchaToken();
-      if (!captchaToken) {
-        showLoginError('Please solve CAPTCHA.');
-        return;
-      }
-      resetLoginError();
     }
 
     try {
@@ -528,12 +463,11 @@
         email,
         captchaToken: tokenB
       });
-      const otpReqData = await parseJsonSafe(otpReqRes);
 
       nextOtpRequestAt = Date.now() + 60_000;
       otpPending = true;
-      nextOtpRequestAt = Date.now() + 60_000;
-      const okText = loginOk?.querySelector('span');
+
+      const okText = okMsg?.querySelector('span');
       if (okText) okText.textContent = 'Verification code sent to your email.';
       resetButton(submitBtn);
       show(okMsg);
@@ -552,37 +486,19 @@
       }
     } finally {
       isSubmitting = false;
-      resetLoading(loginButton);
+      resetButton(submitBtn);
+      resetCaptcha();
     }
   });
 
-  otpVerifyBtn?.addEventListener('click', async () => {
+  // PASSO 2: verificar código (cria sessão se estiver certo)
+  btnVerify.addEventListener('click', async () => {
+    resetOtpError(); hide(otpOk);
+    const code = otpInput.value.trim();
+    let verifySucceeded = false;
+
     if (isVerifying) return;
-    hide(otpOk);
-    resetOtpError();
-
-    const captchaLoaded = await waitForCaptchaReady();
-    if (!captchaLoaded) {
-      showOtpError('CAPTCHA is still loading. Please wait a moment.');
-      return;
-    }
-
-    const otp = otpInput?.value.trim() || '';
-    if (!/^\d{8}$/.test(otp) || !activeEmail) {
-      showOtpError('Code must be 8 digits.');
-      return;
-    }
-
-    let captchaToken = getCaptchaToken();
-    if (!captchaToken) {
-      showOtpError('Waiting for CAPTCHA validation...');
-      captchaToken = await waitForCaptchaToken();
-      if (!captchaToken) {
-        showOtpError('Please solve CAPTCHA.');
-        return;
-      }
-      resetOtpError();
-    }
+    if (!/^\d{8}$/.test(code) || !loginEmail) { showOtpError('Wrong verification code.'); return; }
 
     try {
       isVerifying = true;
@@ -597,19 +513,10 @@
 
       saveWorkerAuthPayload(result);
 
-      if (!otpVerifyRes.ok || otpVerifyData.error) {
-        showOtpError(otpVerifyData.error || 'Invalid code.');
-        return;
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session?.access_token) {
-        showOtpError('Session error.');
-        return;
-      }
-
-      await sendDashboardToken(sessionData.session.access_token);
-      window.location.href = DASHBOARD_URL;
+      verifySucceeded = true;
+      if (otpOkText) otpOkText.textContent = 'Code verified. Redirecting...';
+      show(otpOk);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
     } catch (err) {
       if (isTooManyRequestsError(err)) {
         nextOtpRequestAt = Date.now() + 60_000;
@@ -629,21 +536,10 @@
     }
   });
 
-  otpResendBtn?.addEventListener('click', async () => {
-    hide(otpOk);
-    resetOtpError();
+  btnResend.addEventListener('click', async () => {
+    resetOtpError(); hide(otpOk);
 
-    const captchaLoaded = await waitForCaptchaReady();
-    if (!captchaLoaded) {
-      showOtpError('CAPTCHA is still loading. Please wait a moment.');
-      return;
-    }
-
-    if (!activeEmail) {
-      showOtpError(defaultOtpErr);
-      return;
-    }
-
+    if (!loginEmail) { showOtpError(defaultOtpErrText); return; }
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
       showCooldownPopup(waitSec);
@@ -659,10 +555,9 @@
         email: loginEmail,
         captchaToken: tokenD
       });
-      const otpReqData = await parseJsonSafe(otpReqRes);
 
       nextOtpRequestAt = Date.now() + 60_000;
-      const okText = loginOk?.querySelector('span');
+      const okText = okMsg?.querySelector('span');
       if (okText) okText.textContent = 'Verification code resent to your email.';
       show(okMsg);
       revealOTPUI();
@@ -676,22 +571,16 @@
     } finally {
       resetButton(btnResend);
       resetCaptcha();
-    } catch (err) {
-      console.error(err);
-      showOtpError('Network error. Try again in a few seconds.');
-    } finally {
-      resetLoading(otpResendBtn);
     }
   });
 
-  otpCancelBtn?.addEventListener('click', () => {
+  // Cancelar passo OTP (não reenvia código)
+  btnCancel.addEventListener('click', () => {
     otpPending = false;
-    resetLoading(loginButton);
-    resetLoading(otpVerifyBtn);
-    resetLoading(otpResendBtn);
-    revealLoginStep();
-    hide(otpOk);
-    resetOtpError();
+    resetButton(submitBtn);
+    resetButton(btnVerify);
+    resetButton(btnResend);
+    hideOTPUI();
   });
 </script>
 
