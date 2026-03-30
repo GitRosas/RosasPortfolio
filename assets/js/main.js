@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const AUTH_STORAGE_KEY = 'portfolioAuth';
+const LEGACY_AUTH_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
 const AUTH_SESSION_MS = 20 * 60 * 1000;
 const LANGUAGE_STORAGE_KEY = 'portfolioLang';
 const ANALYTICS_STORAGE_KEY = 'portfolioAnalytics';
@@ -849,29 +850,29 @@ function updateAuthInfoPopupText(currentPage) {
 
 /* ---- Auth Navigation ---- */
 function initAuthNavigation() {
-  const pathname = window.location.pathname.toLowerCase();
-  const currentPage = pathname.split('/').pop() || 'index.html';
   const loggedIn = isAuthenticated();
-
-  const isPortfolioRoute = currentPage === 'portfolio.html' || currentPage === 'portfolio';
-  const isDashboardRoute = currentPage === 'dashboard.html' || currentPage === 'dashboard';
-  if ((isPortfolioRoute || isDashboardRoute) && !loggedIn) {
-    window.location.href = 'login.html';
-    return;
-  }
+  if (loggedIn) scheduleAutoLogout();
 
   const navLinksContainer = document.getElementById('nav-links');
   if (!navLinksContainer) return;
 
   let loginLink = navLinksContainer.querySelector('a.nav-link[href="login.html"], a.nav-link[data-auth-link="logout"]');
-  if (!loginLink) return;
+  if (!loginLink) {
+    if (loggedIn) {
+      ensurePortfolioMenuItem(navLinksContainer, null);
+      ensureDashboardMenuItem(navLinksContainer, null);
+    } else {
+      removePortfolioMenuItem(navLinksContainer);
+      removeDashboardMenuItem(navLinksContainer);
+    }
+    return;
+  }
 
   const loginListItem = loginLink.closest('li');
 
   if (loggedIn) {
     ensurePortfolioMenuItem(navLinksContainer, loginListItem);
     ensureDashboardMenuItem(navLinksContainer, loginListItem);
-    scheduleAutoLogout();
     loginLink.textContent = t('nav.logout');
     loginLink.setAttribute('href', '#');
     loginLink.setAttribute('data-auth-link', 'logout');
@@ -892,8 +893,7 @@ function initAuthNavigation() {
     if (!logoutLink) return;
     e.preventDefault();
     trackEvent('logout_click');
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
+    clearAuthSession();
     window.location.href = 'login.html';
   });
 }
@@ -908,7 +908,8 @@ function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
     link.className = 'nav-link';
     link.textContent = t('nav.portfolio');
     portfolioItem.appendChild(link);
-    navLinksContainer.insertBefore(portfolioItem, loginListItem);
+    if (loginListItem) navLinksContainer.insertBefore(portfolioItem, loginListItem);
+    else navLinksContainer.appendChild(portfolioItem);
   }
 }
 
@@ -922,7 +923,8 @@ function ensureDashboardMenuItem(navLinksContainer, loginListItem) {
     link.className = 'nav-link';
     link.textContent = t('nav.dashboard');
     dashboardItem.appendChild(link);
-    navLinksContainer.insertBefore(dashboardItem, loginListItem);
+    if (loginListItem) navLinksContainer.insertBefore(dashboardItem, loginListItem);
+    else navLinksContainer.appendChild(dashboardItem);
   }
 }
 
@@ -938,13 +940,9 @@ function removeDashboardMenuItem(navLinksContainer) {
 
 function isAuthenticated() {
   try {
-    const sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
-    if (!sbRaw) return false;
-    const sbSession = JSON.parse(sbRaw);
-    if (!sbSession || !sbSession.access_token) return false;
-    const exp = sbSession.expires_at;
-    if (exp && (Date.now() / 1000) >= exp) return false;
-    return true;
+    const auth = getStoredAuthSession();
+    if (!auth || !auth.token || !auth.loggedInAt) return false;
+    return Date.now() < auth.loggedInAt + AUTH_SESSION_MS;
   } catch (_) {
     return false;
   }
@@ -952,33 +950,59 @@ function isAuthenticated() {
 
 function scheduleAutoLogout() {
   try {
-    const sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
-    if (!sbRaw) return;
-    const sbSession = JSON.parse(sbRaw);
-    const exp = sbSession && sbSession.expires_at;
-    if (!exp) return;
-
-    // Force 20-minute limit from login time, regardless of Supabase token expiry
-    const loginAt = sbSession.created_at ? Date.parse(sbSession.created_at) : NaN;
-    const twentyMin = 20 * 60 * 1000;
-    const logoutAt = Number.isFinite(loginAt)
-      ? Math.min(loginAt + twentyMin, exp * 1000)
-      : exp * 1000;
+    const auth = getStoredAuthSession();
+    if (!auth || !auth.loggedInAt) return;
+    const logoutAt = auth.loggedInAt + AUTH_SESSION_MS;
 
     const remaining = logoutAt - Date.now();
     if (remaining <= 0) {
-      localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
+      clearAuthSession();
       window.location.href = 'login.html';
       return;
     }
 
     window.setTimeout(() => {
-      localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
+      clearAuthSession();
       window.location.href = 'login.html';
     }, remaining);
   } catch (_) {
-    localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
+    clearAuthSession();
   }
+}
+
+function getStoredAuthSession() {
+  try {
+    const currentRaw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (currentRaw) {
+      const currentParsed = JSON.parse(currentRaw);
+      if (currentParsed && typeof currentParsed === 'object') {
+        const token = typeof currentParsed.token === 'string' ? currentParsed.token.trim() : '';
+        const loggedInAt = Number(currentParsed.loggedInAt);
+        if (token && Number.isFinite(loggedInAt)) {
+          return { token, loggedInAt };
+        }
+      }
+    }
+
+    const legacyRaw = localStorage.getItem(LEGACY_AUTH_STORAGE_KEY);
+    if (!legacyRaw) return null;
+    const legacyParsed = JSON.parse(legacyRaw);
+    if (!legacyParsed || typeof legacyParsed !== 'object') return null;
+
+    const token = typeof legacyParsed.access_token === 'string' ? legacyParsed.access_token.trim() : '';
+    const createdAt = legacyParsed.created_at ? Date.parse(legacyParsed.created_at) : NaN;
+    const loggedInAt = Number.isFinite(createdAt) ? createdAt : Date.now();
+    if (!token) return null;
+
+    return { token, loggedInAt };
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearAuthSession() {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
 }
 
 function getAnalyticsData() {
@@ -1836,7 +1860,7 @@ function initDashboard() {
   const root = document.getElementById('dashboard-page');
   if (!root) return;
 
-  const auth = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '{}');
+  const auth = getStoredAuthSession() || {};
   const analytics = getAnalyticsData();
 
   const setText = (id, value) => {

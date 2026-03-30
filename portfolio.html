@@ -15,28 +15,6 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Portfolio Gallery - Joao Miguel Rosa">
   <meta name="twitter:description" content="Private portfolio gallery with project visuals.">
-  <script>
-    (function () {
-      try {
-        var sbRaw = localStorage.getItem('sb-rcgwshnxndzaossmbken-auth-token');
-        if (!sbRaw) { window.location.replace('login.html'); return; }
-        var sb = JSON.parse(sbRaw);
-        if (!sb || !sb.access_token) { window.location.replace('login.html'); return; }
-        var exp = sb.expires_at;
-        var loginAt = sb.created_at ? Date.parse(sb.created_at) : NaN;
-        var logoutAt = Number.isFinite(loginAt)
-          ? Math.min(loginAt + 20 * 60 * 1000, exp * 1000)
-          : exp * 1000;
-        if (Date.now() >= logoutAt) {
-          localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
-          window.location.replace('login.html');
-        }
-      } catch (_) {
-        localStorage.removeItem('sb-rcgwshnxndzaossmbken-auth-token');
-        window.location.replace('login.html');
-      }
-    })();
-  </script>
   <link rel="icon" href="assets/img/foto.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,14 +23,6 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-<script type="module">
-  import { supabase } from './assets/js/auth.js';
-
-  const { data } = await supabase.auth.getSession();
-  if (!data?.session) {
-    window.location.href = 'login.html';
-  }
-</script>
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 

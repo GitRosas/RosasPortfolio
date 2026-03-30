@@ -77,7 +77,7 @@
               <span class="form-error">Please enter your password (min. 4 characters).</span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-top: 1rem;">
               <div id="cf-turnstile-login"></div>
             </div>
 
@@ -182,45 +182,102 @@
   </footer>
 
   <script type="module">
-  import { supabase } from './assets/js/auth.js';
-
-  const AUTH_URL = 'https://auth.joaomiguelrosa.com';
-  const DASHBOARD_URL = 'https://dashboard.joaomiguelrosa.com';
+  const AUTH_WORKER_URL = 'https://auth.joaomiguelrosa.com/';
+  const AUTH_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
 
   const loginForm = document.querySelector('#login-form');
   const loginStep = document.querySelector('#login-step');
-  const loginEmail = document.querySelector('#login-email');
-  const loginPassword = document.querySelector('#login-password');
-  const loginButton = loginForm?.querySelector('button[type="submit"]');
-  const loginOk = document.querySelector('#login-alert-success');
-  const loginErr = document.querySelector('#login-alert-error');
-  const loginErrText = loginErr?.querySelector('span');
+  const emailEl   = document.querySelector('#login-email');
+  const passEl    = document.querySelector('#login-password');
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  const okMsg     = document.querySelector('#login-alert-success');
+  const errMsg    = document.querySelector('#login-alert-error');
+  const errText   = errMsg?.querySelector('span');
 
-  const otpStep = document.querySelector('#otp-step');
-  const otpInput = document.querySelector('#otp-code');
-  const otpVerifyBtn = document.querySelector('#otp-verify');
-  const otpResendBtn = document.querySelector('#otp-resend');
-  const otpCancelBtn = document.querySelector('#otp-cancel');
-  const otpOk = document.querySelector('#otp-alert-success');
-  const otpErr = document.querySelector('#otp-alert-error');
-  const otpErrText = otpErr?.querySelector('span');
+  // Elementos do Passo 2 (OTP)
+  const otpStep   = document.querySelector('#otp-step');
+  const otpInput  = document.querySelector('#otp-code');
+  const btnVerify = document.querySelector('#otp-verify');
+  const btnResend = document.querySelector('#otp-resend');
+  const btnCancel = document.querySelector('#otp-cancel');
+  const otpErr    = document.querySelector('#otp-alert-error');
+  const otpErrText= otpErr?.querySelector('span');
+  const otpOk     = document.querySelector('#otp-alert-success');
+  const otpOkText = otpOk?.querySelector('span');
+  const captchaContainer = document.querySelector('#cf-turnstile-login');
+  const captchaGroup = captchaContainer?.closest('.form-group');
+  const captchaOriginalParent = captchaGroup?.parentElement || null;
+  const captchaOriginalNextSibling = captchaGroup?.nextElementSibling || null;
 
-  let activeEmail = '';
-  let captchaWidgetId = null;
-  let captchaToken = '';
-  let isCaptchaReady = false;
-  let otpPending = false;
+  // Estado
+  let loginEmail = '';
   let nextOtpRequestAt = 0;
   let isSubmitting = false;
   let isVerifying = false;
+  let otpPending = false;
+  let captchaToken = '';
+  let captchaWidgetId = null;
+  const TURNSTILE_SITE_KEY = '0x4AAAAAACtzeB8NcAeAY6qg';
+  const defaultErrText = errText ? errText.textContent : 'Invalid credentials.';
+  const defaultOtpErrText = otpErrText ? otpErrText.textContent : 'Invalid or expired code. Try again or resend.';
 
-  const defaultLoginErr = loginErrText ? loginErrText.textContent : 'Invalid credentials.';
-  const defaultOtpErr = otpErrText ? otpErrText.textContent : 'Invalid or expired code. Try again or resend.';
+  if (captchaGroup) captchaGroup.style.display = 'none';
 
-  function show(el) { el?.classList.add('show'); el?.setAttribute('aria-hidden', 'false'); }
-  function hide(el) { el?.classList.remove('show'); el?.setAttribute('aria-hidden', 'true'); }
+  // Se já existir token persistido, vai logo para a dashboard.
+  try {
+    const existing = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (existing) window.location.href = 'dashboard.html';
+  } catch {
+    // ignora erros de storage
+  }
 
-  function setLoading(button, label) {
+  // Helpers UI
+  function show(el){ el?.classList.add('show'); el?.setAttribute('aria-hidden','false'); el?.focus(); }
+  function hide(el){ el?.classList.remove('show'); el?.setAttribute('aria-hidden','true'); }
+  function showCooldownPopup(waitSec) {
+    const existing = document.getElementById('resend-cooldown-popup');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'resend-cooldown-popup';
+    popup.setAttribute('role', 'status');
+    popup.setAttribute('aria-live', 'polite');
+    popup.style.cssText = [
+      'position:fixed',
+      'left:50%',
+      'bottom:24px',
+      'transform:translate(-50%, 12px)',
+      'opacity:0',
+      'z-index:10000',
+      'display:flex',
+      'align-items:center',
+      'gap:.55rem',
+      'background:linear-gradient(135deg, rgba(59,130,246,.95), rgba(16,185,129,.92))',
+      'color:#fff',
+      'border:1px solid rgba(255,255,255,.2)',
+      'border-radius:999px',
+      'padding:.7rem 1rem',
+      'font-weight:700',
+      'font-size:.9rem',
+      'box-shadow:0 14px 30px rgba(0,0,0,.28)',
+      'backdrop-filter:blur(8px)',
+      'transition:opacity .22s ease, transform .22s ease'
+    ].join(';');
+    popup.innerHTML = `<i class="fa-solid fa-clock" aria-hidden="true"></i> You can resend in ${waitSec}s.`;
+
+    document.body.appendChild(popup);
+    window.requestAnimationFrame(() => {
+      popup.style.opacity = '1';
+      popup.style.transform = 'translate(-50%, 0)';
+    });
+
+    window.setTimeout(() => {
+      popup.style.opacity = '0';
+      popup.style.transform = 'translate(-50%, 12px)';
+      window.setTimeout(() => popup.remove(), 220);
+    }, 2200);
+  }
+  function setButtonLoading(button, label) {
     if (!button) return;
     if (!button.dataset.originalHtml) button.dataset.originalHtml = button.innerHTML;
     button.disabled = true;
@@ -342,7 +399,78 @@
     if (!dashRes.ok) throw new Error(`Dashboard auth failed (${dashRes.status})`);
   }
 
-  renderCaptcha();
+  async function requestCaptcha(timeoutMs = 120000) {
+    if (!captchaContainer || !captchaGroup) {
+      throw new Error('captcha container missing');
+    }
+
+    const isOtpVisible = otpStep && otpStep.style.display !== 'none';
+    if (isOtpVisible) {
+      const otpActions = otpStep.querySelector('.btn-row');
+      if (otpActions) {
+        otpStep.insertBefore(captchaGroup, otpActions);
+      } else {
+        otpStep.appendChild(captchaGroup);
+      }
+    } else if (captchaOriginalParent) {
+      if (captchaOriginalNextSibling && captchaOriginalNextSibling.parentElement === captchaOriginalParent) {
+        captchaOriginalParent.insertBefore(captchaGroup, captchaOriginalNextSibling);
+      } else {
+        captchaOriginalParent.appendChild(captchaGroup);
+      }
+    }
+
+    captchaGroup.style.display = 'block';
+    renderCaptcha();
+
+    try {
+      return await getFreshCaptchaToken(timeoutMs);
+    } finally {
+      captchaGroup.style.display = 'none';
+      if (captchaOriginalParent) {
+        if (captchaOriginalNextSibling && captchaOriginalNextSibling.parentElement === captchaOriginalParent) {
+          captchaOriginalParent.insertBefore(captchaGroup, captchaOriginalNextSibling);
+        } else {
+          captchaOriginalParent.appendChild(captchaGroup);
+        }
+      }
+    }
+  }
+
+  async function callAuthWorker(type, payload) {
+    const response = await fetch(AUTH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, ...payload })
+    });
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok || data?.ok === false) {
+      const error = new Error(data?.error ?? data?.message ?? 'Request failed');
+      error.status = data?.status || response.status;
+      error.code = data?.code || '';
+      error.payload = data;
+      throw error;
+    }
+
+    return data;
+  }
+
+  function saveWorkerAuthPayload(payload) {
+    const storageValue = payload?.session ?? payload?.data ?? payload;
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(storageValue));
+  }
+
+  function isTooManyRequestsError(error) {
+    const message = String(error?.message || '').toLowerCase();
+    return error?.status === 429 || error?.code === 'too_many_requests' || message.includes('too many');
+  }
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -366,6 +494,7 @@
       return;
     }
 
+    if (!email || password.length < 4) { showLoginError(defaultErrText); return; }
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
@@ -385,62 +514,42 @@
 
     try {
       isSubmitting = true;
-      setLoading(loginButton, 'Loading...');
+      setButtonLoading(submitBtn, 'Loading...');
 
-      const loginRes = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'login_password',
-          email,
-          password,
-          captchaToken
-        })
+      const tokenA = await requestCaptcha();
+      await callAuthWorker('login_password', {
+        email,
+        password,
+        captchaToken: tokenA
       });
-      const loginData = await parseJsonSafe(loginRes);
 
-      if (!loginRes.ok || loginData.error) {
-        showLoginError(loginData.error || 'Invalid login.');
-        return;
-      }
-
-      const otpReqRes = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'otp_request',
-          email,
-          captchaToken
-        })
+      const tokenB = await requestCaptcha();
+      await callAuthWorker('otp_request', {
+        email,
+        captchaToken: tokenB
       });
       const otpReqData = await parseJsonSafe(otpReqRes);
 
-      if (!otpReqRes.ok || otpReqData.error) {
-        const message = String(otpReqData.error || '').toLowerCase();
-        if (otpReqRes.status === 403 || message.includes('captcha')) {
-          resetCaptcha();
-          showLoginError('Invalid CAPTCHA. Please solve CAPTCHA again and retry.');
-          return;
-        }
-        if (otpReqRes.status === 429 || message.includes('too many')) {
-          nextOtpRequestAt = Date.now() + 60_000;
-          showLoginError('Too many requests. Wait 60s and try again.');
-          return;
-        }
-        showLoginError(otpReqData.error || defaultLoginErr);
-        return;
-      }
-
+      nextOtpRequestAt = Date.now() + 60_000;
       otpPending = true;
       nextOtpRequestAt = Date.now() + 60_000;
       const okText = loginOk?.querySelector('span');
       if (okText) okText.textContent = 'Verification code sent to your email.';
-      show(loginOk);
-      revealOtpStep();
-      resetCaptcha();
+      resetButton(submitBtn);
+      show(okMsg);
+      revealOTPUI();
     } catch (err) {
-      console.error(err);
-      showLoginError('Network error. Try again in a few seconds.');
+      if (isTooManyRequestsError(err)) {
+        nextOtpRequestAt = Date.now() + 60_000;
+        showLoginError('Too many requests. Wait 60s and try again.');
+      } else {
+        const msg = String(err?.message ?? err?.payload?.error ?? '').toLowerCase();
+        if (msg.includes('wrong') || msg.includes('invalid') || msg.includes('password') || msg.includes('credentials')) {
+          showLoginError('Wrong email or password.');
+        } else {
+          showLoginError('Network error. Try again in a few seconds.');
+        }
+      }
     } finally {
       isSubmitting = false;
       resetLoading(loginButton);
@@ -477,19 +586,16 @@
 
     try {
       isVerifying = true;
-      setLoading(otpVerifyBtn, 'Loading...');
+      setButtonLoading(btnVerify, 'Loading...');
 
-      const otpVerifyRes = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'otp_verify',
-          email: activeEmail,
-          otp,
-          captchaToken
-        })
+      const captcha3 = await requestCaptcha();
+      const result = await callAuthWorker('otp_verify', {
+        email: loginEmail,
+        otp: code,
+        captchaToken: captcha3
       });
-      const otpVerifyData = await parseJsonSafe(otpVerifyRes);
+
+      saveWorkerAuthPayload(result);
 
       if (!otpVerifyRes.ok || otpVerifyData.error) {
         showOtpError(otpVerifyData.error || 'Invalid code.');
@@ -505,12 +611,21 @@
       await sendDashboardToken(sessionData.session.access_token);
       window.location.href = DASHBOARD_URL;
     } catch (err) {
-      console.error(err);
-      showOtpError('Code verified, but redirect failed. Please try again.');
+      if (isTooManyRequestsError(err)) {
+        nextOtpRequestAt = Date.now() + 60_000;
+        showOtpError('Too many requests. Wait 60s and try again.');
+      } else {
+        const msg = String(err?.message || '').toLowerCase();
+        if (msg.includes('code') || msg.includes('otp') || msg.includes('expired') || msg.includes('invalid') || msg.includes('wrong')) {
+          showOtpError('Wrong verification code.');
+        } else {
+          showOtpError('Network error. Try again in a few seconds.');
+        }
+      }
     } finally {
       isVerifying = false;
-      resetLoading(otpVerifyBtn);
       resetCaptcha();
+      if (!verifySucceeded) resetButton(btnVerify);
     }
   });
 
@@ -531,50 +646,35 @@
 
     if (Date.now() < nextOtpRequestAt) {
       const waitSec = Math.ceil((nextOtpRequestAt - Date.now()) / 1000);
+      showCooldownPopup(waitSec);
       showLoginError(`Too many requests. Wait ${waitSec}s and try again.`);
       return;
     }
 
-    let captchaToken = getCaptchaToken();
-    if (!captchaToken) {
-      showOtpError('Waiting for CAPTCHA validation...');
-      captchaToken = await waitForCaptchaToken();
-      if (!captchaToken) {
-        showOtpError('Please solve CAPTCHA.');
-        return;
-      }
-      resetOtpError();
-    }
-
     try {
-      setLoading(otpResendBtn, 'Loading...');
+      setButtonLoading(btnResend, 'Loading...');
 
-      const otpReqRes = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'otp_request',
-          email: activeEmail,
-          captchaToken
-        })
+      const tokenD = await requestCaptcha();
+      await callAuthWorker('otp_request', {
+        email: loginEmail,
+        captchaToken: tokenD
       });
       const otpReqData = await parseJsonSafe(otpReqRes);
-
-      if (!otpReqRes.ok || otpReqData.error) {
-        const message = String(otpReqData.error || '').toLowerCase();
-        if (otpReqRes.status === 429 || message.includes('too many')) {
-          nextOtpRequestAt = Date.now() + 60_000;
-          showLoginError('Too many requests. Wait 60s and try again.');
-          return;
-        }
-        showOtpError(otpReqData.error || defaultOtpErr);
-        return;
-      }
 
       nextOtpRequestAt = Date.now() + 60_000;
       const okText = loginOk?.querySelector('span');
       if (okText) okText.textContent = 'Verification code resent to your email.';
-      show(loginOk);
+      show(okMsg);
+      revealOTPUI();
+    } catch (err) {
+      if (isTooManyRequestsError(err)) {
+        nextOtpRequestAt = Date.now() + 60_000;
+        showLoginError('Too many requests. Wait 60s and try again.');
+      } else {
+        showLoginError('Please complete the CAPTCHA and try again.');
+      }
+    } finally {
+      resetButton(btnResend);
       resetCaptcha();
     } catch (err) {
       console.error(err);
@@ -596,6 +696,12 @@
 </script>
 
 <script src="assets/js/main.js" defer></script>
+
+<div id="captcha-overlay" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
+  <div id="captcha-box" style="background:#111; padding:1rem; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.35); min-width:320px; display:flex; justify-content:center;">
+    <div id="cf-turnstile-dynamic"></div>
+  </div>
+</div>
 
 </body>
 </html>

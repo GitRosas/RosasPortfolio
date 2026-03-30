@@ -354,7 +354,7 @@ strong, b { color: var(--text); font-weight: 600; }
 .nav-hamburger[aria-expanded="true"] .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); width: 22px; }
 
 /* Mobile nav */
-@media (max-width: 768px) {
+@media (max-width: 1020px) {
   .nav-hamburger { display: flex; }
 
   /* When open, the entire navbar becomes the fullscreen overlay */
