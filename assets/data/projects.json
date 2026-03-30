@@ -1,8 +1,14 @@
 [
   {
     "id": "portfolio-site",
-    "title": "Personal Portfolio",
-    "description": "Responsive portfolio website with Dark Mode, dynamic filters and content generation from JSON.",
+    "title": {
+      "en": "Personal Portfolio",
+      "pt": "Portefolio Pessoal"
+    },
+    "description": {
+      "en": "Responsive portfolio website with Dark Mode, dynamic filters and content generation from JSON.",
+      "pt": "Website de portefolio responsivo com Dark Mode, filtros dinamicos e geracao de conteudo a partir de JSON."
+    },
     "image": "assets/img/projects/portfolio.svg",
     "tags": ["HTML5", "CSS3", "JavaScript"],
     "links": {
@@ -13,8 +19,14 @@
   },
   {
     "id": "tm-tc-dashboard",
-    "title": "TM/TC Dashboard",
-    "description": "Web dashboard for real-time visualization of satellite telemetry and telecommands, with interactive graphs and alerts.",
+    "title": {
+      "en": "TM/TC Dashboard",
+      "pt": "Painel TM/TC"
+    },
+    "description": {
+      "en": "Web dashboard for real-time visualization of satellite telemetry and telecommands, with interactive graphs and alerts.",
+      "pt": "Painel web para visualizacao em tempo real de telemetria e telecomandos de satelite, com graficos interativos e alertas."
+    },
     "image": "assets/img/projects/generic.svg",
     "tags": ["JavaScript", "HTML5", "CSS3", "Space Systems"],
     "links": {

@@ -1,4 +1,6 @@
 // auth.js
+// This file initializes the Supabase client and exports it for use in other parts of the application.
+//Protected variables for the Supabase client.
 //Public keys
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const SUPABASE_URL = 'https://rcgwshnxndzaossmbken.supabase.co';
