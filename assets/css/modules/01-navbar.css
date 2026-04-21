@@ -1,0 +1,193 @@
+/* ===========================================================
+   6. Navbar — pure CSS + JS toggle
+   =========================================================== */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: var(--bg-nav);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+  transition: background var(--base), padding var(--base), box-shadow var(--base);
+}
+.navbar.scrolled {
+  background: var(--bg-nav-scrolled);
+  padding: .55rem 0;
+  border-bottom-color: rgba(var(--primary-rgb),.06);
+}
+
+.navbar-inner {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* Brand */
+.navbar-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.35rem;
+  color: var(--text); letter-spacing: -.03em;
+  display: inline-flex; align-items: center;
+  transition: transform var(--fast);
+}
+.navbar-brand:hover { transform: scale(1.03); color: var(--text); }
+.navbar-brand span {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--primary);
+  margin-left: 3px; vertical-align: super;
+  animation: pulseDot 2.5s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: .4; }
+}
+
+/* Nav links (desktop) */
+.nav-links {
+  display: flex; align-items: center; gap: .5rem;
+}
+.nav-links .nav-link {
+  color: var(--text-muted); font-weight: 500; font-size: .8rem;
+  padding: .5rem 1rem; text-transform: uppercase; letter-spacing: .1em;
+  transition: color var(--fast); position: relative;
+}
+.nav-links .nav-link::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 2px; background: var(--primary);
+  transition: width var(--base);
+}
+.nav-links .nav-link:hover { color: var(--text); }
+.nav-links .nav-link:hover::after { width: 100%; }
+.nav-links .nav-link.active { color: var(--text); font-weight: 600; }
+.nav-links .nav-link.active::after { width: 100%; }
+
+.nav-links .nav-link.nav-link-auth {
+  color: var(--primary);
+  border: 1px solid rgba(var(--primary-rgb), .35);
+  border-radius: var(--radius-pill);
+  background: rgba(var(--primary-rgb), .1);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb), .08);
+}
+
+.nav-links .nav-link.nav-link-auth::after {
+  display: none;
+}
+
+.nav-links .nav-link.nav-link-auth:hover {
+  color: #000;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+/* Navbar actions */
+.navbar-actions { display: flex; align-items: center; gap: .5rem; }
+
+/* Theme toggle */
+.btn-theme-toggle {
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  color: var(--text-muted); width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--base); font-size: .9rem; padding: 0;
+}
+.btn-theme-toggle:hover {
+  color: var(--primary); border-color: rgba(var(--primary-rgb),.3);
+  background: rgba(var(--primary-rgb),.08);
+}
+
+.btn-lang-toggle {
+  background: rgba(var(--primary-rgb), .12);
+  border: 1px solid rgba(var(--primary-rgb), .35);
+  color: var(--primary);
+  min-width: 44px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: all var(--base);
+}
+
+.btn-lang-toggle:hover {
+  color: #000;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-color: transparent;
+}
+
+/* Hamburger */
+.nav-hamburger {
+  display: none;
+  background: transparent; border: none; padding: .4rem;
+  width: 42px; height: 42px; cursor: pointer;
+  flex-direction: column; align-items: center; justify-content: center;
+}
+.nav-hamburger .bar {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); border-radius: 2px;
+  transition: transform .35s var(--ease), opacity .25s ease, width .3s ease;
+  transform-origin: center;
+}
+.nav-hamburger .bar:nth-child(1) { margin-bottom: 5px; }
+.nav-hamburger .bar:nth-child(2) { width: 16px; margin-bottom: 5px; }
+.nav-hamburger .bar:nth-child(3) { width: 12px; }
+.nav-hamburger[aria-expanded="true"] .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); width: 22px; }
+.nav-hamburger[aria-expanded="true"] .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger[aria-expanded="true"] .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); width: 22px; }
+
+/* Mobile nav */
+@media (max-width: 1020px) {
+  .nav-hamburger { display: flex; }
+
+  /* When open, the entire navbar becomes the fullscreen overlay */
+  .navbar.nav-open {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg);
+    padding: 0;
+    display: flex; flex-direction: column;
+  }
+  .navbar.nav-open .navbar-inner {
+    padding: 1rem 1.5rem; flex-shrink: 0;
+  }
+  .navbar.nav-open .nav-links {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: .25rem; padding: 0 2rem 4rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
+  .navbar.nav-open .nav-links {
+    display: flex;
+  }
+
+  .nav-links li { width: 100%; max-width: 320px; text-align: center; }
+  .nav-links .nav-link {
+    display: block; font-size: 1.5rem; padding: 1.1rem 2rem;
+    text-transform: none; letter-spacing: 0;
+    font-weight: 500; color: var(--text-muted);
+    border-radius: var(--radius); transition: all var(--fast);
+  }
+  .nav-links .nav-link:hover,
+  .nav-links .nav-link.active {
+    color: var(--text); background: rgba(var(--primary-rgb),.08);
+  }
+  .nav-links .nav-link.active { font-weight: 700; }
+  .nav-links .nav-link::after { display: none; }
+
+  .nav-links .nav-link.nav-link-auth {
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), .22), rgba(var(--accent-rgb), .18));
+    border: 1px solid rgba(var(--primary-rgb), .45);
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .btn-lang-toggle {
+    min-width: 48px;
+  }
+}
+

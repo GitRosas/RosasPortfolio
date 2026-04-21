@@ -1,0 +1,96 @@
+/* ===========================================================
+   15f. Portfolio Lightbox
+   =========================================================== */
+.portfolio-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+.portfolio-lightbox.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.portfolio-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .86);
+  backdrop-filter: blur(6px);
+}
+
+.portfolio-lightbox-content {
+  position: relative;
+  width: min(1200px, calc(100% - 2rem));
+  max-height: calc(100vh - 2rem);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: rgba(2, 6, 23, .75);
+}
+
+.portfolio-lightbox-toolbar {
+  position: absolute;
+  top: .8rem;
+  right: .8rem;
+  display: flex;
+  gap: .5rem;
+  z-index: 2;
+}
+
+.portfolio-lightbox-toolbar button,
+.portfolio-lightbox-nav {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(0, 0, 0, .45);
+  color: #fff;
+  cursor: pointer;
+  transition: all var(--base);
+}
+
+.portfolio-lightbox-toolbar button:hover,
+.portfolio-lightbox-nav:hover {
+  background: rgba(var(--primary-rgb), .32);
+  border-color: rgba(var(--primary-rgb), .7);
+}
+
+.portfolio-lightbox-stage {
+  height: min(76vh, 780px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.portfolio-lightbox-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform .2s ease;
+}
+
+.portfolio-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.portfolio-lightbox-nav.prev { left: 1rem; }
+.portfolio-lightbox-nav.next { right: 1rem; }
+
+.portfolio-lightbox-caption {
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  padding: .9rem 1.2rem;
+  color: #dbeafe;
+  font-size: .95rem;
+}
+

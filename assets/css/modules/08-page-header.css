@@ -1,0 +1,17 @@
+/* ===========================================================
+   13. Page Header
+   =========================================================== */
+.page-header {
+  padding: 8rem 0 3rem; position: relative; overflow: hidden;
+}
+.page-header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb),.15), transparent);
+}
+.page-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+  letter-spacing: -.02em;
+}
+.page-header p { color: var(--text-muted); font-size: 1.05rem; font-weight: 300; margin-top: .5rem; }
+

@@ -1,0 +1,21 @@
+/* ===========================================================
+   15c. Tech Stack
+   =========================================================== */
+.tech-strip {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;
+  max-width: 900px; margin: 0 auto;
+}
+.tech-item {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .65rem 1.4rem; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-secondary); font-size: .9rem; font-weight: 500;
+  transition: all var(--base); cursor: default;
+}
+.tech-item i { color: var(--primary); font-size: 1.1rem; width: 20px; text-align: center; }
+.tech-item:hover {
+  border-color: rgba(var(--primary-rgb),.3); color: var(--text);
+  background: rgba(var(--primary-rgb),.06); transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(var(--primary-rgb),.08);
+}
+

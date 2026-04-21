@@ -1,0 +1,24 @@
+/* ===========================================================
+   19b. Interactive Effects
+   =========================================================== */
+
+/* Card glow follow */
+.has-glow::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(300px circle at var(--glow-x) var(--glow-y),
+    rgba(var(--primary-rgb),.1), transparent 60%);
+  border-radius: inherit; pointer-events: none; z-index: 0;
+  transition: opacity .3s ease;
+}
+.service-card.has-glow::after,
+.project-card.has-glow::after,
+.stat-item.has-glow::after,
+.contact-info-item.has-glow::after {
+  opacity: 1;
+}
+
+/* Hero parallax smooth */
+.hero-text, .hero-avatar-wrapper, .hero-grid-pattern {
+  will-change: transform;
+}
+

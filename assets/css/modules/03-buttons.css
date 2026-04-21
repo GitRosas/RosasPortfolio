@@ -1,0 +1,32 @@
+/* ===========================================================
+   8. Buttons
+   =========================================================== */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .85rem 2rem; border-radius: var(--radius);
+  font-weight: 700; font-size: .95rem; border: none;
+  cursor: pointer; transition: all var(--base);
+  text-decoration: none; position: relative; overflow: hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #000;
+}
+.btn-primary::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.2), transparent 50%);
+  opacity: 0; transition: opacity .3s ease;
+}
+.btn-primary:hover { color: #000; transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(var(--primary-rgb),.35); }
+.btn-primary:hover::after { opacity: 1; }
+
+.btn-outline {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  background: rgba(var(--primary-rgb),.05);
+  border-color: rgba(var(--primary-rgb),.3);
+  color: var(--text); transform: translateY(-2px);
+}
+

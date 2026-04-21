@@ -2,12 +2,15 @@
 
 let allProjectsData = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initPageLoader();
   initTheme();
+  await loadI18nData();
   initLanguageToggle();
+  initConsentAnalyticsBridge();
   initAuthInfoPopup();
   initPhoneReveal();
+  if (initProtectedRoutes()) return;
   initAnalyticsTracking();
   initAuthNavigation();
   initNavbar();
@@ -36,419 +39,68 @@ document.addEventListener('DOMContentLoaded', () => {
 const AUTH_STORAGE_KEY = 'portfolioAuth';
 
 function getCurrentPageName() {
-  const raw = window.location.pathname.split('/').pop();
-  if (raw && raw.includes('.html')) return raw;
-  const href = window.location.href;
-  if (href.includes('register')) return 'register.html';
-  if (href.includes('login')) return 'login.html';
-  if (href.includes('projects')) return 'projects.html';
-  if (href.includes('about')) return 'about.html';
-  if (href.includes('contact')) return 'contact.html';
-  if (href.includes('dashboard')) return 'dashboard.html';
-  if (href.includes('portfolio')) return 'portfolio.html';
+  const path = window.location.pathname.replace(/\/+$/, '');
+  const raw = (path.split('/').pop() || '').toLowerCase();
+  if (raw.endsWith('.html')) return raw;
+  if (!raw) return 'index.html';
+
+  const routeMap = {
+    index: 'index.html',
+    register: 'register.html',
+    login: 'login.html',
+    projects: 'projects.html',
+    about: 'about.html',
+    contact: 'contact.html',
+    dashboard: 'dashboard.html',
+    portfolio: 'portfolio.html'
+  };
+  if (routeMap[raw]) return routeMap[raw];
   return 'index.html';
 }
-const LEGACY_AUTH_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
+// Remove after 2026-10-01 once all legacy Supabase sessions expire.
+const LEGACY_SUPABASE_STORAGE_KEY = 'sb-rcgwshnxndzaossmbken-auth-token';
 const AUTH_SESSION_MS = 20 * 60 * 1000;
 const LANGUAGE_STORAGE_KEY = 'portfolioLang';
 const ANALYTICS_STORAGE_KEY = 'portfolioAnalytics';
+const ANALYTICS_CONSENT_KEY = 'portfolioAnalyticsConsent';
 let clientIpPromise = null;
 let analyticsWriteQueue = Promise.resolve();
 
-const I18N = {
-  en: {
-    nav: {
-      home: 'Home',
-      projects: 'Projects',
-      about: 'About Me',
-      contact: 'Contact',
-      login: 'Login',
-      logout: 'Logout',
-      portfolio: 'Portfolio',
-      dashboard: 'Dashboard'
-    },
-    pages: {
-      loginTitle: 'Login',
-      loginSubtitle: 'Sign in to continue.',
-      accessTitle: 'Access',
-      accessSubtitle: 'Use your credentials to sign in.',
-      portfolioTitle: 'Portfolio',
-      portfolioSubtitle: 'Exclusive gallery visible after login.',
-      sliderTitle: 'Image Slider',
-      sliderSubtitle: '10 photos and project visuals in a private carousel.',
-      dashboardTitle: 'Dashboard',
-      dashboardSubtitle: 'Private analytics and session details.',
-      quickActions: 'Quick Actions',
-      analyticsSummary: 'Analytics Summary',
-      recentEvents: 'Recent Events'
-    },
-    labels: {
-      email: 'Email',
-      password: 'Password',
-      loginSuccess: 'Login successful. Redirecting...',
-      loginInvalid: 'Invalid credentials.',
-      lastLogin: 'Last Login',
-      dashboardVisits: 'Dashboard Visits',
-      portfolioVisits: 'Portfolio Visits',
-      cvClicks: 'CV Clicks',
-      formSubmits: 'Contact Form Sends',
-      githubClicks: 'GitHub Clicks',
-      linkedinClicks: 'LinkedIn Clicks',
-      loginEvents: 'Logins',
-      siteEntries: 'Site Entries',
-      ip: 'IP',
-      noEvents: 'No events registered yet.',
-      editProfile: 'Edit Profile',
-      managePortfolio: 'Manage Portfolio',
-      openContact: 'Open Contact Page'
-    },
-    common: {
-      skipToContent: 'Skip to main content',
-      switchToPortuguese: 'Switch to Portuguese',
-      switchToEnglish: 'Switch to English',
-      footerNavigation: 'Navigation',
-      footerTechnologies: 'Technologies',
-      footerContact: 'Contact',
-      footerDesc: 'Engineer working with MBSE, SysML v2, ECSS/PUS and software for space systems - focused on connecting system models with the code that actually brings them to life.',
-      footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
-      revealPhone: 'Click to show phone number',
-      phoneRevealed: 'Phone number revealed. Click again to call',
-      callNow: 'Click again to call',
-      location: 'Coimbra, Portugal',
-      tech1: 'SysML v2',
-      tech2: 'HTML, CSS & JavaScript',
-      tech3: 'Python',
-      tech4: 'C++ & Java'
-    },
-    home: {
-      heroHi: "Hi, I'm",
-      heroBioHtml: 'Final-year Software & Systems Engineering student completing my degree through a curricular internship at Critical Software, focused on <strong>MBSE/SysML v2</strong>  and <strong>ECSS/PUS</strong> standards, while exploring full stack development and data engineering.',
-      btnViewProjects: 'View Projects',
-      btnGetInTouch: 'Get in Touch',
-      scroll: 'scroll',
-      roles: ['Software Engineer', 'Systems Engineer', 'Football Referee', 'Photographer'],
-      statProjects: 'Projects',
-      statTechnologies: 'Technologies',
-      statYears: 'Years Experience',
-      statDedication: 'Dedication',
-      tagWhatIDo: 'What I Do',
-      expertiseTitle: 'Areas of Expertise',
-      expertiseSubtitle: 'Domains where I transform complex requirements into concrete solutions.',
-      service1Title: 'Model-Based Systems Engineering',
-      service1Desc: 'Systems modeling with SysML v2 - requirements, architecture, behavior and integrated traceability from concept to verification.',
-      service2Title: 'Full Stack Web Developer',
-      service2Desc: 'Development of complete web applications, from responsive interfaces and modern frontend to backend APIs, databases, and robust integrations.',
-      service3Title: 'Database Administration & Data Warehousing',
-      service3Desc: 'Administration and optimization of relational databases, plus data warehousing solutions with ETL pipelines, data quality controls, and reliable reporting.',
-      tagTechStack: 'Tech Stack',
-      techTitle: 'Technologies & Tools',
-      techSubtitle: 'The tools I use daily to build and model.',
-      tagPortfolio: 'Portfolio',
-      featuredTitle: 'Featured Projects',
-      featuredSubtitle: 'Some of my recent work.',
-      btnViewAll: 'View All Projects',
-      ctaTitle: "Let's Work Together?",
-      ctaSubtitle: 'Have an interesting project or want to discuss MBSE and space systems? Get in touch.',
-      btnSendMessage: 'Send Message',
-      btnCallMe: 'Call Me'
-    },
-    about: {
-      headerTitle: 'About Me',
-      headerSubtitle: 'Journey, skills and education.',
-      bioRole: 'Software & Systems Engineer',
-      btnDownloadCv: 'Download CV',
-      bioP1: "I'm a <strong>Software &amp; Systems Engineering</strong> student currently working as a <strong>Software &amp; Systems Engineer Intern</strong> at <strong>Critical Software</strong>, focused on <strong>Model-Based Systems Engineering (MBSE)</strong> for critical and space-related systems.",
-      bioP2: 'I work with <strong>SysML v2</strong>, <strong>ECSS</strong> standards and the <strong>Packet Utilization Standard (PUS)</strong>, transforming complex requirements into structured, traceable and verifiable system architectures, while connecting models with implementation in Linux-based environments. Previously, I gained experience as a <strong>Software Developer Intern</strong>, working with <strong>C#</strong>, <strong>ASP.NET MVC</strong>, <strong>SQL Azure</strong> and web technologies, building a solid foundation in software development.',
-      bioP3: 'Alongside my technical path, I have been a <strong>football referee</strong> for over three years, developing strong decision-making, communication and leadership skills under pressure. I am particularly interested in bridging systems engineering and software development, where models and code come together to create real impact.',
-      experienceTitle: 'Experience',
-      educationTitle: 'Education',
-      exp1Date: 'Feb 2026 - Present',
-      exp1Title: 'Software & Systems Engineer',
-      exp1Org: 'Critical Software - Internship',
-      exp1Desc: "Curricular internship as part of a Bachelor's degree in Software Engineering - Information Systems. Coimbra, Portugal (Hybrid).",
-      exp2Date: 'Feb 2023 - Present',
-      exp2Title: 'Football Referee',
-      exp2Org: 'Associação de Futebol de Coimbra',
-      exp2Desc: 'Coimbra, Portugal.',
-      exp3Date: 'Nov 2023 - Nov 2023',
-      exp3Title: 'Volunteer Staff',
-      exp3Org: 'Web Summit - Temporary',
-      exp3Desc: 'Lisbon, Portugal (On-site).',
-      exp4Date: 'Jun 2022 - Jul 2022',
-      exp4Title: 'Software Developer',
-      exp4Org: 'Prologica - Internship',
-      exp4Desc: 'São João da Madeira, Aveiro, Portugal.',
-      exp5Date: 'Apr 2022 - Apr 2022',
-      exp5Title: 'Software Developer',
-      exp5Org: 'Arrabal-AID - Internship',
-      exp5Desc: 'Málaga, Andalusia, Spain (On-site).',
-      exp6Date: 'Jun 2021 - Jun 2021',
-      exp6Title: 'Software Developer',
-      exp6Org: 'Prologica - Internship',
-      exp6Desc: 'São João da Madeira, Aveiro, Portugal.',
-      edu1Date: 'Sep 2022 - 2026',
-      edu1Title: "Bachelor's degree, Software Engineering",
-      edu1Org: 'Instituto Superior de Engenharia de Coimbra',
-      edu1Desc: 'Branch: Information Systems. AEISEC: Member of the Sports Section (2025).',
-      edu2Date: 'Sep 2019 - Sep 2022',
-      edu2Title: '12th grade, Technician in Computer Systems Management and Programming',
-      edu2Org: 'Escola Secundária Serafim Leite',
-      edu2Desc: 'Final grade: 17.',
-      skillsTitle: 'Skills',
-      skillsSubtitle: 'Organized by domain and area of knowledge.',
-      domains: 'Domains',
-      technologies: 'Technologies',
-      tools: 'Tools'
-    },
-    projects: {
-      headerTitle: 'Projects',
-      headerSubtitle: 'Explore all projects by area or search by keyword.',
-      searchPlaceholder: 'Search projects...',
-      searchAria: 'Search projects by title or description',
-      loading: 'Loading...',
-      all: 'All',
-      foundSuffix: 'found',
-      foundSingular: 'project',
-      foundPlural: 'projects',
-      noResults: 'No results found.',
-      loadError: 'Error loading projects.',
-      featuredLoadError: 'Could not load projects.'
-    },
-    contact: {
-      headerTitle: 'Contact',
-      headerSubtitle: 'Have a question or proposal? Send me a message.',
-      formTitle: 'Send Message',
-      formSubtitle: "Fill out the form below and I'll get back to you shortly.",
-      labelName: 'Name',
-      labelEmail: 'Email',
-      labelSubject: 'Subject',
-      labelMessage: 'Message',
-      placeholderName: 'Your name',
-      placeholderEmail: 'name@example.com',
-      placeholderSubject: 'Email subject',
-      placeholderMessage: 'Your message...',
-      errorName: 'Please enter your name (min. 2 characters).',
-      errorEmail: 'Please enter a valid email address.',
-      errorSubject: 'Please enter a subject (min. 3 characters).',
-      errorMessage: 'Please write a message (min. 10 characters).',
-      submit: 'Send Message',
-      success: "Message sent successfully! I'll get back to you shortly.",
-      error: 'An error occurred sending the message.',
-      formNotConfigured: 'The form is not yet configured. See the README for instructions.',
-      infoTitle: 'Contact Information',
-      infoSubtitle: 'You can also reach me directly.',
-      phone: 'Phone',
-      linkedin: 'LinkedIn',
-      github: 'GitHub',
-      locationLabel: 'Location'
-    },
-    authPopup: {
-      loginTitle: 'Welcome Back',
-      loginText: 'Please note that LOGIN exists only to demonstrate a fully functional and secure authentication flow. It gives access to a reserved area with no relevant content. If you find any relevant issue, please',
-      registerTitle: 'Create Your Account',
-      registerText: 'Please note that REGISTER exists only to demonstrate a fully functional and secure registration flow. The created account only accesses a reserved area with no relevant content. If you find any relevant issue, please',
-      contactLink: 'contact me',
-      close: 'Close',
-      continue: 'Continue'
+document.documentElement.lang = localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'pt' ? 'pt' : 'en';
+
+const I18N_DATA_PATH = 'assets/data/i18n.json';
+const I18N_CACHE_KEY = 'portfolioI18nCache';
+let I18N = { en: {}, pt: {} };
+
+async function loadI18nData() {
+  try {
+    const response = await fetch(I18N_DATA_PATH, { cache: 'default' });
+    if (!response.ok) throw new Error('Failed to load i18n data');
+    const data = await response.json();
+    if (data && typeof data === 'object') {
+      I18N = data;
+      try {
+        localStorage.setItem(I18N_CACHE_KEY, JSON.stringify(data));
+      } catch (_) {
+        // Ignore localStorage quota/access errors.
+      }
+      return;
     }
-  },
-  pt: {
-    nav: {
-      home: 'Inicio',
-      projects: 'Projetos',
-      about: 'Sobre Mim',
-      contact: 'Contacto',
-      login: 'LOGIN',
-      logout: 'SAIR',
-      portfolio: 'Portefolio',
-      dashboard: 'Painel'
-    },
-    pages: {
-      loginTitle: 'Entrar',
-      loginSubtitle: 'Inicia sessao para continuar.',
-      accessTitle: 'Acesso',
-      accessSubtitle: 'Usa as tuas credenciais para entrar.',
-      portfolioTitle: 'Portefolio',
-      portfolioSubtitle: 'Galeria exclusiva visivel apos login.',
-      sliderTitle: 'Slider de Imagens',
-      sliderSubtitle: '10 fotos e visuais de projetos num carrossel privado.',
-      dashboardTitle: 'Painel',
-      dashboardSubtitle: 'Analiticas privadas e detalhes da sessao.',
-      quickActions: 'Acoes Rapidas',
-      analyticsSummary: 'Resumo de Analiticas',
-      recentEvents: 'Eventos Recentes'
-    },
-    labels: {
-      email: 'Email',
-      password: 'Password',
-      loginSuccess: 'Login com sucesso. A redirecionar...',
-      loginInvalid: 'Credenciais invalidas.',
-      lastLogin: 'Ultimo Login',
-      dashboardVisits: 'Visitas ao Painel',
-      portfolioVisits: 'Visitas ao Portefolio',
-      cvClicks: 'Cliques no CV',
-      formSubmits: 'Envios do Formulario',
-      githubClicks: 'Cliques no GitHub',
-      linkedinClicks: 'Cliques no LinkedIn',
-      loginEvents: 'Logins',
-      siteEntries: 'Entradas no Site',
-      ip: 'IP',
-      noEvents: 'Ainda nao existem eventos.',
-      editProfile: 'Editar Perfil',
-      managePortfolio: 'Gerir Portefolio',
-      openContact: 'Abrir Pagina de Contacto'
-    },
-    common: {
-      skipToContent: 'Saltar para o conteudo principal',
-      switchToPortuguese: 'Mudar para Portugues',
-      switchToEnglish: 'Mudar para Ingles',
-      footerNavigation: 'Navegacao',
-      footerTechnologies: 'Tecnologias',
-      footerContact: 'Contactos',
-      footerDesc: 'Engenheiro a trabalhar com MBSE, SysML v2, ECSS/PUS e software para sistemas espaciais - focado em conectar modelos de sistemas com o codigo que realmente os traz a vida.',
-      footerMadeWith: 'Made using HTML5, CSS3 & JavaScript',
-      revealPhone: 'Clicar para mostrar numero de telefone',
-      phoneRevealed: 'Numero revelado. Clicar novamente para ligar',
-      callNow: 'Clicar novamente para ligar',
-      location: 'Coimbra, Portugal',
-      tech1: 'SysML v2',
-      tech2: 'HTML, CSS e JavaScript',
-      tech3: 'Python',
-      tech4: 'C++ e Java'
-    },
-    home: {
-      heroHi: 'Ola, eu sou',
-      heroBioHtml: 'Estudante finalista de Engenharia de Software e de Sistemas, a concluir a licenciatura atraves de um estagio curricular na Critical Software, com foco em <strong>MBSE/SysML v2</strong> e normas <strong>ECSS/PUS</strong>, enquanto exploro desenvolvimento full stack e engenharia de dados.',
-      btnViewProjects: 'Ver Projetos',
-      btnGetInTouch: 'Entrar em Contacto',
-      scroll: 'descer',
-      roles: ['Engenheiro MBSE', 'Especialista SysML v2', 'Programador de Software', 'Entusiasta de Sistemas Espaciais'],
-      statProjects: 'Projetos',
-      statTechnologies: 'Tecnologias',
-      statYears: 'Anos de Experiencia',
-      statDedication: 'Dedicacao',
-      tagWhatIDo: 'O Que Faco',
-      expertiseTitle: 'Areas de Especializacao',
-      expertiseSubtitle: 'Dominios onde transformo requisitos complexos em solucoes concretas.',
-      service1Title: 'Engenharia de Sistemas Baseada em Modelos',
-      service1Desc: 'Modelacao de sistemas com SysML v2 - requisitos, arquitetura, comportamento e rastreabilidade integrada do conceito a verificacao.',
-      service2Title: 'Desenvolvimento Web Full Stack',
-      service2Desc: 'Desenvolvimento de aplicacoes web completas, desde interfaces responsivas e frontend moderno ate APIs de backend, bases de dados e integracoes robustas.',
-      service3Title: 'Administracao de Bases de Dados e Data Warehousing',
-      service3Desc: 'Administracao e otimizacao de bases de dados relacionais, com solucoes de data warehousing, pipelines ETL, controlo de qualidade de dados e reporting fiavel.',
-      tagTechStack: 'Stack Tecnologica',
-      techTitle: 'Tecnologias e Ferramentas',
-      techSubtitle: 'Ferramentas que uso diariamente para modelar e desenvolver.',
-      tagPortfolio: 'Portefolio',
-      featuredTitle: 'Projetos em Destaque',
-      featuredSubtitle: 'Alguns dos meus trabalhos recentes.',
-      btnViewAll: 'Ver Todos os Projetos',
-      ctaTitle: 'Vamos Trabalhar Juntos?',
-      ctaSubtitle: 'Tens um projeto interessante ou queres falar sobre MBSE e sistemas espaciais? Fala comigo.',
-      btnSendMessage: 'Enviar Mensagem',
-      btnCallMe: 'Ligar'
-    },
-    about: {
-      headerTitle: 'Sobre Mim',
-      headerSubtitle: 'Percurso, competencias e formacao.',
-      bioRole: 'Engenheiro de MBSE e Software',
-      btnDownloadCv: 'Descarregar CV',
-      bioP1: 'Sou estudante de <strong>Engenharia de Software e Sistemas</strong>, atualmente a realizar um estágio como <strong>Software & Systems Engineer</strong> na <strong>Critical Software</strong>, com foco em <strong>Engenharia de Sistemas Baseada em Modelos (MBSE)</strong> para sistemas críticos e espaciais.',
-      bioP2: 'Trabalho com <strong>SysML v2</strong>, normas <strong>ECSS</strong> e o <strong>Packet Utilization Standard (PUS)</strong>, transformando requisitos complexos em arquiteturas de sistema estruturadas, rastreáveis e verificáveis, ligando modelos à implementação em ambientes Linux. Anteriormente, adquiri experiência como estagiário de <strong>Desenvolvimento de Software</strong>, trabalhando com <strong>C#</strong>, <strong>ASP.NET MVC</strong>, <strong>SQL Azure</strong> e tecnologias web, construindo uma base sólida em desenvolvimento de software.',
-      bioP3: 'Em paralelo com o meu percurso técnico, sou <strong>árbitro de futebol</strong> há mais de três anos, desenvolvendo competências sólidas de tomada de decisão, comunicação e liderança sob pressão. Tenho especial interesse em criar pontes entre engenharia de sistemas e desenvolvimento de software, onde modelos e código se unem para gerar impacto real.',
-      experienceTitle: 'Experiencia',
-      educationTitle: 'Formacao',
-      exp1Date: 'fev 2026 - o momento',
-      exp1Title: 'Software & Systems Engineer',
-      exp1Org: 'Critical Software - Estágio',
-      exp1Desc: 'Estágio curricular no âmbito da licenciatura em Engenharia de Software - Sistemas de Informação. Coimbra, Portugal (Híbrida).',
-      exp2Date: 'fev 2023 - o momento',
-      exp2Title: 'Arbitro de Futebol',
-      exp2Org: 'Associação de Futebol de Coimbra',
-      exp2Desc: 'Coimbra, Portugal.',
-      exp3Date: 'nov 2023 - nov 2023',
-      exp3Title: 'Volunteer Staff',
-      exp3Org: 'Web Summit - Temporário',
-      exp3Desc: 'Lisboa, Portugal (Presencial).',
-      exp4Date: 'jun 2022 - jul 2022',
-      exp4Title: 'Software Developer',
-      exp4Org: 'Prologica - Estágio',
-      exp4Desc: 'São João da Madeira, Aveiro, Portugal.',
-      exp5Date: 'abr 2022 - abr 2022',
-      exp5Title: 'Software Developer',
-      exp5Org: 'Arrabal-AID - Estágio',
-      exp5Desc: 'Málaga, Andaluzia, Espanha (Presencial).',
-      exp6Date: 'jun 2021 - jun 2021',
-      exp6Title: 'Software Developer',
-      exp6Org: 'Prologica - Estágio',
-      exp6Desc: 'São João da Madeira, Aveiro, Portugal.',
-      edu1Date: 'set 2022 - 2026',
-      edu1Title: 'Licenciatura em Engenharia de Software',
-      edu1Org: 'Instituto Superior de Engenharia de Coimbra',
-      edu1Desc: 'Ramo: Sistemas de Informação. AEISEC: Membro da Secção de Desporto (2025).',
-      edu2Date: 'set 2019 - set 2022',
-      edu2Title: '12.º ano, Técnico de Gestão e Programação de Sistemas Informáticos',
-      edu2Org: 'Escola Secundária Serafim Leite',
-      edu2Desc: 'Nota final: 17.',
-      skillsTitle: 'Competencias',
-      skillsSubtitle: 'Organizadas por dominio e area de conhecimento.',
-      domains: 'Dominios',
-      technologies: 'Tecnologias',
-      tools: 'Ferramentas'
-    },
-    projects: {
-      headerTitle: 'Projetos',
-      headerSubtitle: 'Explora todos os projetos por area ou pesquisa por palavra-chave.',
-      searchPlaceholder: 'Pesquisar projetos...',
-      searchAria: 'Pesquisar projetos por titulo ou descricao',
-      loading: 'A carregar...',
-      all: 'Todos',
-      foundSuffix: 'encontrados',
-      foundSingular: 'projeto',
-      foundPlural: 'projetos',
-      noResults: 'Sem resultados.',
-      loadError: 'Erro ao carregar projetos.',
-      featuredLoadError: 'Nao foi possivel carregar os projetos.'
-    },
-    contact: {
-      headerTitle: 'Contacto',
-      headerSubtitle: 'Tens uma questao ou proposta? Envia-me uma mensagem.',
-      formTitle: 'Enviar Mensagem',
-      formSubtitle: 'Preenche o formulario abaixo e entrarei em contacto contigo em breve.',
-      labelName: 'Nome',
-      labelEmail: 'Email',
-      labelSubject: 'Assunto',
-      labelMessage: 'Mensagem',
-      placeholderName: 'O teu nome',
-      placeholderEmail: 'nome@exemplo.com',
-      placeholderSubject: 'Assunto do email',
-      placeholderMessage: 'A tua mensagem...',
-      errorName: 'Por favor indica o teu nome (min. 2 caracteres).',
-      errorEmail: 'Por favor indica um email valido.',
-      errorSubject: 'Por favor indica um assunto (min. 3 caracteres).',
-      errorMessage: 'Por favor escreve uma mensagem (min. 10 caracteres).',
-      submit: 'Enviar Mensagem',
-      success: 'Mensagem enviada com sucesso! Responderei em breve.',
-      error: 'Ocorreu um erro ao enviar a mensagem.',
-      formNotConfigured: 'O formulario ainda nao esta configurado. Consulta o README para instrucoes.',
-      infoTitle: 'Informacao de Contacto',
-      infoSubtitle: 'Tambem podes contactar-me diretamente.',
-      phone: 'Telefone',
-      linkedin: 'LinkedIn',
-      github: 'GitHub',
-      locationLabel: 'Localizacao'
-    },
-    authPopup: {
-      loginTitle: 'Bem-vindo de volta',
-      loginText: 'Informo que o LOGIN serve apenas para demonstrar uma funcionalidade totalmente funcional e segura. Da acesso a uma area reservada sem conteudo relevante. Se encontrares algum erro relevante, por favor',
-      registerTitle: 'Cria a tua conta',
-      registerText: 'Informo que o REGISTO serve apenas para demonstrar uma funcionalidade totalmente funcional e segura. A conta criada da apenas acesso a uma area reservada sem conteudo relevante. Se encontrares algum erro relevante, por favor',
-      contactLink: 'contacta-me',
-      close: 'Fechar',
-      continue: 'Continuar'
-    }
+  } catch (_) {
+    // Fallback to cached data when network loading fails.
   }
-};
+
+  try {
+    const cachedRaw = localStorage.getItem(I18N_CACHE_KEY);
+    if (!cachedRaw) return;
+    const cachedData = JSON.parse(cachedRaw);
+    if (cachedData && typeof cachedData === 'object') {
+      I18N = cachedData;
+    }
+  } catch (_) {
+    // Ignore invalid cache payloads.
+  }
+}
 
 function getCurrentLanguage() {
   const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
@@ -502,6 +154,8 @@ function initLanguageToggle() {
 }
 
 function applyTranslations() {
+  document.documentElement.lang = getCurrentLanguage();
+
   const setText = (selector, key) => {
     const el = document.querySelector(selector);
     if (el) el.textContent = t(key);
@@ -518,23 +172,6 @@ function applyTranslations() {
   };
 
   const currentPage = getCurrentPageName();
-
-  const navMap = [
-    ['index.html', 'nav.home'],
-    ['projects.html', 'nav.projects'],
-    ['about.html', 'nav.about'],
-    ['contact.html', 'nav.contact']
-  ];
-
-  navMap.forEach(([href, key]) => {
-    document.querySelectorAll(`a.nav-link[href="${href}"]`).forEach(link => {
-      link.textContent = t(key);
-    });
-  });
-
-  document.querySelectorAll('a.nav-link[href="login.html"]').forEach(link => {
-    link.textContent = t('nav.login');
-  });
 
   document.querySelectorAll('a[data-auth-link="logout"]').forEach(link => {
     link.textContent = t('nav.logout');
@@ -560,45 +197,24 @@ function applyTranslations() {
     el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
   });
 
+  document.querySelectorAll('[data-i18n-template]').forEach(el => {
+    const key = el.getAttribute('data-i18n-template');
+    if (!key) return;
+    let value = t(key);
+    Object.entries(el.dataset).forEach(([datasetKey, datasetValue]) => {
+      if (datasetKey === 'i18nTemplate') return;
+      value = value.replaceAll(`{${datasetKey}}`, String(datasetValue));
+    });
+    el.textContent = value;
+  });
+
   setText('.skip-link', 'common.skipToContent');
 
-  const footerCols = document.querySelectorAll('.footer-top > div');
-  if (footerCols.length >= 4) {
-        const navLinks = footerCols[1].querySelectorAll('.footer-links a');
-        navLinks.forEach(link => {
-          const href = (link.getAttribute('href') || '').toLowerCase();
-          if (href === 'index.html') link.textContent = t('nav.home');
-          if (href === 'projects.html') link.textContent = t('nav.projects');
-          if (href === 'about.html') link.textContent = t('nav.about');
-          if (href === 'contact.html') link.textContent = t('nav.contact');
-          if (href === 'portfolio.html') link.textContent = t('nav.portfolio');
-          if (href === 'dashboard.html') link.textContent = t('nav.dashboard');
-        });
-
-    const heading1 = footerCols[1].querySelector('.footer-heading');
-    const heading2 = footerCols[2].querySelector('.footer-heading');
-    const heading3 = footerCols[3].querySelector('.footer-heading');
-    if (heading1) heading1.textContent = t('common.footerNavigation');
-    if (heading2) heading2.textContent = t('common.footerTechnologies');
-    if (heading3) heading3.textContent = t('common.footerContact');
-
-    const techLinks = footerCols[2].querySelectorAll('.footer-links a');
-    if (techLinks[0]) techLinks[0].textContent = t('common.tech1');
-    if (techLinks[1]) techLinks[1].textContent = t('common.tech2');
-    if (techLinks[2]) techLinks[2].textContent = t('common.tech3');
-    if (techLinks[3]) techLinks[3].textContent = t('common.tech4');
-
-    const location = footerCols[3].querySelector('.footer-contact-item span');
-    if (location) location.textContent = t('common.location');
-  }
-
-  setText('.footer-desc', 'common.footerDesc');
   const footerTech = document.querySelector('.footer-tech');
   if (footerTech) {
-    if (footerTech.querySelector('.fa-heart')) {
-      footerTech.innerHTML = getCurrentLanguage() === 'pt'
-        ? 'Feito com <i class="fa-solid fa-heart" aria-hidden="true"></i> HTML5, CSS3 e JavaScript'
-        : 'Made with <i class="fa-solid fa-heart" aria-hidden="true"></i> using HTML5, CSS3 &amp; JavaScript';
+    const footerHtml = i18nValue('common.footerMadeWithHtml');
+    if (typeof footerHtml === 'string' && footerHtml.includes('<')) {
+      footerTech.innerHTML = footerHtml;
     } else {
       footerTech.textContent = t('common.footerMadeWith');
     }
@@ -612,9 +228,9 @@ function applyTranslations() {
     setHtml('.hero-bio', 'home.heroBioHtml');
 
     const viewProjectsBtn = document.querySelector('.hero-buttons a[href="projects.html"]');
-    if (viewProjectsBtn) viewProjectsBtn.innerHTML = `<i class="fa-solid fa-rocket" aria-hidden="true"></i> ${t('home.btnViewProjects')}`;
+    if (viewProjectsBtn) viewProjectsBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#rocket"></use></svg> ${t('home.btnViewProjects')}`;
     const contactBtn = document.querySelector('.hero-buttons a[href="contact.html"]');
-    if (contactBtn) contactBtn.innerHTML = `<i class="fa-solid fa-envelope" aria-hidden="true"></i> ${t('home.btnGetInTouch')}`;
+    if (contactBtn) contactBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#envelope"></use></svg> ${t('home.btnGetInTouch')}`;
     setText('.scroll-indicator span', 'home.scroll');
 
     const statLabels = document.querySelectorAll('.stat-label');
@@ -655,14 +271,14 @@ function applyTranslations() {
     setText('#featured-heading', 'home.featuredTitle');
     setText('.section[aria-labelledby="featured-heading"] .section-subtitle', 'home.featuredSubtitle');
     const viewAllBtn = document.querySelector('.section-cta a[href="projects.html"]');
-    if (viewAllBtn) viewAllBtn.innerHTML = `${t('home.btnViewAll')} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>`;
+    if (viewAllBtn) viewAllBtn.innerHTML = `${t('home.btnViewAll')} <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrow-right"></use></svg>`;
 
     setText('.cta-banner h2', 'home.ctaTitle');
     setText('.cta-banner p', 'home.ctaSubtitle');
     const sendBtn = document.querySelector('.cta-banner a[href="contact.html"]');
-    if (sendBtn) sendBtn.innerHTML = `<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> ${t('home.btnSendMessage')}`;
+    if (sendBtn) sendBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#paper-plane"></use></svg> ${t('home.btnSendMessage')}`;
     const callBtn = document.querySelector('.cta-banner a[href^="tel:"]');
-    if (callBtn) callBtn.innerHTML = `<i class="fa-solid fa-phone" aria-hidden="true"></i> ${t('home.btnCallMe')}`;
+    if (callBtn) callBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#phone"></use></svg> ${t('home.btnCallMe')}`;
   }
 
   if (currentPage === 'about.html') {
@@ -670,9 +286,9 @@ function applyTranslations() {
     setText('.page-header p', 'about.headerSubtitle');
     setText('.bio-role', 'about.bioRole');
     const bioLocation = document.querySelector('.bio-location');
-    if (bioLocation) bioLocation.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${t('common.location')}`;
+    if (bioLocation) bioLocation.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#location-dot"></use></svg> ${t('common.location')}`;
     const cvBtn = document.querySelector('.bio-sidebar .btn.btn-primary');
-    if (cvBtn) cvBtn.innerHTML = `<i class="fa-solid fa-download" aria-hidden="true"></i> ${t('about.btnDownloadCv')}`;
+    if (cvBtn) cvBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#download"></use></svg> ${t('about.btnDownloadCv')}`;
 
     const bioParagraphs = document.querySelectorAll('.bio-content p');
     if (bioParagraphs[0]) bioParagraphs[0].innerHTML = i18nValue('about.bioP1');
@@ -680,8 +296,8 @@ function applyTranslations() {
     if (bioParagraphs[2]) bioParagraphs[2].innerHTML = i18nValue('about.bioP3');
 
     const sectionTitles = document.querySelectorAll('.two-col .section-title');
-    if (sectionTitles[0]) sectionTitles[0].innerHTML = `<i class="fa-solid fa-briefcase icon-accent" aria-hidden="true"></i> ${t('about.experienceTitle')}`;
-    if (sectionTitles[1]) sectionTitles[1].innerHTML = `<i class="fa-solid fa-graduation-cap icon-accent" aria-hidden="true"></i> ${t('about.educationTitle')}`;
+    if (sectionTitles[0]) sectionTitles[0].innerHTML = `<svg class="icon icon-accent" aria-hidden="true"><use href="assets/img/icons.svg#briefcase"></use></svg> ${t('about.experienceTitle')}`;
+    if (sectionTitles[1]) sectionTitles[1].innerHTML = `<svg class="icon icon-accent" aria-hidden="true"><use href="assets/img/icons.svg#graduation-cap"></use></svg> ${t('about.educationTitle')}`;
 
     const timelines = document.querySelectorAll('.timeline');
     if (timelines[0]) {
@@ -720,9 +336,9 @@ function applyTranslations() {
     setText('#skills-heading', 'about.skillsTitle');
     setText('#skills-heading + .section-subtitle', 'about.skillsSubtitle');
     const skillTitles = document.querySelectorAll('.skill-group-title');
-    if (skillTitles[0]) skillTitles[0].innerHTML = `<i class="fa-solid fa-satellite icon-accent" aria-hidden="true"></i> ${t('about.domains')}`;
-    if (skillTitles[1]) skillTitles[1].innerHTML = `<i class="fa-solid fa-code icon-accent" aria-hidden="true"></i> ${t('about.technologies')}`;
-    if (skillTitles[2]) skillTitles[2].innerHTML = `<i class="fa-solid fa-wrench icon-accent" aria-hidden="true"></i> ${t('about.tools')}`;
+    if (skillTitles[0]) skillTitles[0].innerHTML = `<svg class="icon icon-accent" aria-hidden="true"><use href="assets/img/icons.svg#satellite"></use></svg> ${t('about.domains')}`;
+    if (skillTitles[1]) skillTitles[1].innerHTML = `<svg class="icon icon-accent" aria-hidden="true"><use href="assets/img/icons.svg#code"></use></svg> ${t('about.technologies')}`;
+    if (skillTitles[2]) skillTitles[2].innerHTML = `<svg class="icon icon-accent" aria-hidden="true"><use href="assets/img/icons.svg#wrench"></use></svg> ${t('about.tools')}`;
   }
 
   if (currentPage === 'projects.html') {
@@ -780,12 +396,12 @@ function applyTranslations() {
     if (formErrors[3]) formErrors[3].textContent = t('contact.errorMessage');
 
     const submitBtn = document.querySelector('#contact-form button[type="submit"]');
-    if (submitBtn) submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> ${t('contact.submit')}`;
+    if (submitBtn) submitBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#paper-plane"></use></svg> ${t('contact.submit')}`;
 
     const successAlert = document.getElementById('form-alert-success');
-    if (successAlert) successAlert.innerHTML = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> ${t('contact.success')}`;
+    if (successAlert) successAlert.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#circle-check"></use></svg> ${t('contact.success')}`;
     const errorAlert = document.getElementById('form-alert-error');
-    if (errorAlert) errorAlert.innerHTML = `<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> ${t('contact.error')}`;
+    if (errorAlert) errorAlert.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#circle-xmark"></use></svg> ${t('contact.error')}`;
 
     setText('.contact-grid .reveal-right .section-title', 'contact.infoTitle');
     setText('.contact-grid .reveal-right .section-subtitle', 'contact.infoSubtitle');
@@ -801,8 +417,6 @@ function applyTranslations() {
   if (currentPage === 'login.html' || currentPage === 'register.html') {
     updateAuthInfoPopupText(currentPage);
   }
-
-  document.documentElement.lang = getCurrentLanguage() === 'pt' ? 'pt' : 'en';
 }
 
 function initAuthInfoPopup() {
@@ -912,6 +526,14 @@ function initAuthNavigation() {
   });
 }
 
+function initProtectedRoutes() {
+  const currentPage = getCurrentPageName();
+  if (currentPage !== 'dashboard.html' && currentPage !== 'portfolio.html') return false;
+  if (isAuthenticated()) return false;
+  window.location.replace('login.html');
+  return true;
+}
+
 function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
   let portfolioItem = navLinksContainer.querySelector('li[data-auth-item="portfolio"]');
   if (!portfolioItem) {
@@ -998,7 +620,7 @@ function getStoredAuthSession() {
       }
     }
 
-    const legacyRaw = localStorage.getItem(LEGACY_AUTH_STORAGE_KEY);
+    const legacyRaw = localStorage.getItem(LEGACY_SUPABASE_STORAGE_KEY);
     if (!legacyRaw) return null;
     const legacyParsed = JSON.parse(legacyRaw);
     if (!legacyParsed || typeof legacyParsed !== 'object') return null;
@@ -1016,7 +638,7 @@ function getStoredAuthSession() {
 
 function clearAuthSession() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
-  localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_SUPABASE_STORAGE_KEY);
 }
 
 function getAnalyticsData() {
@@ -1062,6 +684,7 @@ function saveAnalyticsData(data) {
 }
 
 async function getClientIp() {
+  if (!hasAnalyticsConsent()) return '';
   if (clientIpPromise) return clientIpPromise;
 
   clientIpPromise = (async () => {
@@ -1085,7 +708,36 @@ async function getClientIp() {
   return clientIpPromise;
 }
 
+function hasAnalyticsConsent() {
+  try {
+    return localStorage.getItem(ANALYTICS_CONSENT_KEY) === 'granted';
+  } catch (_) {
+    return false;
+  }
+}
+
+function initConsentAnalyticsBridge() {
+  document.addEventListener('consent:granted', () => {
+    trackEvent('consent_granted');
+    trackEvent('site_entry');
+
+    const currentPage = getCurrentPageName();
+    if (currentPage === 'dashboard.html' || currentPage === 'dashboard') {
+      trackEvent('dashboard_visit');
+    }
+    if (currentPage === 'portfolio.html' || currentPage === 'portfolio') {
+      trackEvent('portfolio_visit');
+    }
+  });
+
+  document.addEventListener('consent:denied', () => {
+    // Explicitly no analytics writes when consent is denied.
+  });
+}
+
 function trackEvent(name, details) {
+  if (!hasAnalyticsConsent()) return Promise.resolve();
+
   analyticsWriteQueue = analyticsWriteQueue.then(async () => {
     const data = getAnalyticsData();
     if (!Object.prototype.hasOwnProperty.call(data.counts, name)) {
@@ -1146,11 +798,15 @@ function initTheme() {
   } else {
     document.documentElement.classList.add('theme-dark');
   }
+  const isDarkInitial = document.documentElement.classList.contains('theme-dark');
+  toggle.setAttribute('aria-label', isDarkInitial ? t('ui.switchToLightMode') : t('ui.switchToDarkMode'));
+  toggle.setAttribute('title', isDarkInitial ? t('ui.switchToLightMode') : t('ui.switchToDarkMode'));
   toggle.addEventListener('click', () => {
     document.documentElement.classList.toggle('theme-dark');
     const isDark = document.documentElement.classList.contains('theme-dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    toggle.setAttribute('aria-label', isDark ? t('ui.switchToLightMode') : t('ui.switchToDarkMode'));
+    toggle.setAttribute('title', isDark ? t('ui.switchToLightMode') : t('ui.switchToDarkMode'));
   });
 }
 
@@ -1174,7 +830,7 @@ function initNavbar() {
   const onScroll = () => {
     if (isHome) navbar.classList.toggle('scrolled', window.scrollY > 50);
   };
-  window.addEventListener('scroll', onScroll, { passive: true });
+  if (isHome) window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 }
 
@@ -1184,11 +840,12 @@ function initMobileMenu() {
   const navbar = document.getElementById('navbar');
   const navLinks = document.getElementById('nav-links');
   if (!hamburger || !navbar || !navLinks) return;
+  hamburger.setAttribute('aria-label', t('ui.openMenu'));
 
   const toggle = () => {
     const isOpen = navbar.classList.toggle('nav-open');
     hamburger.setAttribute('aria-expanded', String(isOpen));
-    hamburger.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+    hamburger.setAttribute('aria-label', isOpen ? t('ui.closeMenu') : t('ui.openMenu'));
     document.body.style.overflow = isOpen ? 'hidden' : '';
   };
 
@@ -1233,6 +890,7 @@ function initFooterYear() {
 function initBackToTop() {
   const btn = document.getElementById('back-to-top');
   if (!btn) return;
+  btn.setAttribute('aria-label', t('common.backToTop'));
   const toggleBtn = () => btn.classList.toggle('visible', window.scrollY > 400);
   window.addEventListener('scroll', toggleBtn, { passive: true });
   toggleBtn();
@@ -1291,16 +949,18 @@ function initParticles() {
 
   const ctx = canvas.getContext('2d');
   let width, height, particles, animId;
-  const COUNT = 70, MAX_DIST = 140;
+  let particleCount = 60;
+  const MAX_DIST = 140;
 
   function resize() {
     const section = canvas.closest('.hero');
     width = canvas.width = section ? section.offsetWidth : window.innerWidth;
     height = canvas.height = section ? section.offsetHeight : window.innerHeight;
+    particleCount = width < 768 ? 40 : 60;
   }
   function create() {
     particles = [];
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width, y: Math.random() * height,
         vx: (Math.random() - .5) * .5, vy: (Math.random() - .5) * .5,
@@ -1335,13 +995,15 @@ function initParticles() {
 
   resize(); create(); draw();
   window.addEventListener('resize', () => { cancelAnimationFrame(animId); resize(); create(); draw(); });
+  window.addEventListener('pagehide', () => { cancelAnimationFrame(animId); }, { once: true });
 }
 
 /* ---- Typing Effect ---- */
 function initTypingEffect() {
   const el = document.getElementById('typed-role');
   if (!el) return;
-  const roles = i18nValue('home.roles') || ['Software Engineer', 'Systems Engineer', 'Football Referee', 'Photographer'];
+  const roles = i18nValue('home.roles') || [];
+  if (!Array.isArray(roles) || !roles.length) return;
   let roleIdx = 0, charIdx = 0, deleting = false, pause = 0;
 
   function type() {
@@ -1374,6 +1036,8 @@ function initCounterAnimation() {
   counters.forEach(c => observer.observe(c));
 }
 function animateCounter(el) {
+  if (el.dataset.counted === 'true') return;
+  el.dataset.counted = 'true';
   const target = parseInt(el.dataset.count, 10);
   const suffix = el.dataset.suffix || '';
   const duration = 1500, start = performance.now();
@@ -1388,7 +1052,9 @@ function animateCounter(el) {
 
 function initAutoProjectsCounter() {
   const projectsCounter = document.querySelector('.stats .stat-item:first-child .stat-number');
-  if (!projectsCounter) return;
+  const technologiesCounter = document.querySelector('.stats .stat-item:nth-child(2) .stat-number');
+  const yearsCounter = document.querySelector('.stats .stat-item:nth-child(3) .stat-number');
+  if (!projectsCounter && !technologiesCounter && !yearsCounter) return;
 
   fetch('assets/data/projects.json')
     .then(response => {
@@ -1396,10 +1062,58 @@ function initAutoProjectsCounter() {
       return response.json();
     })
     .then(projects => {
-      const totalProjects = Array.isArray(projects) ? projects.length : 0;
-      projectsCounter.dataset.count = String(totalProjects);
-      projectsCounter.textContent = '0';
-      animateCounter(projectsCounter);
+      const data = Array.isArray(projects) ? projects : [];
+      const totalProjects = data.length;
+      const uniqueTags = new Set();
+      const years = [];
+
+      data.forEach(project => {
+        const tags = Array.isArray(project?.tags) ? project.tags : [];
+        tags.forEach(tag => {
+          if (typeof tag === 'string' && tag.trim()) {
+            uniqueTags.add(tag.trim().toLowerCase());
+          } else if (tag && typeof tag === 'object') {
+            // Bug 4 fix: treat each {en,pt} object as one technology (use 'en' as canonical key)
+            const key = typeof tag.en === 'string' && tag.en.trim()
+              ? tag.en.trim().toLowerCase()
+              : (typeof tag.pt === 'string' ? tag.pt.trim().toLowerCase() : null);
+            if (key) uniqueTags.add(key);
+          }
+        });
+
+        const y = Number(project?.year);
+        if (Number.isFinite(y)) years.push(y);
+      });
+
+      // Bug 3 fix: derive years of experience from a fixed professional start date
+      // (Critical Software, Feb 2026) rather than the oldest project year.
+      const EXP_START_YEAR = 2026;
+      const EXP_START_MONTH = 2; // February (1-based)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const monthsElapsed = (currentYear - EXP_START_YEAR) * 12 + (now.getMonth() + 1 - EXP_START_MONTH);
+      const yearsExperience = Math.max(1, Math.ceil(monthsElapsed / 12));
+
+      if (projectsCounter) {
+        projectsCounter.dataset.count = String(totalProjects);
+        projectsCounter.textContent = '0';
+        delete projectsCounter.dataset.counted;
+        animateCounter(projectsCounter);
+      }
+
+      if (technologiesCounter) {
+        technologiesCounter.dataset.count = String(uniqueTags.size);
+        technologiesCounter.textContent = '0';
+        delete technologiesCounter.dataset.counted;
+        animateCounter(technologiesCounter);
+      }
+
+      if (yearsCounter) {
+        yearsCounter.dataset.count = String(yearsExperience);
+        yearsCounter.textContent = '0';
+        delete yearsCounter.dataset.counted;
+        animateCounter(yearsCounter);
+      }
     })
     .catch(() => {
       // Keep existing fallback value from HTML when data cannot be loaded.
@@ -1410,17 +1124,32 @@ function initAutoProjectsCounter() {
 function initCardTilt() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if ('ontouchstart' in window) return;
-  document.addEventListener('mousemove', e => {
+  let rafId = 0;
+  let pendingEvent = null;
+  let activeCard = null;
+
+  const updateTilt = () => {
+    rafId = 0;
+    if (!pendingEvent) return;
+    const e = pendingEvent;
     const card = e.target.closest('.project-card');
     if (!card) return;
+    if (activeCard && activeCard !== card) activeCard.style.transform = '';
     const rect = card.getBoundingClientRect();
     const rotateX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -4;
     const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 4;
     card.style.transform = `translateY(-6px) perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    activeCard = card;
+  };
+
+  document.addEventListener('mousemove', e => {
+    pendingEvent = e;
+    if (!rafId) rafId = requestAnimationFrame(updateTilt);
   });
   document.addEventListener('mouseleave', e => {
     const card = e.target.closest('.project-card');
     if (card) card.style.transform = '';
+    if (activeCard === card) activeCard = null;
   }, true);
 }
 
@@ -1442,7 +1171,7 @@ function initProjectsPage() {
       updateCount(data.length, resultsCount);
     })
     .catch(() => {
-      grid.innerHTML = `<div class="no-results"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>${esc(t('projects.loadError'))}</p></div>`;
+      grid.innerHTML = `<div class="no-results"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#triangle-exclamation"></use></svg><p>${esc(t('projects.loadError'))}</p></div>`;
     });
 
   if (searchInput) searchInput.addEventListener('input', () => applyFilters(allProjectsData, activeTag, searchInput.value, grid, resultsCount));
@@ -1463,8 +1192,9 @@ function initFeaturedProjects() {
     .then(data => {
       allProjectsData = data;
       renderProjects(data.slice(0, 3), grid);
+      applyTranslations();
     })
-    .catch(() => { grid.innerHTML = `<p style="color:var(--text-muted);text-align:center">${esc(t('projects.featuredLoadError'))}</p>`; });
+    .catch(() => { grid.innerHTML = `<p class="text-muted-center">${esc(t('projects.featuredLoadError'))}</p>`; });
 }
 
 function getLocalizedProjectText(value) {
@@ -1490,7 +1220,7 @@ function getLocalizedProjectTags(tags) {
 function renderFilters(projects, container) {
   if (!container) return;
   const tags = new Set();
-  projects.forEach(p => getLocalizedProjectTags(p.tags).forEach(t => tags.add(t)));
+  projects.forEach(p => getLocalizedProjectTags(p.tags).forEach(tag => tags.add(tag)));
   let html = `<button class="filter-tag active" data-tag="All">${esc(t('projects.all'))}</button>`;
   Array.from(tags).sort().forEach(tag => { html += `<button class="filter-tag" data-tag="${esc(tag)}">${esc(tag)}</button>`; });
   container.innerHTML = html;
@@ -1512,30 +1242,40 @@ function applyFilters(projects, tag, query, grid, countEl) {
 
 function renderProjects(projects, grid) {
   if (!projects.length) {
-    grid.innerHTML = `<div class="no-results"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><p>${esc(t('projects.noResults'))}</p></div>`;
+    grid.innerHTML = `<div class="no-results"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#folder-open"></use></svg><p>${esc(t('projects.noResults'))}</p></div>`;
     return;
   }
-  grid.innerHTML = projects.map(p => `
-    <article class="project-card" data-project-id="${esc(p.id)}" role="button" tabindex="0">
+  grid.innerHTML = projects.map(p => {
+    const projectTitle = getLocalizedProjectText(p.title);
+    const projectDescription = getLocalizedProjectText(p.description);
+    const projectTags = getLocalizedProjectTags(p.tags);
+    const openDetailsLabel = `${t('projects.openDetailsAriaPrefix')} ${projectTitle}`;
+    const imageAlt = `${t('projects.imageAltPrefix')} ${projectTitle}`;
+    return `
+    <article class="project-card" data-project-id="${esc(p.id)}" role="button" tabindex="0" aria-label="${esc(openDetailsLabel)}">
       <div class="project-card-img-wrapper">
-        <img src="${esc(p.image)}" alt="Project: ${esc(getLocalizedProjectText(p.title))}" class="project-card-img" loading="lazy">
+        <img src="${esc(p.image)}" alt="${esc(imageAlt)}" class="project-card-img" loading="lazy">
         <div class="project-card-overlay">
           ${p.year ? `<span class="project-card-year">${esc(String(p.year))}</span>` : ''}
         </div>
       </div>
       <div class="project-card-body">
-        <h3 class="project-card-title">${esc(getLocalizedProjectText(p.title))}</h3>
-        <p class="project-card-desc">${esc(getLocalizedProjectText(p.description))}</p>
-        <div class="project-card-tags">${getLocalizedProjectTags(p.tags).map(tag => `<span class="project-card-tag">${esc(tag)}</span>`).join('')}</div>
+        <h3 class="project-card-title">${esc(projectTitle)}</h3>
+        <p class="project-card-desc">${esc(projectDescription)}</p>
+        <div class="project-card-tags">${projectTags.map(tag => `<span class="project-card-tag">${esc(tag)}</span>`).join('')}</div>
         <div class="project-card-links">
-          ${p.links.github && p.links.github !== '#' ? `<a href="${esc(p.links.github)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>` : ''}
-          ${p.links.demo && p.links.demo !== '#' ? `<a href="${esc(p.links.demo)}" class="project-card-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>` : ''}
+          ${p.links.github && p.links.github !== '#' ? `<a href="${esc(p.links.github)}" class="project-card-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#github"></use></svg> ${esc(t('projects.github'))}</a>` : ''}
+          ${p.links.demo && p.links.demo !== '#' ? `<a href="${esc(p.links.demo)}" class="project-card-link" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrow-up-right-from-square"></use></svg> ${esc(t('projects.demo'))}</a>` : ''}
         </div>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
   grid.querySelectorAll('.project-card-img').forEach(img => {
     img.addEventListener('error', () => img.classList.add('img-error'), { once: true });
+  });
+  grid.querySelectorAll('.project-card-link').forEach(link => {
+    link.addEventListener('click', event => event.stopPropagation());
   });
   grid.querySelectorAll('.project-card').forEach(card => {
     const onOpen = e => {
@@ -1561,17 +1301,44 @@ function initProjectModal() {
   const overlay = document.getElementById('modal-overlay');
   if (!modal || !closeBtn || !overlay) return;
 
+  let lastFocusedElement = null;
+
   const closeModal = () => {
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+      lastFocusedElement.focus();
+    }
   };
 
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') {
+      closeModal();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+      return;
+    }
+    if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
+
+  modal.__setLastFocusedElement = el => { lastFocusedElement = el; };
 }
 
 function openProjectModal(projectId) {
@@ -1583,19 +1350,24 @@ function openProjectModal(projectId) {
   const projectTitle = getLocalizedProjectText(project.title);
   const projectDescription = getLocalizedProjectText(project.description);
   const localizedTags = getLocalizedProjectTags(project.tags);
-  if (img) { img.src = project.image; img.alt = `Project: ${projectTitle}`; }
+  if (img) { img.src = project.image; img.alt = `${t('projects.imageAltPrefix')} ${projectTitle}`; }
   document.getElementById('modal-title').textContent = projectTitle;
   document.getElementById('modal-description').textContent = projectDescription;
   document.getElementById('modal-year').textContent = project.year || '';
   document.getElementById('modal-tags').innerHTML = localizedTags.map(tag => `<span>${esc(tag)}</span>`).join('');
   document.getElementById('modal-links').innerHTML = [
-    project.links.github && project.links.github !== '#' && `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>`,
-    project.links.demo && project.links.demo !== '#' && `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Demo</a>`
+    project.links.github && project.links.github !== '#' && `<a href="${esc(project.links.github)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#github"></use></svg> ${esc(t('projects.github'))}</a>`,
+    project.links.demo && project.links.demo !== '#' && `<a href="${esc(project.links.demo)}" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrow-up-right-from-square"></use></svg> ${esc(t('projects.demo'))}</a>`
   ].filter(Boolean).join('');
 
   modal.classList.add('active');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  if (typeof modal.__setLastFocusedElement === 'function') {
+    modal.__setLastFocusedElement(document.activeElement);
+  }
+  const closeBtn = document.getElementById('modal-close');
+  if (closeBtn) window.setTimeout(() => closeBtn.focus(), 0);
 }
 
 /* ---- Contact Form ---- */
@@ -1909,19 +1681,34 @@ function initDashboard() {
 function initCardGlow() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if ('ontouchstart' in window) return;
-  document.addEventListener('mousemove', e => {
+  let rafId = 0;
+  let pendingEvent = null;
+  let activeCard = null;
+
+  const updateGlow = () => {
+    rafId = 0;
+    if (!pendingEvent) return;
+    const e = pendingEvent;
     const card = e.target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
     if (!card) return;
+    if (activeCard && activeCard !== card) activeCard.classList.remove('has-glow');
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     card.style.setProperty('--glow-x', x + 'px');
     card.style.setProperty('--glow-y', y + 'px');
     if (!card.classList.contains('has-glow')) card.classList.add('has-glow');
+    activeCard = card;
+  };
+
+  document.addEventListener('mousemove', e => {
+    pendingEvent = e;
+    if (!rafId) rafId = requestAnimationFrame(updateGlow);
   });
   document.addEventListener('mouseleave', e => {
     const card = e.target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
     if (card) card.classList.remove('has-glow');
+    if (activeCard === card) activeCard = null;
   }, true);
 }
 
@@ -1946,10 +1733,20 @@ function initHeroParallax() {
         if (text) text.style.transform = `translateY(${ratio * 60}px)`;
         if (avatar) avatar.style.transform = `translateY(${ratio * 40}px) scale(${1 - ratio * 0.1})`;
         if (grid) grid.style.transform = `translateY(${ratio * 25}px)`;
+      } else {
+        if (text) text.style.transform = '';
+        if (avatar) avatar.style.transform = '';
+        if (grid) grid.style.transform = '';
       }
       ticking = false;
     });
   }, { passive: true });
+
+  if (window.scrollY === 0) {
+    if (text) text.style.transform = '';
+    if (avatar) avatar.style.transform = '';
+    if (grid) grid.style.transform = '';
+  }
 }
 
 /* ---- Smooth Stagger for grids ---- */
@@ -1962,12 +1759,19 @@ function initSmoothStagger() {
       observer.unobserve(entry.target);
       const children = entry.target.children;
       Array.from(children).forEach((child, i) => {
+        if (child.dataset.staggered === 'true') return;
+        const opacity = Number(window.getComputedStyle(child).opacity || 0);
+        if (opacity > 0.95) {
+          child.dataset.staggered = 'true';
+          return;
+        }
         child.style.opacity = '0';
         child.style.transform = 'translateY(25px)';
         setTimeout(() => {
           child.style.transition = 'opacity .6s cubic-bezier(.23,1,.32,1), transform .6s cubic-bezier(.23,1,.32,1)';
           child.style.opacity = '1';
           child.style.transform = 'translateY(0)';
+          child.dataset.staggered = 'true';
         }, i * 100);
       });
     });

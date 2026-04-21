@@ -1,0 +1,99 @@
+/* ===========================================================
+	 Consent Banner (RGPD)
+	 =========================================================== */
+.consent-banner {
+	position: fixed;
+	left: 1rem;
+	right: 1rem;
+	bottom: 1rem;
+	z-index: 12000;
+	transform: translateY(calc(100% + 2rem));
+	opacity: 0;
+	pointer-events: none;
+	transition: transform .28s var(--ease), opacity .28s ease;
+}
+
+.consent-banner.is-visible {
+	transform: translateY(0);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.consent-inner {
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--bg-nav-scrolled);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	box-shadow: var(--glow);
+	padding: 1rem;
+}
+
+.consent-title {
+	margin: 0 0 .5rem;
+	font-size: 1rem;
+	color: var(--text);
+}
+
+.consent-message {
+	margin: 0;
+	color: var(--text-secondary);
+	font-size: .95rem;
+	line-height: 1.5;
+}
+
+.consent-actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: .75rem;
+	margin-top: 1rem;
+}
+
+.consent-btn {
+	width: 100%;
+	border: 1px solid var(--border-hover);
+	background: transparent;
+	color: var(--text);
+	border-radius: .8rem;
+	min-height: 42px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background var(--fast), border-color var(--fast), transform var(--fast);
+}
+
+.consent-btn:hover {
+	background: rgba(var(--primary-rgb), .14);
+	border-color: rgba(var(--primary-rgb), .45);
+	transform: translateY(-1px);
+}
+
+.consent-more {
+	display: inline-block;
+	margin-top: .75rem;
+	color: var(--primary);
+	font-weight: 600;
+}
+
+.consent-settings-link {
+	color: var(--text-muted);
+	font-weight: 500;
+	font-size: .85rem;
+	opacity: .85;
+	text-decoration: none;
+	transition: color var(--fast), opacity var(--fast);
+}
+
+.consent-settings-link:hover,
+.consent-settings-link:focus-visible {
+	color: var(--text-secondary);
+	opacity: 1;
+	text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+	.consent-banner {
+		left: auto;
+		right: 1rem;
+		max-width: 520px;
+	}
+}

@@ -1,0 +1,33 @@
+/* ===========================================================
+   10. Stats
+   =========================================================== */
+.stats {
+  padding: 4rem 0; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); position: relative;
+}
+.stats::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb),.2), transparent);
+}
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.stat-item { text-align: center; padding: 1.5rem 1rem; position: relative; }
+.stat-item::after {
+  content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 1px; height: 40px;
+  background: linear-gradient(180deg, transparent, rgba(var(--primary-rgb),.2), transparent);
+}
+.stat-item:last-child::after { display: none; }
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.8rem; font-weight: 900; line-height: 1; margin-bottom: .4rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label {
+  font-size: .7rem; color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .15em;
+}
+

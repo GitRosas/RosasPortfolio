@@ -1,0 +1,35 @@
+/* ===========================================================
+   9. Sections
+   =========================================================== */
+.section { padding: 2rem 0; }
+.section-alt {
+  background: rgba(255,255,255,.01);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.section-alt::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb),.15), transparent);
+}
+
+.section-tag {
+  display: inline-block; color: var(--primary);
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .25em; padding: .4rem 1.2rem;
+  background: rgba(var(--primary-rgb),.06);
+  border: 1px solid rgba(var(--primary-rgb),.1);
+  border-radius: var(--radius-pill); margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900; color: var(--text);
+  margin-bottom: .5rem; letter-spacing: -.02em; line-height: 1.1;
+}
+.section-subtitle {
+  font-size: 1.05rem; color: var(--text-muted);
+  margin-bottom: 3rem; line-height: 1.6; max-width: 500px;
+}
+.section-cta { text-align: center; margin-top: 3rem; }
+

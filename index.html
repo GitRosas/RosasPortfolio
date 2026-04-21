@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://auth.joaomiguelrosa.com https://challenges.cloudflare.com https://api64.ipify.org; frame-src https://challenges.cloudflare.com; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>João Miguel Rosa — Software &amp; Systems Engineer</title>
   <meta name="description" content="Portfolio of João Miguel Rosa — Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software.">
   <meta name="author" content="João Miguel Rosa">
-  <link rel="canonical" href="https://gitrosas.github.io/">
+  <link rel="canonical" href="https://joaomiguelrosa.com/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="João Miguel Rosa — Software &amp; Systems Engineer">
   <meta property="og:description" content="Portfolio of João Miguel Rosa — Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software.">
-  <meta property="og:url" content="https://gitrosas.github.io/">
-  <meta property="og:image" content="https://gitrosas.github.io/assets/img/foto.jpg">
+  <meta property="og:url" content="https://joaomiguelrosa.com/">
+  <meta property="og:image" content="https://joaomiguelrosa.com/assets/img/foto.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="João Miguel Rosa — MBSE &amp; Software Engineer">
   <meta name="twitter:description" content="Personal portfolio — MBSE, SysML v2, ECSS/PUS and space systems software.">
-  <meta name="twitter:image" content="https://gitrosas.github.io/assets/img/foto.jpg">
+  <meta name="twitter:image" content="https://joaomiguelrosa.com/assets/img/foto.jpg">
   <link rel="icon" href="assets/img/foto.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" media="print" data-defer-css>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap"></noscript>
   <link rel="stylesheet" href="assets/css/styles.css">
   <script type="application/ld+json">
   {
@@ -28,8 +30,8 @@
     "@type": "Person",
     "name": "João Miguel Rosa",
     "jobTitle": "MBSE & Software Engineer (Space Systems)",
-    "url": "https://gitrosas.github.io/",
-    "image": "https://gitrosas.github.io/assets/img/foto.jpg",
+    "url": "https://joaomiguelrosa.com/",
+    "image": "https://joaomiguelrosa.com/assets/img/foto.jpg",
     "sameAs": [
       "https://github.com/GitRosas",
       "https://www.linkedin.com/in/joaorosa0409/"
@@ -45,32 +47,8 @@
   <!-- Skip Link -->
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <!-- Navbar -->
-  <nav class="navbar" id="navbar" aria-label="Main navigation">
-    <div class="container navbar-inner">
-      <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
-
-      <ul class="nav-links" id="nav-links">
-        <li><a href="index.html" class="nav-link">Home</a></li>
-        <li><a href="projects.html" class="nav-link">Projects</a></li>
-        <li><a href="about.html" class="nav-link">About Me</a></li>
-        <li><a href="contact.html" class="nav-link">Contact</a></li>
-        <li><a href="login.html" class="nav-link nav-link-auth">Login</a></li>
-      </ul>
-
-      <div class="navbar-actions">
-        <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
-          <i class="fa-solid fa-moon" aria-hidden="true"></i>
-          <i class="fa-solid fa-sun" aria-hidden="true"></i>
-        </button>
-        <button class="nav-hamburger" id="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false">
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-      </div>
-    </div>
-  </nav>
+<!-- Navbar -->
+  <nav class="navbar" id="navbar" aria-label="Main navigation"></nav>
 
   <!-- Main -->
   <main id="main-content">
@@ -81,7 +59,7 @@
       <canvas id="particles-canvas" aria-hidden="true"></canvas>
       <div class="container hero-inner">
         <div class="hero-text">
-          <p class="hero-subtitle"><span class="wave-emoji">👋</span> Hi, I'm
+          <p class="hero-subtitle"><span class="wave-emoji">👋</span> Hi, I'm</p>
           <h1 id="hero-heading">João Miguel<br><span class="text-highlight">Rosa</span></h1>
           <p class="hero-role"><span id="typed-role"></span><span class="typed-cursor" aria-hidden="true"></span></p>
           <p class="hero-bio">
@@ -91,12 +69,12 @@
   data engineering.
 </p>
           <div class="hero-buttons">
-            <a href="projects.html" class="btn btn-primary"><i class="fa-solid fa-rocket" aria-hidden="true"></i> View Projects</a>
-            <a href="contact.html" class="btn btn-outline"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Get in Touch</a>
+            <a href="projects.html" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#rocket"></use></svg> View Projects</a>
+            <a href="contact.html" class="btn btn-outline"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#envelope"></use></svg> Get in Touch</a>
           </div>
           <div class="hero-social" aria-label="Social media">
-            <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
-            <a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#github"></use></svg></a>
+            <a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#linkedin-in"></use></svg></a>
           </div>
         </div>
         <div class="hero-avatar-col">
@@ -107,7 +85,7 @@
       </div>
       <a href="#stats" class="scroll-indicator" aria-label="Scroll down">
         <span>scroll</span>
-        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#chevron-down"></use></svg>
       </a>
     </section>
 
@@ -143,17 +121,17 @@
         </div>
         <div class="services-grid">
           <div class="service-card reveal">
-            <div class="service-icon"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></div>
+            <div class="service-icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#diagram-project"></use></svg></div>
             <h3>Model-Based Systems Engineering</h3>
             <p>Systems modeling with SysML v2 — requirements, architecture, behavior and integrated traceability from concept to verification.</p>
           </div>
           <div class="service-card reveal">
-            <div class="service-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></div>
+            <div class="service-icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#laptop-code"></use></svg></div>
             <h3>Full Stack Web Developer</h3>
             <p>Development of complete web applications, from responsive interfaces and modern frontend to backend APIs, databases, and robust integrations.</p>
           </div>
           <div class="service-card reveal">
-            <div class="service-icon"><i class="fa-solid fa-database" aria-hidden="true"></i></div>
+            <div class="service-icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#database"></use></svg></div>
             <h3>Database Administration &amp; Data Warehousing</h3>
             <p>Administration and optimization of relational databases, plus data warehousing solutions with ETL pipelines, data quality controls, and reliable reporting.</p>
           </div>
@@ -163,26 +141,26 @@
 
     <!-- Tech Stack -->
     <section class="section section-alt" aria-labelledby="tech-heading">
-      <div class="container" style="text-align:center">
+      <div class="container text-center">
         <div class="reveal">
           <span class="section-tag">Tech Stack</span>
           <h2 class="section-title" id="tech-heading">Technologies &amp; Tools</h2>
-          <p class="section-subtitle" style="margin-left:auto;margin-right:auto">The tools I use daily to build and model.</p>
+          <p class="section-subtitle mx-auto">The tools I use daily to build and model.</p>
         </div>
         <div class="tech-strip reveal">
-          <span class="tech-item"><i class="fa-solid fa-cube" aria-hidden="true"></i> SysML v2</span>
-          <span class="tech-item"><i class="fa-solid fa-satellite" aria-hidden="true"></i> ECSS / PUS</span>
-          <span class="tech-item"><i class="fa-brands fa-python" aria-hidden="true"></i> Python</span>
-          <span class="tech-item"><i class="fa-solid fa-code" aria-hidden="true"></i> C / C++</span>
-          <span class="tech-item"><i class="fa-brands fa-js" aria-hidden="true"></i> JavaScript</span>
-          <span class="tech-item"><i class="fa-brands fa-html5" aria-hidden="true"></i> HTML5</span>
-          <span class="tech-item"><i class="fa-brands fa-css3-alt" aria-hidden="true"></i> CSS3</span>
-          <span class="tech-item"><i class="fa-brands fa-php" aria-hidden="true"></i> PHP</span>
-          <span class="tech-item"><i class="fa-brands fa-react" aria-hidden="true"></i> React Native</span>
-          <span class="tech-item"><i class="fa-brands fa-git-alt" aria-hidden="true"></i> Git</span>
-          <span class="tech-item"><i class="fa-solid fa-terminal" aria-hidden="true"></i> WSL</span>
-          <span class="tech-item"><i class="fa-brands fa-microsoft" aria-hidden="true"></i> .NET</span>
-          <span class="tech-item"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> REST API</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#cube"></use></svg> SysML v2</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#satellite"></use></svg> ECSS / PUS</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#python"></use></svg> Python</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#code"></use></svg> C / C++</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#js"></use></svg> JavaScript</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#html5"></use></svg> HTML5</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#css3-alt"></use></svg> CSS3</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#php"></use></svg> PHP</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#react"></use></svg> React Native</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#git-alt"></use></svg> Git</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#terminal"></use></svg> WSL</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#microsoft"></use></svg> .NET</span>
+          <span class="tech-item"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrows-left-right"></use></svg> REST API</span>
         </div>
       </div>
     </section>
@@ -197,7 +175,7 @@
         </div>
         <div class="projects-grid" id="featured-projects"></div>
         <div class="section-cta reveal">
-          <a href="projects.html" class="btn btn-outline">View All Projects <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="projects.html" class="btn btn-outline">View All Projects <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrow-right"></use></svg></a>
         </div>
       </div>
     </section>
@@ -208,9 +186,9 @@
         <div class="cta-banner reveal">
           <h2>Let's Work Together?</h2>
           <p>Have an interesting project or want to discuss MBSE and space systems? Get in touch.</p>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-            <a href="contact.html" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Message</a>
-            <a href="tel:+351912705054" class="btn btn-outline"><i class="fa-solid fa-phone" aria-hidden="true"></i> Call Me</a>
+          <div class="cta-actions">
+            <a href="contact.html" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#paper-plane"></use></svg> Send Message</a>
+            <a href="tel:+351912705054" class="btn btn-outline"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#phone"></use></svg> Call Me</a>
           </div>
         </div>
       </div>
@@ -220,62 +198,18 @@
 
   <!-- Back to Top -->
   <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
-    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+    <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#chevron-up"></use></svg>
   </button>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-top">
-        <div>
-          <div class="footer-brand">JM<span>Rosa</span></div>
-          <p class="footer-desc">Engineer working with MBSE, SysML v2, ECSS/PUS and software for space systems - focused on connecting system models with the code that actually brings them to life.</p>
-          <div class="footer-social-row" aria-label="Social media">
-            <a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
-            <a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
-            <a href="mailto:geral@joaomiguelrosa.com" aria-label="Email"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
-          </div>
-        </div>
-        <div>
-          <h3 class="footer-heading">Navigation</h3>
-          <div class="footer-links">
-            <a href="index.html">Home</a>
-            <a href="projects.html">Projects</a>
-            <a href="about.html">About Me</a>
-            <a href="contact.html">Contact</a>
-          </div>
-        </div>
-        <div>
-          <h3 class="footer-heading">Technologies</h3>
-          <div class="footer-links">
-            <a href="projects.html">SysML v2</a>
-            <a href="projects.html">HTML, CSS &amp; JavaScript</a>
-            <a href="projects.html">Python</a>
-            <a href="projects.html">C++ &amp; Java</a>
-          </div>
-        </div>
-        <div>
-          <h3 class="footer-heading">Contact</h3>
-          <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+351912705054">+351 912 705 054</a></div>
-          <div class="footer-contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:geral@joaomiguelrosa.com">geral@joaomiguelrosa.com</a></div>
-          <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Coimbra, Portugal</span></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-github" aria-hidden="true"></i><a href="https://github.com/GitRosas" target="_blank" rel="noopener noreferrer">GitRosas</a></div>
-          <div class="footer-contact-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i><a href="https://www.linkedin.com/in/joaorosa0409/" target="_blank" rel="noopener noreferrer">João Miguel Rosa</a></div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p class="footer-copy">&copy; <span id="footer-year">2026</span> João Miguel Rosa. All rights reserved.</p>
-        <p class="footer-tech">Made using HTML5, CSS3 &amp; JavaScript</p>
-      </div>
-    </div>
-  </footer>
+<!-- Footer -->
+  <footer class="footer"></footer>
 
   <!-- Project Detail Modal -->
   <div class="project-modal" id="project-modal" role="dialog" aria-hidden="true" aria-labelledby="modal-title">
     <div class="project-modal-overlay" id="modal-overlay"></div>
     <div class="project-modal-content">
       <button class="project-modal-close" id="modal-close" type="button" aria-label="Close modal">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#xmark"></use></svg>
       </button>
       <div class="project-modal-body">
         <div class="project-modal-image">
@@ -292,6 +226,10 @@
     </div>
   </div>
 
+  <script src="assets/js/components.js" defer></script>
+  <script src="assets/js/consent.js"></script>
+
+  <script src="assets/js/font-loader.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </body>
 </html>

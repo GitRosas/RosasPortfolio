@@ -1,0 +1,49 @@
+/* ===========================================================
+   15d. CTA Banner
+   =========================================================== */
+.cta-banner {
+  text-align: center; padding: 5rem 2rem; border-radius: 2rem;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb),.08), rgba(var(--accent-rgb),.04));
+  border: 1px solid rgba(var(--primary-rgb),.1); position: relative; overflow: hidden;
+}
+.cta-banner::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(var(--primary-rgb),.03), transparent, rgba(var(--accent-rgb),.03), transparent);
+  animation: rotateGlow 8s linear infinite; pointer-events: none;
+}
+.cta-banner h2 {
+  font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 900; margin-bottom: .75rem; position: relative;
+}
+.cta-banner p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; position: relative; }
+.cta-banner .btn { position: relative; }
+
+@media (max-width: 768px) {
+  .services-grid { grid-template-columns: 1fr; }
+
+  .portfolio-slide {
+    aspect-ratio: 4 / 3;
+  }
+
+  .portfolio-control {
+    width: 36px;
+    height: 36px;
+  }
+
+  .portfolio-lightbox-content {
+    width: calc(100% - 1rem);
+  }
+
+  .portfolio-lightbox-stage {
+    height: 64vh;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+}
+

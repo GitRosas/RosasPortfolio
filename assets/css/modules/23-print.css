@@ -1,0 +1,12 @@
+/* ===========================================================
+   21. Print
+   =========================================================== */
+@media print {
+  .navbar, .btn-theme-toggle, .skip-link, .footer,
+  .back-to-top, .page-loader, #particles-canvas,
+  .scroll-indicator, .hero-grid-pattern { display: none !important; }
+  body { background: #fff; color: #000; }
+  body::before { display: none; }
+  .hero { background: none; min-height: auto; padding: 2rem 0; }
+  .reveal, .reveal-left, .reveal-right { opacity: 1 !important; transform: none !important; }
+}
