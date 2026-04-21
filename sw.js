@@ -1,6 +1,6 @@
 'use strict';
  
- const CACHE_VERSION = 'v1.0.1'; // BUMP — força clientes a actualizar
+ const CACHE_VERSION = 'v1.0.2'; // BUMP — força clientes a actualizar
  const APP_SHELL_CACHE = `app-shell-${CACHE_VERSION}`;
  const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
  const IMAGE_TTL_MS = 30 * 24 * 60 * 60 * 1000;

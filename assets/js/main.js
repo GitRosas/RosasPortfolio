@@ -177,13 +177,13 @@ function applyTranslations() {
     link.textContent = t('nav.logout');
   });
 
-  document.querySelectorAll('a[href="portfolio.html"], a[href="/portfolio"]').forEach(link => {
+  document.querySelectorAll('a[href="/portfolio.html"], a[href="/portfolio.html"]').forEach(link => {
     if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
       link.textContent = t('nav.portfolio');
     }
   });
 
-  document.querySelectorAll('a[href="dashboard.html"], a[href="/dashboard"]').forEach(link => {
+  document.querySelectorAll('a[href="/dashboard.html"], a[href="/dashboard.html"]').forEach(link => {
     if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
       link.textContent = t('nav.dashboard');
     }
@@ -227,9 +227,9 @@ function applyTranslations() {
     }
     setHtml('.hero-bio', 'home.heroBioHtml');
 
-    const viewProjectsBtn = document.querySelector('.hero-buttons a[href="projects.html"]');
+    const viewProjectsBtn = document.querySelector('.hero-buttons a[href="/projects.html"]');
     if (viewProjectsBtn) viewProjectsBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#rocket"></use></svg> ${t('home.btnViewProjects')}`;
-    const contactBtn = document.querySelector('.hero-buttons a[href="contact.html"]');
+    const contactBtn = document.querySelector('.hero-buttons a[href="/contact.html"]');
     if (contactBtn) contactBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#envelope"></use></svg> ${t('home.btnGetInTouch')}`;
     setText('.scroll-indicator span', 'home.scroll');
 
@@ -270,12 +270,12 @@ function applyTranslations() {
     setText('.section[aria-labelledby="featured-heading"] .section-tag', 'home.tagPortfolio');
     setText('#featured-heading', 'home.featuredTitle');
     setText('.section[aria-labelledby="featured-heading"] .section-subtitle', 'home.featuredSubtitle');
-    const viewAllBtn = document.querySelector('.section-cta a[href="projects.html"]');
+    const viewAllBtn = document.querySelector('.section-cta a[href="/projects.html"]');
     if (viewAllBtn) viewAllBtn.innerHTML = `${t('home.btnViewAll')} <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#arrow-right"></use></svg>`;
 
     setText('.cta-banner h2', 'home.ctaTitle');
     setText('.cta-banner p', 'home.ctaSubtitle');
-    const sendBtn = document.querySelector('.cta-banner a[href="contact.html"]');
+    const sendBtn = document.querySelector('.cta-banner a[href="/contact.html"]');
     if (sendBtn) sendBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#paper-plane"></use></svg> ${t('home.btnSendMessage')}`;
     const callBtn = document.querySelector('.cta-banner a[href^="tel:"]');
     if (callBtn) callBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#phone"></use></svg> ${t('home.btnCallMe')}`;
@@ -465,11 +465,11 @@ function updateAuthInfoPopupText(currentPage) {
 
   if (page === 'login.html') {
     if (message) {
-      message.innerHTML = `${esc(t('authPopup.loginText'))} <a href="/contact">${esc(t('authPopup.contactLink'))}</a>.`;
+      message.innerHTML = `${esc(t('authPopup.loginText'))} <a href="/contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
     }
   } else {
     if (message) {
-      message.innerHTML = `${esc(t('authPopup.registerText'))} <a href="/contact">${esc(t('authPopup.contactLink'))}</a>.`;
+      message.innerHTML = `${esc(t('authPopup.registerText'))} <a href="/contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
     }
   }
 
@@ -484,7 +484,7 @@ function initAuthNavigation() {
   const navLinksContainer = document.getElementById('nav-links');
   if (!navLinksContainer) return;
 
-  let loginLink = navLinksContainer.querySelector('a.nav-link[href="login.html"], a.nav-link[href="/login"], a.nav-link[data-auth-link="logout"]');
+  let loginLink = navLinksContainer.querySelector('a.nav-link[href="/login.html"], a.nav-link[href="/login.html"], a.nav-link[data-auth-link="logout"]');
   if (!loginLink) {
     if (loggedIn) {
       ensurePortfolioMenuItem(navLinksContainer, null);
@@ -511,7 +511,7 @@ function initAuthNavigation() {
     removePortfolioMenuItem(navLinksContainer);
     removeDashboardMenuItem(navLinksContainer);
     loginLink.textContent = t('nav.login');
-    loginLink.setAttribute('href', '/login');
+    loginLink.setAttribute('href', '/login.html');
     loginLink.removeAttribute('data-auth-link');
     loginLink.classList.add('nav-link-auth');
   }
@@ -522,7 +522,7 @@ function initAuthNavigation() {
     e.preventDefault();
     trackEvent('logout_click');
     clearAuthSession();
-    window.location.href = '/login';
+    window.location.href = '/login.html';
   });
 }
 
@@ -530,7 +530,7 @@ function initProtectedRoutes() {
   const currentPage = getCurrentPageName();
   if (currentPage !== 'dashboard.html' && currentPage !== 'portfolio.html') return false;
   if (isAuthenticated()) return false;
-  window.location.replace('/login');
+  window.location.replace('/login.html');
   return true;
 }
 
@@ -540,7 +540,7 @@ function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
     portfolioItem = document.createElement('li');
     portfolioItem.setAttribute('data-auth-item', 'portfolio');
     const link = document.createElement('a');
-    link.href = '/portfolio';
+    link.href = '/portfolio.html';
     link.className = 'nav-link';
     link.textContent = t('nav.portfolio');
     portfolioItem.appendChild(link);
@@ -555,7 +555,7 @@ function ensureDashboardMenuItem(navLinksContainer, loginListItem) {
     dashboardItem = document.createElement('li');
     dashboardItem.setAttribute('data-auth-item', 'dashboard');
     const link = document.createElement('a');
-    link.href = '/dashboard';
+    link.href = '/dashboard.html';
     link.className = 'nav-link';
     link.textContent = t('nav.dashboard');
     dashboardItem.appendChild(link);
@@ -593,13 +593,13 @@ function scheduleAutoLogout() {
     const remaining = logoutAt - Date.now();
     if (remaining <= 0) {
       clearAuthSession();
-      window.location.href = '/login';
+      window.location.href = '/login.html';
       return;
     }
 
     window.setTimeout(() => {
       clearAuthSession();
-      window.location.href = '/login';
+      window.location.href = '/login.html';
     }, remaining);
   } catch (_) {
     clearAuthSession();
@@ -1456,7 +1456,7 @@ function initLoginForm() {
     if (!result.error) {
       trackEvent('login_success', email);
       showAlert(alertSuccess);
-      setTimeout(function () { window.location.href = '/dashboard'; }, 900);
+      setTimeout(function () { window.location.href = '/dashboard.html'; }, 900);
       return;
     }
 

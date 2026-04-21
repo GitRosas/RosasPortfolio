@@ -108,7 +108,7 @@
       '    <button type="button" class="consent-btn" data-consent-action="accept" data-i18n="consent.accept">Accept</button>',
       '    <button type="button" class="consent-btn" data-consent-action="decline" data-i18n="consent.decline">Decline</button>',
       '  </div>',
-      '  <a class="consent-more" href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="consent.learnMore">Learn more</a>',
+      '  <a class="consent-more" href="privacy.html" data-i18n="consent.learnMore">Learn more</a>',
       '</div>'
     ].join('');
 
