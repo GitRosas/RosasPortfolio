@@ -4,6 +4,7 @@
   const CONSENT_DATE_KEY = 'portfolioConsentDate';
   const I18N_CACHE_KEY = 'portfolioI18nCache';
   const REASK_AFTER_DAYS = 365;
+  const IS_LOCAL_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
   let banner = null;
   let lastTrigger = null;
@@ -32,6 +33,11 @@
 
   function t(path, fallback) {
     return getI18nValue(path) || fallback || path;
+  }
+
+  function route(path) {
+    if (path === '/privacy') return IS_LOCAL_DEV ? 'privacy.html' : '/privacy';
+    return path;
   }
 
   function shouldShowConsentBanner() {
@@ -108,11 +114,18 @@
       '    <button type="button" class="consent-btn" data-consent-action="accept" data-i18n="consent.accept">Accept</button>',
       '    <button type="button" class="consent-btn" data-consent-action="decline" data-i18n="consent.decline">Decline</button>',
       '  </div>',
-      '  <a class="consent-more" href="privacy.html" data-i18n="consent.learnMore">Learn more</a>',
+      '  <a class="consent-more" href="#" data-i18n="consent.learnMore">Learn more</a>',
       '</div>'
     ].join('');
 
     document.body.appendChild(banner);
+
+    const moreLink = banner.querySelector('.consent-more');
+    if (moreLink) {
+      moreLink.setAttribute('href', route('/privacy'));
+      moreLink.removeAttribute('target');
+      moreLink.removeAttribute('rel');
+    }
 
     banner.querySelector('[data-consent-action="accept"]').addEventListener('click', () => {
       setConsent('granted');
