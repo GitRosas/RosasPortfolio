@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://auth.joaomiguelrosa.com https://challenges.cloudflare.com https://api64.ipify.org; frame-src https://challenges.cloudflare.com; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://auth.joaomiguelrosa.com https://challenges.cloudflare.com https://api64.ipify.org; frame-src https://challenges.cloudflare.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; block-all-mixed-content;">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>About Me — João Miguel Rosa</title>
   <meta name="description" content="About Me João Miguel Rosa — Education, experience, skills and journey in MBSE, SysML v2 and space systems software.">
@@ -23,6 +23,13 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" media="print" data-defer-css>
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap"></noscript>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0a0e1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JM Rosa">
+  <link rel="apple-touch-icon" href="/assets/img/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/icon-source.svg">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -177,5 +184,6 @@
 
   <script src="assets/js/font-loader.js" defer></script>
   <script src="assets/js/main.js" defer></script>
+  <script src="/assets/js/pwa.js" defer></script>
 </body>
 </html>

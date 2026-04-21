@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>JM Rosa app icon</title>
+  <desc>Dark background with the letters JMR centered in white.</desc>
+  <rect width="512" height="512" rx="88" fill="#0a0e1a"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="Inter, Arial, sans-serif" font-size="176" font-weight="700" fill="#ffffff">JMR</text>
+</svg>

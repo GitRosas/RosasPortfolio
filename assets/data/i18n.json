@@ -298,6 +298,16 @@
         "body": "Technical storage items needed for core site operation (language, theme, authentication session, and security flows) do not require analytics consent."
       },
       "lastUpdated": "Last updated: {date}"
+    },
+    "offline": {
+      "title": "You are offline",
+      "message": "No internet connection. Some features require you to be online. Please reconnect and try again.",
+      "retry": "Retry",
+      "home": "Go home"
+    },
+    "pwa": {
+      "updateAvailable": "A new version is available.",
+      "reload": "Reload"
     }
   },
   "pt": {
@@ -599,6 +609,16 @@
         "body": "Itens de armazenamento tecnico necessarios ao funcionamento do site (idioma, tema, sessao de autenticacao e fluxos de seguranca) nao exigem consentimento de analiticas."
       },
       "lastUpdated": "Ultima atualizacao: {date}"
+    },
+    "offline": {
+      "title": "Estás sem ligação",
+      "message": "Sem ligação à internet. Algumas funcionalidades precisam de rede. Volta a ligar-te e tenta novamente.",
+      "retry": "Tentar novamente",
+      "home": "Ir para a página inicial"
+    },
+    "pwa": {
+      "updateAvailable": "Nova versão disponível.",
+      "reload": "Atualizar"
     }
   }
 }

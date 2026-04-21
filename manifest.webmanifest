@@ -1,0 +1,88 @@
+{
+  "name": "João Miguel Rosa — Portfolio",
+  "short_name": "JM Rosa",
+  "description": "Portfolio of João Miguel Rosa — Engineer focused on MBSE, SysML v2, ECSS/PUS and space systems software.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["portfolio", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/assets/img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/img/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/img/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/icon-source.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "url": "/projects.html",
+      "description": "Browse all projects"
+    },
+    {
+      "name": "Contact",
+      "short_name": "Contact",
+      "url": "/contact.html",
+      "description": "Send a message"
+    },
+    {
+      "name": "About",
+      "short_name": "About",
+      "url": "/about.html",
+      "description": "Learn more about João Miguel Rosa"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/img/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of the portfolio"
+    },
+    {
+      "src": "/assets/img/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of the portfolio"
+    }
+  ]
+}
