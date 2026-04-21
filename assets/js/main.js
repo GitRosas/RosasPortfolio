@@ -177,13 +177,13 @@ function applyTranslations() {
     link.textContent = t('nav.logout');
   });
 
-  document.querySelectorAll('a[href="portfolio.html"]').forEach(link => {
+  document.querySelectorAll('a[href="portfolio.html"], a[href="/portfolio"]').forEach(link => {
     if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
       link.textContent = t('nav.portfolio');
     }
   });
 
-  document.querySelectorAll('a[href="dashboard.html"]').forEach(link => {
+  document.querySelectorAll('a[href="dashboard.html"], a[href="/dashboard"]').forEach(link => {
     if (link.classList.contains('nav-link') || link.closest('.footer-links')) {
       link.textContent = t('nav.dashboard');
     }
@@ -465,11 +465,11 @@ function updateAuthInfoPopupText(currentPage) {
 
   if (page === 'login.html') {
     if (message) {
-      message.innerHTML = `${esc(t('authPopup.loginText'))} <a href="contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
+      message.innerHTML = `${esc(t('authPopup.loginText'))} <a href="/contact">${esc(t('authPopup.contactLink'))}</a>.`;
     }
   } else {
     if (message) {
-      message.innerHTML = `${esc(t('authPopup.registerText'))} <a href="contact.html">${esc(t('authPopup.contactLink'))}</a>.`;
+      message.innerHTML = `${esc(t('authPopup.registerText'))} <a href="/contact">${esc(t('authPopup.contactLink'))}</a>.`;
     }
   }
 
@@ -484,7 +484,7 @@ function initAuthNavigation() {
   const navLinksContainer = document.getElementById('nav-links');
   if (!navLinksContainer) return;
 
-  let loginLink = navLinksContainer.querySelector('a.nav-link[href="login.html"], a.nav-link[data-auth-link="logout"]');
+  let loginLink = navLinksContainer.querySelector('a.nav-link[href="login.html"], a.nav-link[href="/login"], a.nav-link[data-auth-link="logout"]');
   if (!loginLink) {
     if (loggedIn) {
       ensurePortfolioMenuItem(navLinksContainer, null);
@@ -511,7 +511,7 @@ function initAuthNavigation() {
     removePortfolioMenuItem(navLinksContainer);
     removeDashboardMenuItem(navLinksContainer);
     loginLink.textContent = t('nav.login');
-    loginLink.setAttribute('href', 'login.html');
+    loginLink.setAttribute('href', '/login');
     loginLink.removeAttribute('data-auth-link');
     loginLink.classList.add('nav-link-auth');
   }
@@ -522,7 +522,7 @@ function initAuthNavigation() {
     e.preventDefault();
     trackEvent('logout_click');
     clearAuthSession();
-    window.location.href = 'login.html';
+    window.location.href = '/login';
   });
 }
 
@@ -530,7 +530,7 @@ function initProtectedRoutes() {
   const currentPage = getCurrentPageName();
   if (currentPage !== 'dashboard.html' && currentPage !== 'portfolio.html') return false;
   if (isAuthenticated()) return false;
-  window.location.replace('login.html');
+  window.location.replace('/login');
   return true;
 }
 
@@ -540,7 +540,7 @@ function ensurePortfolioMenuItem(navLinksContainer, loginListItem) {
     portfolioItem = document.createElement('li');
     portfolioItem.setAttribute('data-auth-item', 'portfolio');
     const link = document.createElement('a');
-    link.href = 'portfolio.html';
+    link.href = '/portfolio';
     link.className = 'nav-link';
     link.textContent = t('nav.portfolio');
     portfolioItem.appendChild(link);
@@ -555,7 +555,7 @@ function ensureDashboardMenuItem(navLinksContainer, loginListItem) {
     dashboardItem = document.createElement('li');
     dashboardItem.setAttribute('data-auth-item', 'dashboard');
     const link = document.createElement('a');
-    link.href = 'dashboard.html';
+    link.href = '/dashboard';
     link.className = 'nav-link';
     link.textContent = t('nav.dashboard');
     dashboardItem.appendChild(link);
@@ -593,13 +593,13 @@ function scheduleAutoLogout() {
     const remaining = logoutAt - Date.now();
     if (remaining <= 0) {
       clearAuthSession();
-      window.location.href = 'login.html';
+      window.location.href = '/login';
       return;
     }
 
     window.setTimeout(() => {
       clearAuthSession();
-      window.location.href = 'login.html';
+      window.location.href = '/login';
     }, remaining);
   } catch (_) {
     clearAuthSession();
@@ -1456,7 +1456,7 @@ function initLoginForm() {
     if (!result.error) {
       trackEvent('login_success', email);
       showAlert(alertSuccess);
-      setTimeout(function () { window.location.href = 'dashboard.html'; }, 900);
+      setTimeout(function () { window.location.href = '/dashboard'; }, 900);
       return;
     }
 

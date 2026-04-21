@@ -39,13 +39,13 @@
 
   const NAV_HTML = `
     <div class="container navbar-inner">
-      <a class="navbar-brand" href="index.html">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
+      <a class="navbar-brand" href="/">JM<span>Rosa</span><span class="brand-dot" aria-hidden="true"></span></a>
       <ul class="nav-links" id="nav-links">
-        <li><a href="index.html" class="nav-link" data-i18n="nav.home">Home</a></li>
-        <li><a href="projects.html" class="nav-link" data-i18n="nav.projects">Projects</a></li>
-        <li><a href="about.html" class="nav-link" data-i18n="nav.about">About Me</a></li>
-        <li><a href="contact.html" class="nav-link" data-i18n="nav.contact">Contact</a></li>
-        <li><a href="login.html" class="nav-link nav-link-auth" data-i18n="nav.login">Login</a></li>
+        <li><a href="/" class="nav-link" data-i18n="nav.home">Home</a></li>
+        <li><a href="/projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
+        <li><a href="/about" class="nav-link" data-i18n="nav.about">About Me</a></li>
+        <li><a href="/contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
+        <li><a href="/login" class="nav-link nav-link-auth" data-i18n="nav.login">Login</a></li>
       </ul>
       <div class="navbar-actions">
         <button class="btn-theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
@@ -73,10 +73,10 @@
         <div>
           <h3 class="footer-heading" data-i18n="common.footerNavigation">Navigation</h3>
           <div class="footer-links">
-            <a href="index.html" data-i18n="nav.home">Home</a>
-            <a href="projects.html" data-i18n="nav.projects">Projects</a>
-            <a href="about.html" data-i18n="nav.about">About Me</a>
-            <a href="contact.html" data-i18n="nav.contact">Contact</a>
+            <a href="/" data-i18n="nav.home">Home</a>
+            <a href="/projects" data-i18n="nav.projects">Projects</a>
+            <a href="/about" data-i18n="nav.about">About Me</a>
+            <a href="/contact" data-i18n="nav.contact">Contact</a>
           </div>
         </div>
         <div>

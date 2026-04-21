@@ -156,7 +156,7 @@
   // Se já existir token persistido, vai logo para a dashboard.
   try {
     const existingSession = getValidStoredSession();
-    if (existingSession) window.location.href = 'dashboard.html';
+    if (existingSession) window.location.href = '/dashboard';
   } catch {
     // ignora erros de storage
   }
@@ -440,7 +440,7 @@
       verifySucceeded = true;
       if (otpOkText) otpOkText.textContent = tr('login.otpVerifiedRedirecting');
       show(otpOk);
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+      setTimeout(() => { window.location.href = '/dashboard'; }, 800);
     } catch (err) {
       if (isTooManyRequestsError(err)) {
         nextOtpRequestAt = Date.now() + 60_000;
