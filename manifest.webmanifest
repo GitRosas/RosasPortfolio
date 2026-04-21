@@ -43,9 +43,9 @@
       "purpose": "any"
     },
     {
-      "src": "/assets/img/icon-source.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/img/foto.jpg",
+      "sizes": "800x800",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],

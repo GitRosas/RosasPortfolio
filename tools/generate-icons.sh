@@ -4,7 +4,7 @@ set -e
 # Run: bash tools/generate-icons.sh (requires ImageMagick installed)
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE="$ROOT_DIR/assets/img/icon-source.svg"
+SOURCE="$ROOT_DIR/assets/img/foto.jpg"
 OUT_DIR="$ROOT_DIR/assets/img/icons"
 
 mkdir -p "$OUT_DIR"

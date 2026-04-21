@@ -57,7 +57,6 @@ const APP_SHELL_URLS = [
   '/assets/data/projects.json',
   '/assets/img/icons.svg',
   '/assets/img/foto.jpg',
-  '/assets/img/icon-source.svg',
   '/assets/img/icons/icon-192.png',
   '/assets/img/icons/icon-512.png',
   '/assets/img/icons/icon-192-maskable.png',
