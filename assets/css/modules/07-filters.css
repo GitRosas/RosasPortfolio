@@ -6,9 +6,9 @@
   align-items: center; margin-bottom: 2rem;
 }
 .search-wrapper { position: relative; }
-.search-wrapper .fa-search {
+.search-wrapper .icon {
   position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
-  color: var(--text-muted); font-size: .85rem; pointer-events: none;
+  color: var(--text-muted); width: .95rem; height: .95rem; pointer-events: none;
 }
 .search-input {
   background: var(--bg-input); border: 1px solid var(--border);
