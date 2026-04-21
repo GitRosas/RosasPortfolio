@@ -53,19 +53,19 @@
     {
       "name": "Projects",
       "short_name": "Projects",
-      "url": "/projects.html",
+      "url": "/projects",
       "description": "Browse all projects"
     },
     {
       "name": "Contact",
       "short_name": "Contact",
-      "url": "/contact.html",
+      "url": "/contact",
       "description": "Send a message"
     },
     {
       "name": "About",
       "short_name": "About",
-      "url": "/about.html",
+      "url": "/about",
       "description": "Learn more about João Miguel Rosa"
     }
   ],

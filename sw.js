@@ -4,17 +4,46 @@ const CACHE_VERSION = 'v1.0.0';
 const APP_SHELL_CACHE = `app-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const IMAGE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const IS_LOCAL_DEV = self.location.hostname === '127.0.0.1' || self.location.hostname === 'localhost';
+
+const CANONICAL_DOCUMENT_PATHS = {
+  '/index.html': '/',
+  '/about.html': '/about',
+  '/projects.html': '/projects',
+  '/contact.html': '/contact',
+  '/privacy.html': '/privacy',
+  '/login.html': '/login',
+  '/register.html': '/register',
+  '/dashboard.html': '/dashboard',
+  '/portfolio.html': '/portfolio',
+  '/offline.html': '/offline'
+};
+
+const PUBLIC_DOCUMENT_URLS = IS_LOCAL_DEV
+  ? [
+      '/',
+      '/index.html',
+      '/about.html',
+      '/projects.html',
+      '/contact.html',
+      '/privacy.html',
+      '/login.html',
+      '/register.html',
+      '/offline.html'
+    ]
+  : [
+      '/',
+      '/about',
+      '/projects',
+      '/contact',
+      '/privacy',
+      '/login',
+      '/register',
+      '/offline'
+    ];
 
 const APP_SHELL_URLS = [
-  '/',
-  '/index.html',
-  '/about.html',
-  '/projects.html',
-  '/contact.html',
-  '/privacy.html',
-  '/login.html',
-  '/register.html',
-  '/offline.html',
+  ...PUBLIC_DOCUMENT_URLS,
   '/assets/css/styles.css',
   '/assets/js/main.js',
   '/assets/js/components.js',
@@ -94,7 +123,7 @@ self.addEventListener('fetch', event => {
   }
 
   if (request.mode === 'navigate' || request.destination === 'document') {
-    event.respondWith(staleWhileRevalidate(request, APP_SHELL_CACHE));
+    event.respondWith(handleDocumentRequest(request, url));
     return;
   }
 
@@ -123,8 +152,54 @@ async function networkOnlyWithOfflineFallback(request) {
     return await fetch(request);
   } catch (_) {
     const cache = await caches.open(APP_SHELL_CACHE);
-    return (await cache.match('/offline.html')) || Response.error();
+    return (await cache.match(getOfflineCachePath())) || (await cache.match('/offline.html')) || Response.error();
   }
+}
+
+async function handleDocumentRequest(request, url) {
+  const cache = await caches.open(APP_SHELL_CACHE);
+  const canonicalPath = getCanonicalPath(url.pathname);
+  const networkUrl = canonicalPath === url.pathname ? url : new URL(url.href);
+
+  if (canonicalPath !== url.pathname) {
+    networkUrl.pathname = canonicalPath;
+  }
+
+  const networkRequest = canonicalPath === url.pathname ? request : new Request(networkUrl.toString(), request);
+  const cacheCandidates = canonicalPath === url.pathname
+    ? [request]
+    : [request, new Request(networkUrl.toString(), request)];
+
+  for (const candidate of cacheCandidates) {
+    const cached = await cache.match(candidate);
+    if (cached) {
+      fetchAndStoreDocument(networkRequest, cache, cacheCandidates).catch(() => {});
+      return cached;
+    }
+  }
+
+  try {
+    return await fetchAndStoreDocument(networkRequest, cache, cacheCandidates);
+  } catch (_) {
+    return (await cache.match(getOfflineCachePath())) || (await cache.match('/offline.html')) || Response.error();
+  }
+}
+
+async function fetchAndStoreDocument(request, cache, cacheTargets) {
+  const response = await fetch(request);
+  if (response && response.ok) {
+    await Promise.all(cacheTargets.map(target => cache.put(target, response.clone())));
+  }
+  return response;
+}
+
+function getCanonicalPath(pathname) {
+  if (IS_LOCAL_DEV) return pathname;
+  return CANONICAL_DOCUMENT_PATHS[pathname] || pathname;
+}
+
+function getOfflineCachePath() {
+  return IS_LOCAL_DEV ? '/offline.html' : '/offline';
 }
 
 async function staleWhileRevalidate(request, cacheName) {
