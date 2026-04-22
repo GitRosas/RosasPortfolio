@@ -86,30 +86,35 @@
   async function loadStats() {
     try {
       const since = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [pv, vis, total, msgs, pubProj, draftProj, recent] = await Promise.all([
-        countQuery('events', '?type=eq.pageview&created_at=gte.' + encodeURIComponent(since)),
-        countQuery('events', '?select=session_id&type=eq.pageview&created_at=gte.' + encodeURIComponent(since) + '&session_id=not.is.null'),
+      const sinceQ = '&created_at=gte.' + encodeURIComponent(since);
+      const [pv, vis, total, msgs, pubProj, draftProj, logins, contacts, cvDls, recent] = await Promise.all([
+        countQuery('events', '?type=eq.pageview' + sinceQ),
+        countQuery('events', '?select=session_id&type=eq.pageview' + sinceQ + '&session_id=not.is.null'),
         countQuery('events', ''),
         countQuery('contact_messages', '?is_read=eq.false'),
         countQuery('projects', '?status=eq.published'),
         countQuery('projects', '?status=eq.draft'),
-        api('/db/events?select=type,path,created_at&order=created_at.desc&limit=15')
+        countQuery('events', '?type=eq.login' + sinceQ),
+        countQuery('events', '?type=eq.contact_submit' + sinceQ),
+        countQuery('events', '?type=eq.click&meta->>kind=eq.cv' + sinceQ),
+        api('/db/events?select=type,path,referrer,session_id,user_id,ip,user_agent,meta,created_at&order=created_at.desc&limit=50')
       ]);
-      document.getElementById('kpi-pageviews').textContent = pv;
-      document.getElementById('kpi-visitors').textContent = vis;
-      document.getElementById('kpi-events').textContent = total;
-      document.getElementById('kpi-msg-unread').textContent = msgs;
-      document.getElementById('kpi-proj-pub').textContent = pubProj;
-      document.getElementById('kpi-proj-draft').textContent = draftProj;
+      setText('kpi-pageviews', pv);
+      setText('kpi-visitors', vis);
+      setText('kpi-events', total);
+      setText('kpi-msg-unread', msgs);
+      setText('kpi-proj-pub', pubProj);
+      setText('kpi-proj-draft', draftProj);
+      setText('kpi-logins', logins);
+      setText('kpi-contacts', contacts);
+      setText('kpi-cv', cvDls);
 
       const ul = document.getElementById('recent-events');
       const events = recent.data || [];
       if (!events.length) {
         ul.innerHTML = '<li class="dash-empty">No events yet.</li>';
       } else {
-        ul.innerHTML = events.map(e =>
-          '<li><strong>' + esc(e.type) + '</strong> ' + esc(e.path || '') + ' <span class="meta">' + fmtDate(e.created_at) + '</span></li>'
-        ).join('');
+        ul.innerHTML = events.map(renderEventRow).join('');
       }
 
       const badge = document.getElementById('msg-unread-badge');
@@ -117,6 +122,23 @@
     } catch (e) {
       console.error('stats failed', e);
     }
+  }
+
+  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+  function renderEventRow(e) {
+    const meta = e.meta || {};
+    const kindBadge = meta.kind ? ' <span class="ev-kind">' + esc(meta.kind) + '</span>' : '';
+    const who = e.user_id ? ('user:' + String(e.user_id).slice(0, 8)) : (e.session_id ? ('sess:' + String(e.session_id).slice(0, 8)) : 'anon');
+    const ip = e.ip ? esc(e.ip) : '\u2014';
+    const path = e.path ? esc(e.path) : '';
+    const ua = e.user_agent ? esc(String(e.user_agent).slice(0, 40)) : '';
+    return '<li class="ev-row">' +
+      '<span class="ev-type ev-' + esc(e.type) + '">' + esc(e.type) + '</span>' + kindBadge +
+      ' <span class="ev-path">' + path + '</span>' +
+      ' <span class="ev-meta">ip ' + ip + ' \u00b7 ' + esc(who) + (ua ? ' \u00b7 ' + ua : '') + '</span>' +
+      ' <span class="meta">' + fmtDate(e.created_at) + '</span>' +
+    '</li>';
   }
 
   async function countQuery(table, qs) {

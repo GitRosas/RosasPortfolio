@@ -1398,6 +1398,28 @@ function initContactForm() {
   const endpoint = form.dataset.endpoint || 'https://api.joaomiguelrosa.com/contact';
   const submitBtn = form.querySelector('button[type="submit"]');
 
+  const TURNSTILE_SITEKEY = '0x4AAAAAACtzeB8NcAeAY6qg';
+  const tsContainer = document.getElementById('cf-turnstile-contact');
+  let tsToken = '';
+  let tsWidgetId = null;
+
+  function renderTurnstile() {
+    if (!tsContainer) return;
+    if (!window.turnstile) { setTimeout(renderTurnstile, 200); return; }
+    if (tsWidgetId !== null) return;
+    tsWidgetId = window.turnstile.render('#cf-turnstile-contact', {
+      sitekey: TURNSTILE_SITEKEY,
+      callback: (t) => { tsToken = t; },
+      'expired-callback': () => { tsToken = ''; },
+      'error-callback': () => { tsToken = ''; }
+    });
+  }
+  function resetTurnstile() {
+    if (window.turnstile && tsWidgetId !== null) window.turnstile.reset(tsWidgetId);
+    tsToken = '';
+  }
+  renderTurnstile();
+
   function hideAlerts() {
     if (alertSuccess) alertSuccess.style.display = 'none';
     if (alertError) alertError.style.display = 'none';
@@ -1435,11 +1457,20 @@ function initContactForm() {
     const hp = form.querySelector('input[name="_gotcha"]');
     if (hp && hp.value) { showSuccess(); form.reset(); return; }
 
+    if (!tsToken) {
+      showError('Please complete the captcha and try again.');
+      renderTurnstile();
+      return;
+    }
+
     const payload = {
       name: (form.querySelector('[name="name"]') || {}).value || '',
       email: (form.querySelector('[name="email"]') || {}).value || '',
       subject: (form.querySelector('[name="subject"]') || {}).value || '',
-      message: (form.querySelector('[name="message"]') || {}).value || ''
+      message: (form.querySelector('[name="message"]') || {}).value || '',
+      captchaToken: tsToken,
+      turnstile_token: tsToken,
+      token: tsToken
     };
 
     if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.originalText = submitBtn.textContent; submitBtn.textContent = '...'; }
@@ -1455,15 +1486,18 @@ function initContactForm() {
         try { const j = await res.json(); detail = j.error || j.message || ''; } catch (_) {}
         showError(detail || ('Error ' + res.status));
         trackEvent('form_submit_error');
+        resetTurnstile();
       } else {
         showSuccess();
         form.reset();
         trackEvent('form_submit');
         if (typeof sendServerEvent === 'function') sendServerEvent('contact_submit');
+        resetTurnstile();
       }
     } catch (err) {
       showError('Network error. Please try again.');
       trackEvent('form_submit_error');
+      resetTurnstile();
     } finally {
       if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.originalText) submitBtn.textContent = submitBtn.dataset.originalText; }
     }

@@ -28,6 +28,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="JM Rosa">
   <link rel="apple-touch-icon" href="/assets/img/icons/apple-touch-icon.png">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -77,6 +78,9 @@
             <div class="honeypot-field" aria-hidden="true">
               <label for="contact-hp">Do not fill</label>
               <input type="text" id="contact-hp" name="_gotcha" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="form-group form-group-top-gap">
+              <div id="cf-turnstile-contact"></div>
             </div>
             <button type="submit" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#paper-plane"></use></svg> Send Message</button>
             <div class="form-alert success" id="form-alert-success" role="alert" tabindex="-1">

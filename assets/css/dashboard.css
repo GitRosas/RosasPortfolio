@@ -139,3 +139,16 @@
 
 .dash-empty { text-align: center; color: var(--text-secondary, #aaa); padding: 2rem; }
 .dash-error { color: #f87171; padding: 1rem; }
+
+
+/* Event feed */
+.ev-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .5rem .75rem; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; }
+.ev-row .ev-type { font-weight: 700; padding: .1rem .5rem; border-radius: 4px; background: rgba(120,180,255,.12); color: #9cc6ff; font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; }
+.ev-row .ev-pageview { background: rgba(120,180,255,.12); color: #9cc6ff; }
+.ev-row .ev-login { background: rgba(120,255,180,.12); color: #9cffc6; }
+.ev-row .ev-click { background: rgba(255,200,120,.12); color: #ffd49c; }
+.ev-row .ev-contact_submit { background: rgba(255,120,180,.12); color: #ff9cc6; }
+.ev-row .ev-kind { padding: .1rem .4rem; border-radius: 3px; background: rgba(255,255,255,.08); font-size: .7rem; text-transform: uppercase; }
+.ev-row .ev-path { color: #ddd; font-family: monospace; font-size: .8rem; }
+.ev-row .ev-meta { color: rgba(255,255,255,.55); font-size: .75rem; margin-left: auto; font-family: monospace; }
+.ev-row .meta { color: rgba(255,255,255,.4); font-size: .75rem; }

@@ -243,6 +243,21 @@ async function requestCaptcha(timeoutMs = 120000) {
   }
 }
 
+
+async function emitLoginEvent() {
+  try {
+    let sid = null;
+    try { sid = sessionStorage.getItem('jmr.session.id'); } catch (_) {}
+    await fetch('https://api.joaomiguelrosa.com/events', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'login', path: location.pathname, session_id: sid }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (_) {}
+}
+
 async function callAuthWorker(type, payload) {
   const response = await fetch(AUTH_WORKER_URL, {
     method: 'POST',
@@ -336,6 +351,7 @@ btnVerify.addEventListener('click', async () => {
     const captcha3 = await requestCaptcha();
     await callAuthWorker('otp_verify', { email: loginEmail, otp: code, captchaToken: captcha3 });
     markSessionActive();
+    emitLoginEvent();
     verifySucceeded = true;
     if (otpOkText) otpOkText.textContent = tr('login.otpVerifiedRedirecting');
     show(otpOk);
