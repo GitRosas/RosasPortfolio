@@ -97,7 +97,7 @@
         countQuery('events', '?type=eq.login' + sinceQ),
         countQuery('events', '?type=eq.contact_submit' + sinceQ),
         countQuery('events', '?type=eq.click&meta->>kind=eq.cv' + sinceQ),
-        api('/db/events?select=type,path,referrer,session_id,user_id,ip,user_agent,meta,created_at&order=created_at.desc&limit=50')
+        api('/db/events?select=type,path,referrer,session_id,user_id,ip,country,user_agent,meta,created_at&order=created_at.desc&limit=50')
       ]);
       setText('kpi-pageviews', pv);
       setText('kpi-visitors', vis);
@@ -131,12 +131,15 @@
     const kindBadge = meta.kind ? ' <span class="ev-kind">' + esc(meta.kind) + '</span>' : '';
     const who = e.user_id ? ('user:' + String(e.user_id).slice(0, 8)) : (e.session_id ? ('sess:' + String(e.session_id).slice(0, 8)) : 'anon');
     const ip = e.ip ? esc(e.ip) : '\u2014';
+    const country = e.country ? ' ' + esc(e.country) : '';
     const path = e.path ? esc(e.path) : '';
     const ua = e.user_agent ? esc(String(e.user_agent).slice(0, 40)) : '';
     return '<li class="ev-row">' +
       '<span class="ev-type ev-' + esc(e.type) + '">' + esc(e.type) + '</span>' + kindBadge +
       ' <span class="ev-path">' + path + '</span>' +
-      ' <span class="ev-meta">ip ' + ip + ' \u00b7 ' + esc(who) + (ua ? ' \u00b7 ' + ua : '') + '</span>' +
+      ' <span class="ev-ip" title="IP">' + ip + country + '</span>' +
+      ' <span class="ev-who">' + esc(who) + '</span>' +
+      (ua ? ' <span class="ev-ua" title="' + ua + '">' + ua + '</span>' : '') +
       ' <span class="meta">' + fmtDate(e.created_at) + '</span>' +
     '</li>';
   }
