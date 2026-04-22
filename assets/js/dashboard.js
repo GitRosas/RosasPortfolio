@@ -87,13 +87,12 @@
     try {
       const since = new Date(Date.now() - 30 * 86400000).toISOString();
       const sinceQ = '&created_at=gte.' + encodeURIComponent(since);
-      const [total, msgsUnread, msgsRead, pubProj, draftProj, unpubProj, pageviews, logins, registers, contacts, cvDls, ipsRes, recent] = await Promise.all([
+      const [total, msgsUnread, msgsRead, pubProj, draftProj, pageviews, logins, registers, contacts, cvDls, ipsRes, recent] = await Promise.all([
         countQuery('events', ''),
         countQuery('contact_messages', '?is_read=eq.false'),
         countQuery('contact_messages', '?is_read=eq.true'),
         countQuery('projects', '?status=eq.published'),
         countQuery('projects', '?status=eq.draft'),
-        countQuery('projects', '?status=neq.published'),
         countQuery('events', '?type=eq.pageview' + sinceQ),
         countQuery('events', '?type=eq.login' + sinceQ),
         countQuery('events', '?type=eq.register' + sinceQ),
@@ -109,7 +108,6 @@
       setText('kpi-msg-read', msgsRead);
       setText('kpi-proj-pub', pubProj);
       setText('kpi-proj-draft', draftProj);
-      setText('kpi-proj-unpub', unpubProj);
       setText('kpi-pageviews', pageviews);
       setText('kpi-visitors', ipSet.size);
       setText('kpi-logins', logins);
