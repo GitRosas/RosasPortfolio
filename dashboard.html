@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap" media="print" data-defer-css>
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800;900&display=swap"></noscript>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0a0e1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -34,91 +35,94 @@
   <div class="page-loader" aria-hidden="true"><div class="loader-spinner"></div></div>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-<!-- Navbar -->
   <nav class="navbar" id="navbar" aria-label="Main navigation"></nav>
 
   <main id="main-content">
     <section class="page-header">
       <div class="container">
-        <h1 data-i18n="pages.dashboardTitle">Dashboard</h1>
-        <p data-i18n="pages.dashboardSubtitle">Private analytics and session details.</p>
+        <h1>Dashboard</h1>
+        <p id="dash-greeting">Loading…</p>
       </div>
     </section>
 
-    <section class="section" id="dashboard-page">
+    <section class="section">
       <div class="container">
-        <h2 class="section-title" data-i18n="pages.analyticsSummary">Analytics Summary</h2>
-
-        <div class="dashboard-grid reveal">
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.siteEntries">Site Entries</h3>
-            <p id="site-entries">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.lastLogin">Last Login</h3>
-            <p id="dashboard-last-login">-</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.dashboardVisits">Dashboard Visits</h3>
-            <p id="dashboard-visits">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.portfolioVisits">Portfolio Visits</h3>
-            <p id="portfolio-visits">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.loginEvents">Logins</h3>
-            <p id="login-events">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.cvClicks">CV Clicks</h3>
-            <p id="cv-clicks">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.formSubmits">Contact Form Sends</h3>
-            <p id="form-submits">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.githubClicks">GitHub Clicks</h3>
-            <p id="github-clicks">0</p>
-          </article>
-          <article class="dashboard-card">
-            <h3 data-i18n="labels.linkedinClicks">LinkedIn Clicks</h3>
-            <p id="linkedin-clicks">0</p>
-          </article>
+        <div class="dash-tabs" role="tablist">
+          <button class="dash-tab is-active" role="tab" data-tab="stats">Stats</button>
+          <button class="dash-tab" role="tab" data-tab="projects">Projects</button>
+          <button class="dash-tab" role="tab" data-tab="messages">Messages <span class="dash-badge" id="msg-unread-badge" hidden>0</span></button>
+          <button class="dash-tab" role="tab" data-tab="notes">Notes</button>
         </div>
 
-        <div class="dashboard-panels reveal">
-          <div class="dashboard-panel">
-            <h3 data-i18n="pages.quickActions">Quick Actions</h3>
-            <div class="dashboard-actions">
-              <a href="about.html" class="btn btn-outline" data-i18n="labels.editProfile">Edit Profile</a>
-              <a href="portfolio.html" class="btn btn-outline" data-i18n="labels.managePortfolio">Manage Portfolio</a>
-              <a href="contact.html" class="btn btn-outline" data-i18n="labels.openContact">Open Contact Page</a>
-            </div>
+        <!-- STATS -->
+        <div class="dash-panel is-active" data-panel="stats">
+          <div class="dashboard-grid">
+            <article class="dashboard-card"><h3>Pageviews 30d</h3><p id="kpi-pageviews">—</p></article>
+            <article class="dashboard-card"><h3>Visitors 30d</h3><p id="kpi-visitors">—</p></article>
+            <article class="dashboard-card"><h3>Total events</h3><p id="kpi-events">—</p></article>
+            <article class="dashboard-card"><h3>Messages unread</h3><p id="kpi-msg-unread">—</p></article>
+            <article class="dashboard-card"><h3>Projects published</h3><p id="kpi-proj-pub">—</p></article>
+            <article class="dashboard-card"><h3>Projects drafts</h3><p id="kpi-proj-draft">—</p></article>
           </div>
+          <div class="dashboard-panel" style="margin-top: 1.5rem;">
+            <h3>Recent events</h3>
+            <ul id="recent-events" class="dashboard-events"><li>Loading…</li></ul>
+          </div>
+        </div>
 
-          <div class="dashboard-panel">
-            <h3 data-i18n="pages.recentEvents">Recent Events</h3>
-            <ul id="dashboard-events" class="dashboard-events"></ul>
+        <!-- PROJECTS -->
+        <div class="dash-panel" data-panel="projects">
+          <div class="dash-toolbar">
+            <h2>Projects</h2>
+            <button class="btn btn-primary" id="btn-new-project">+ New</button>
           </div>
+          <div id="projects-list" class="dash-list"><p>Loading…</p></div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div class="dash-panel" data-panel="messages">
+          <div class="dash-toolbar">
+            <h2>Contact messages</h2>
+            <button class="btn btn-outline" id="btn-refresh-messages">Refresh</button>
+          </div>
+          <div id="messages-list" class="dash-list"><p>Loading…</p></div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="dash-panel" data-panel="notes">
+          <div class="dash-toolbar">
+            <h2>Notes</h2>
+            <button class="btn btn-primary" id="btn-new-note">+ New</button>
+          </div>
+          <div id="notes-list" class="dash-list"><p>Loading…</p></div>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- Modal generic -->
+  <div class="dash-modal" id="dash-modal" hidden>
+    <div class="dash-modal-backdrop" data-close></div>
+    <div class="dash-modal-card" role="dialog" aria-modal="true" aria-labelledby="dash-modal-title">
+      <header>
+        <h3 id="dash-modal-title">Title</h3>
+        <button class="dash-modal-close" aria-label="Close" data-close>&times;</button>
+      </header>
+      <div class="dash-modal-body" id="dash-modal-body"></div>
+    </div>
+  </div>
+
   <button class="back-to-top" id="back-to-top" aria-label="Back to top" type="button">
     <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#chevron-up"></use></svg>
   </button>
 
-<!-- Footer -->
   <footer class="footer"></footer>
 
   <script src="assets/js/components.js" defer></script>
   <script src="assets/js/consent.js"></script>
-
   <script src="assets/js/font-loader.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="/assets/js/pwa.js" defer></script>
+  <script src="assets/js/dashboard.js" defer></script>
 </body>
 </html>

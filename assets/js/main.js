@@ -736,8 +736,42 @@ function trackEvent(name, details) {
   return analyticsWriteQueue;
 }
 
+const API_BASE = 'https://api.joaomiguelrosa.com';
+const SESSION_KEY = 'jmr.session.id';
+
+function getSessionId() {
+  try {
+    let id = sessionStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+      sessionStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  } catch (_) { return null; }
+}
+
+function sendServerEvent(type, extra) {
+  if (!hasAnalyticsConsent()) return;
+  try {
+    const payload = Object.assign({
+      type: type,
+      path: location.pathname + location.search,
+      referrer: document.referrer || null,
+      session_id: getSessionId()
+    }, extra || {});
+    fetch(API_BASE + '/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => {});
+  } catch (_) {}
+}
+
 function initAnalyticsTracking() {
   trackEvent('site_entry');
+  sendServerEvent('pageview');
+
   const currentPage = getCurrentPageName();
   if (currentPage === 'dashboard.html' || currentPage === 'dashboard') {
     trackEvent('dashboard_visit');
@@ -747,12 +781,19 @@ function initAnalyticsTracking() {
   }
 
   document.addEventListener('click', e => {
-    const anchor = e.target.closest('a[href]');
+    const target = e.target;
+    if (!target || typeof target.closest !== 'function') return;
+    const anchor = target.closest('a[href]');
     if (!anchor) return;
     const href = (anchor.getAttribute('href') || '').toLowerCase();
-    if (href.includes('lastcven.pdf')) trackEvent('cv_click');
-    if (href.includes('github.com')) trackEvent('github_click');
-    if (href.includes('linkedin.com')) trackEvent('linkedin_click');
+    let kind = null;
+    if (href.includes('lastcven.pdf')) kind = 'cv';
+    else if (href.includes('github.com')) kind = 'github';
+    else if (href.includes('linkedin.com')) kind = 'linkedin';
+    if (kind) {
+      trackEvent(kind + '_click');
+      sendServerEvent('click', { meta: { kind: kind, href: anchor.getAttribute('href') } });
+    }
   });
 }
 
@@ -1354,12 +1395,28 @@ function initContactForm() {
   if (!form) return;
   const alertSuccess = document.getElementById('form-alert-success');
   const alertError = document.getElementById('form-alert-error');
+  const endpoint = form.dataset.endpoint || 'https://api.joaomiguelrosa.com/contact';
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-  form.addEventListener('submit', e => {
+  function hideAlerts() {
     if (alertSuccess) alertSuccess.style.display = 'none';
     if (alertError) alertError.style.display = 'none';
+  }
+  function showError(msg) {
+    if (!alertError) return;
+    alertError.textContent = msg;
+    alertError.style.display = 'block';
+    try { alertError.focus(); } catch (_) {}
+  }
+  function showSuccess() {
+    if (!alertSuccess) return;
+    alertSuccess.style.display = 'block';
+    try { alertSuccess.focus(); } catch (_) {}
+  }
 
-    // Clear previous errors
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    hideAlerts();
     form.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
 
     let valid = true;
@@ -1369,24 +1426,46 @@ function initContactForm() {
         valid = false;
       }
     });
-
     if (!valid) {
-      e.preventDefault();
       const first = form.querySelector('.form-group.invalid .form-input');
       if (first) first.focus();
       return;
     }
 
-    trackEvent('form_submit');
+    const hp = form.querySelector('input[name="_gotcha"]');
+    if (hp && hp.value) { showSuccess(); form.reset(); return; }
 
-    const action = form.getAttribute('action');
-    if (!action || action.includes('YOUR_FORM_ID') || action === '#') {
-      e.preventDefault();
-      if (alertError) {
-        alertError.textContent = t('contact.formNotConfigured');
-        alertError.style.display = 'block';
-        alertError.focus();
+    const payload = {
+      name: (form.querySelector('[name="name"]') || {}).value || '',
+      email: (form.querySelector('[name="email"]') || {}).value || '',
+      subject: (form.querySelector('[name="subject"]') || {}).value || '',
+      message: (form.querySelector('[name="message"]') || {}).value || ''
+    };
+
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.originalText = submitBtn.textContent; submitBtn.textContent = '...'; }
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        let detail = '';
+        try { const j = await res.json(); detail = j.error || j.message || ''; } catch (_) {}
+        showError(detail || ('Error ' + res.status));
+        trackEvent('form_submit_error');
+      } else {
+        showSuccess();
+        form.reset();
+        trackEvent('form_submit');
+        if (typeof sendServerEvent === 'function') sendServerEvent('contact_submit');
       }
+    } catch (err) {
+      showError('Network error. Please try again.');
+      trackEvent('form_submit_error');
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.originalText) submitBtn.textContent = submitBtn.dataset.originalText; }
     }
   });
 }
