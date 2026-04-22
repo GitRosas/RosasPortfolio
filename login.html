@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://auth.joaomiguelrosa.com https://challenges.cloudflare.com https://api64.ipify.org; frame-src https://challenges.cloudflare.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; block-all-mixed-content;">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Login - João Miguel Rosa</title>
   <meta name="description" content="Login page for João Miguel Rosa portfolio.">
@@ -62,7 +61,7 @@
             </div>
             <div class="form-group">
               <label for="login-password" class="form-label"><span data-i18n="labels.password">Password</span> <span aria-hidden="true">*</span></label>
-              <input type="password" class="form-input" id="login-password" name="password" placeholder="Your password" data-i18n-placeholder="register.placeholderPassword" required minlength="4" autocomplete="current-password" aria-required="true">
+              <input type="password" class="form-input" id="login-password" name="password" placeholder="Your password" data-i18n-placeholder="register.placeholderPassword" required minlength="8" autocomplete="current-password" aria-required="true">
               <span class="form-error" data-i18n="register.errorPassword">Please enter your password (min. 4 characters).</span>
             </div>
 

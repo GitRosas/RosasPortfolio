@@ -577,7 +577,7 @@ function removeDashboardMenuItem(navLinksContainer) {
 function isAuthenticated() {
   try {
     const auth = getStoredAuthSession();
-    if (!auth || !auth.token || !auth.loggedInAt) return false;
+    if (!auth || !auth.loggedInAt) return false;
     return Date.now() < auth.loggedInAt + AUTH_SESSION_MS;
   } catch (_) {
     return false;
@@ -608,29 +608,13 @@ function scheduleAutoLogout() {
 
 function getStoredAuthSession() {
   try {
-    const currentRaw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (currentRaw) {
-      const currentParsed = JSON.parse(currentRaw);
-      if (currentParsed && typeof currentParsed === 'object') {
-        const token = typeof currentParsed.token === 'string' ? currentParsed.token.trim() : '';
-        const loggedInAt = Number(currentParsed.loggedInAt);
-        if (token && Number.isFinite(loggedInAt)) {
-          return { token, loggedInAt };
-        }
-      }
-    }
-
-    const legacyRaw = localStorage.getItem(LEGACY_SUPABASE_STORAGE_KEY);
-    if (!legacyRaw) return null;
-    const legacyParsed = JSON.parse(legacyRaw);
-    if (!legacyParsed || typeof legacyParsed !== 'object') return null;
-
-    const token = typeof legacyParsed.access_token === 'string' ? legacyParsed.access_token.trim() : '';
-    const createdAt = legacyParsed.created_at ? Date.parse(legacyParsed.created_at) : NaN;
-    const loggedInAt = Number.isFinite(createdAt) ? createdAt : Date.now();
-    if (!token) return null;
-
-    return { token, loggedInAt };
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const loggedInAt = Number(parsed.loggedInAt);
+    if (!parsed.loggedIn || !Number.isFinite(loggedInAt)) return null;
+    return { loggedInAt };
   } catch (_) {
     return null;
   }
@@ -639,6 +623,14 @@ function getStoredAuthSession() {
 function clearAuthSession() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   localStorage.removeItem(LEGACY_SUPABASE_STORAGE_KEY);
+  try {
+    fetch('https://auth.joaomiguelrosa.com/', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'logout' })
+    }).catch(() => {});
+  } catch (_) {}
 }
 
 function getAnalyticsData() {
