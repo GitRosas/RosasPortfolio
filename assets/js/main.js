@@ -679,23 +679,7 @@ async function getClientIp() {
   if (!hasAnalyticsConsent()) return '';
   if (clientIpPromise) return clientIpPromise;
 
-  clientIpPromise = (async () => {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2500);
-      const response = await fetch('https://api64.ipify.org?format=json', {
-        method: 'GET',
-        cache: 'no-store',
-        signal: controller.signal
-      });
-      clearTimeout(timeout);
-      if (!response.ok) return 'unknown';
-      const payload = await response.json();
-      return (payload && typeof payload.ip === 'string' && payload.ip.trim()) ? payload.ip.trim() : 'unknown';
-    } catch (_) {
-      return 'unknown';
-    }
-  })();
+  clientIpPromise = Promise.resolve('');
 
   return clientIpPromise;
 }
@@ -1139,7 +1123,9 @@ function initCardTilt() {
     if (!rafId) rafId = requestAnimationFrame(updateTilt);
   });
   document.addEventListener('mouseleave', e => {
-    const card = e.target.closest('.project-card');
+    const target = e.target;
+    if (!target || typeof target.closest !== 'function') return;
+    const card = target.closest('.project-card');
     if (card) card.style.transform = '';
     if (activeCard === card) activeCard = null;
   }, true);
@@ -1698,7 +1684,9 @@ function initCardGlow() {
     if (!rafId) rafId = requestAnimationFrame(updateGlow);
   });
   document.addEventListener('mouseleave', e => {
-    const card = e.target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
+    const target = e.target;
+    if (!target || typeof target.closest !== 'function') return;
+    const card = target.closest('.service-card, .project-card, .contact-info-item, .stat-item');
     if (card) card.classList.remove('has-glow');
     if (activeCard === card) activeCard = null;
   }, true);
