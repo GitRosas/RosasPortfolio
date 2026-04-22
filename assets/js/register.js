@@ -119,6 +119,21 @@ async function callAuthWorker(type, payload) {
   return data;
 }
 
+
+async function emitRegisterEvent() {
+  try {
+    let sid = null;
+    try { sid = sessionStorage.getItem('jmr.session.id'); } catch (_) {}
+    await fetch('https://api.joaomiguelrosa.com/events', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'register', path: location.pathname, session_id: sid }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (_) {}
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   hide(okEl);
@@ -149,6 +164,7 @@ form.addEventListener('submit', async (e) => {
     setLoading(submitBtn);
     const captchaTokenValue = await requestCaptcha();
     await callAuthWorker('signup', { email, password, captchaToken: captchaTokenValue });
+    emitRegisterEvent();
     show(okEl);
     form.reset();
   } catch (err) {

@@ -87,21 +87,33 @@
     try {
       const since = new Date(Date.now() - 30 * 86400000).toISOString();
       const sinceQ = '&created_at=gte.' + encodeURIComponent(since);
-      const [total, msgs, pubProj, draftProj, logins, contacts, cvDls, recent] = await Promise.all([
+      const [total, msgsUnread, msgsRead, pubProj, draftProj, unpubProj, pageviews, logins, registers, contacts, cvDls, ipsRes, recent] = await Promise.all([
         countQuery('events', ''),
         countQuery('contact_messages', '?is_read=eq.false'),
+        countQuery('contact_messages', '?is_read=eq.true'),
         countQuery('projects', '?status=eq.published'),
         countQuery('projects', '?status=eq.draft'),
+        countQuery('projects', '?status=neq.published'),
+        countQuery('events', '?type=eq.pageview' + sinceQ),
         countQuery('events', '?type=eq.login' + sinceQ),
+        countQuery('events', '?type=eq.register' + sinceQ),
         countQuery('events', '?type=eq.contact_submit' + sinceQ),
         countQuery('events', '?type=eq.cv_download' + sinceQ),
-        api('/db/events?select=type,path,referrer,session_id,user_id,ip,country,user_agent,meta,created_at&order=created_at.desc&limit=50')
+        api('/db/events?select=ip&type=eq.pageview' + sinceQ + '&ip=not.is.null&limit=10000'),
+        api('/db/events?select=type,path,referrer,session_id,user_id,ip,country,user_agent,meta,created_at&type=neq.pageview&order=created_at.desc&limit=50')
       ]);
+      const ipSet = new Set();
+      (ipsRes.data || []).forEach(r => { if (r.ip) ipSet.add(r.ip); });
       setText('kpi-events', total);
-      setText('kpi-msg-unread', msgs);
+      setText('kpi-msg-unread', msgsUnread);
+      setText('kpi-msg-read', msgsRead);
       setText('kpi-proj-pub', pubProj);
       setText('kpi-proj-draft', draftProj);
+      setText('kpi-proj-unpub', unpubProj);
+      setText('kpi-pageviews', pageviews);
+      setText('kpi-visitors', ipSet.size);
       setText('kpi-logins', logins);
+      setText('kpi-register', registers);
       setText('kpi-contacts', contacts);
       setText('kpi-cv', cvDls);
 
@@ -114,7 +126,7 @@
       }
 
       const badge = document.getElementById('msg-unread-badge');
-      if (msgs > 0) { badge.textContent = msgs; badge.hidden = false; } else { badge.hidden = true; }
+      if (msgsUnread > 0) { badge.textContent = msgsUnread; badge.hidden = false; } else { badge.hidden = true; }
     } catch (e) {
       console.error('stats failed', e);
     }

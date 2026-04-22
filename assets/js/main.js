@@ -770,6 +770,7 @@ function sendServerEvent(type, extra) {
 
 function initAnalyticsTracking() {
   trackEvent('site_entry');
+  sendServerEvent('pageview');
 
   const currentPage = getCurrentPageName();
   if (currentPage === 'dashboard.html' || currentPage === 'dashboard') {
