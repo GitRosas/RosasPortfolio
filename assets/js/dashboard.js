@@ -87,20 +87,16 @@
     try {
       const since = new Date(Date.now() - 30 * 86400000).toISOString();
       const sinceQ = '&created_at=gte.' + encodeURIComponent(since);
-      const [pv, vis, total, msgs, pubProj, draftProj, logins, contacts, cvDls, recent] = await Promise.all([
-        countQuery('events', '?type=eq.pageview' + sinceQ),
-        countQuery('events', '?select=session_id&type=eq.pageview' + sinceQ + '&session_id=not.is.null'),
+      const [total, msgs, pubProj, draftProj, logins, contacts, cvDls, recent] = await Promise.all([
         countQuery('events', ''),
         countQuery('contact_messages', '?is_read=eq.false'),
         countQuery('projects', '?status=eq.published'),
         countQuery('projects', '?status=eq.draft'),
         countQuery('events', '?type=eq.login' + sinceQ),
         countQuery('events', '?type=eq.contact_submit' + sinceQ),
-        countQuery('events', '?type=eq.click&meta->>kind=eq.cv' + sinceQ),
+        countQuery('events', '?type=eq.cv_download' + sinceQ),
         api('/db/events?select=type,path,referrer,session_id,user_id,ip,country,user_agent,meta,created_at&order=created_at.desc&limit=50')
       ]);
-      setText('kpi-pageviews', pv);
-      setText('kpi-visitors', vis);
       setText('kpi-events', total);
       setText('kpi-msg-unread', msgs);
       setText('kpi-proj-pub', pubProj);
