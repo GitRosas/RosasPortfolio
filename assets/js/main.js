@@ -1398,27 +1398,16 @@ function initContactForm() {
   const endpoint = form.dataset.endpoint || 'https://api.joaomiguelrosa.com/contact';
   const submitBtn = form.querySelector('button[type="submit"]');
 
-  const TURNSTILE_SITEKEY = '0x4AAAAAACtzeB8NcAeAY6qg';
-  const tsContainer = document.getElementById('cf-turnstile-contact');
-  let tsToken = '';
-  let tsWidgetId = null;
+  const COOLDOWN_MS = 60_000;
+  const COOLDOWN_KEY = 'jmr.contact.lastSentAt';
 
-  function renderTurnstile() {
-    if (!tsContainer) return;
-    if (!window.turnstile) { setTimeout(renderTurnstile, 200); return; }
-    if (tsWidgetId !== null) return;
-    tsWidgetId = window.turnstile.render('#cf-turnstile-contact', {
-      sitekey: TURNSTILE_SITEKEY,
-      callback: (t) => { tsToken = t; },
-      'expired-callback': () => { tsToken = ''; },
-      'error-callback': () => { tsToken = ''; }
-    });
+  function lastSent() {
+    try { return parseInt(localStorage.getItem(COOLDOWN_KEY) || '0', 10) || 0; } catch (_) { return 0; }
   }
-  function resetTurnstile() {
-    if (window.turnstile && tsWidgetId !== null) window.turnstile.reset(tsWidgetId);
-    tsToken = '';
+  function markSent() {
+    try { localStorage.setItem(COOLDOWN_KEY, String(Date.now())); } catch (_) {}
   }
-  renderTurnstile();
+  function remainingMs() { return Math.max(0, COOLDOWN_MS - (Date.now() - lastSent())); }
 
   function hideAlerts() {
     if (alertSuccess) alertSuccess.style.display = 'none';
@@ -1436,10 +1425,34 @@ function initContactForm() {
     try { alertSuccess.focus(); } catch (_) {}
   }
 
+  let cooldownTimer = null;
+  function applyCooldownUI() {
+    const r = remainingMs();
+    if (!submitBtn) return;
+    if (r <= 0) {
+      submitBtn.disabled = false;
+      if (submitBtn.dataset.originalText) submitBtn.textContent = submitBtn.dataset.originalText;
+      if (cooldownTimer) { clearInterval(cooldownTimer); cooldownTimer = null; }
+      return;
+    }
+    if (!submitBtn.dataset.originalText) submitBtn.dataset.originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wait ' + Math.ceil(r / 1000) + 's';
+    if (!cooldownTimer) cooldownTimer = setInterval(applyCooldownUI, 1000);
+  }
+  applyCooldownUI();
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     hideAlerts();
     form.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
+
+    const r = remainingMs();
+    if (r > 0) {
+      showError('Please wait ' + Math.ceil(r / 1000) + 's before sending another message.');
+      applyCooldownUI();
+      return;
+    }
 
     let valid = true;
     form.querySelectorAll('[required]').forEach(input => {
@@ -1455,25 +1468,16 @@ function initContactForm() {
     }
 
     const hp = form.querySelector('input[name="_gotcha"]');
-    if (hp && hp.value) { showSuccess(); form.reset(); return; }
-
-    if (!tsToken) {
-      showError('Please complete the captcha and try again.');
-      renderTurnstile();
-      return;
-    }
+    if (hp && hp.value) { showSuccess(); form.reset(); markSent(); applyCooldownUI(); return; }
 
     const payload = {
       name: (form.querySelector('[name="name"]') || {}).value || '',
       email: (form.querySelector('[name="email"]') || {}).value || '',
       subject: (form.querySelector('[name="subject"]') || {}).value || '',
-      message: (form.querySelector('[name="message"]') || {}).value || '',
-      captchaToken: tsToken,
-      turnstile_token: tsToken,
-      token: tsToken
+      message: (form.querySelector('[name="message"]') || {}).value || ''
     };
 
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.originalText = submitBtn.textContent; submitBtn.textContent = '...'; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.originalText = submitBtn.dataset.originalText || submitBtn.textContent; submitBtn.textContent = '...'; }
 
     try {
       const res = await fetch(endpoint, {
@@ -1486,20 +1490,19 @@ function initContactForm() {
         try { const j = await res.json(); detail = j.error || j.message || ''; } catch (_) {}
         showError(detail || ('Error ' + res.status));
         trackEvent('form_submit_error');
-        resetTurnstile();
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.originalText; }
       } else {
         showSuccess();
         form.reset();
         trackEvent('form_submit');
         if (typeof sendServerEvent === 'function') sendServerEvent('contact_submit');
-        resetTurnstile();
+        markSent();
+        applyCooldownUI();
       }
     } catch (err) {
       showError('Network error. Please try again.');
       trackEvent('form_submit_error');
-      resetTurnstile();
-    } finally {
-      if (submitBtn) { submitBtn.disabled = false; if (submitBtn.dataset.originalText) submitBtn.textContent = submitBtn.dataset.originalText; }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.originalText; }
     }
   });
 }
