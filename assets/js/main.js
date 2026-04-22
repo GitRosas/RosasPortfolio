@@ -792,7 +792,8 @@ function initAnalyticsTracking() {
     else if (href.includes('linkedin.com')) kind = 'linkedin';
     if (kind) {
       trackEvent(kind + '_click');
-      sendServerEvent('click', { meta: { kind: kind, href: anchor.getAttribute('href') } });
+      const evType = kind === 'cv' ? 'cv_download' : (kind + '_click');
+      sendServerEvent(evType, { meta: { href: anchor.getAttribute('href') } });
     }
   });
 }
