@@ -1410,6 +1410,35 @@ function initContactForm() {
   }
   function remainingMs() { return Math.max(0, COOLDOWN_MS - (Date.now() - lastSent())); }
 
+  // Cooldown popup overlay (matches login.html captcha-overlay pattern)
+  let overlay = document.getElementById('contact-cooldown-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'contact-cooldown-overlay';
+    overlay.className = 'captcha-overlay';
+    overlay.hidden = true;
+    overlay.innerHTML = '<div class="captcha-box" role="alertdialog" aria-modal="true">'
+      + '<h3 style="margin-top:0">Please wait</h3>'
+      + '<p>You can send another message in <strong id="contact-cooldown-secs">60</strong>s.</p>'
+      + '<button type="button" class="btn" id="contact-cooldown-close">OK</button>'
+      + '</div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('#contact-cooldown-close').addEventListener('click', () => { overlay.hidden = true; });
+  }
+  const secsEl = overlay.querySelector('#contact-cooldown-secs');
+
+  let popupTimer = null;
+  function showCooldownPopup() {
+    overlay.hidden = false;
+    const tick = () => {
+      const r = remainingMs();
+      if (r <= 0) { overlay.hidden = true; if (popupTimer) { clearInterval(popupTimer); popupTimer = null; } return; }
+      if (secsEl) secsEl.textContent = String(Math.ceil(r / 1000));
+    };
+    tick();
+    if (!popupTimer) popupTimer = setInterval(tick, 1000);
+  }
+
   function hideAlerts() {
     if (alertSuccess) alertSuccess.style.display = 'none';
     if (alertError) alertError.style.display = 'none';
@@ -1426,34 +1455,29 @@ function initContactForm() {
     try { alertSuccess.focus(); } catch (_) {}
   }
 
-  let cooldownTimer = null;
-  function applyCooldownUI() {
+  let btnTimer = null;
+  function applyCooldownButton() {
     const r = remainingMs();
     if (!submitBtn) return;
     if (r <= 0) {
       submitBtn.disabled = false;
-      if (submitBtn.dataset.originalText) submitBtn.textContent = submitBtn.dataset.originalText;
-      if (cooldownTimer) { clearInterval(cooldownTimer); cooldownTimer = null; }
+      if (submitBtn.dataset.originalHtml) submitBtn.innerHTML = submitBtn.dataset.originalHtml;
+      if (btnTimer) { clearInterval(btnTimer); btnTimer = null; }
       return;
     }
-    if (!submitBtn.dataset.originalText) submitBtn.dataset.originalText = submitBtn.textContent;
+    if (!submitBtn.dataset.originalHtml) submitBtn.dataset.originalHtml = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Wait ' + Math.ceil(r / 1000) + 's';
-    if (!cooldownTimer) cooldownTimer = setInterval(applyCooldownUI, 1000);
+    if (!btnTimer) btnTimer = setInterval(applyCooldownButton, 1000);
   }
-  applyCooldownUI();
+  applyCooldownButton();
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
     hideAlerts();
     form.querySelectorAll('.form-group').forEach(g => g.classList.remove('invalid'));
 
-    const r = remainingMs();
-    if (r > 0) {
-      showError('Please wait ' + Math.ceil(r / 1000) + 's before sending another message.');
-      applyCooldownUI();
-      return;
-    }
+    if (remainingMs() > 0) { showCooldownPopup(); applyCooldownButton(); return; }
 
     let valid = true;
     form.querySelectorAll('[required]').forEach(input => {
@@ -1469,7 +1493,7 @@ function initContactForm() {
     }
 
     const hp = form.querySelector('input[name="_gotcha"]');
-    if (hp && hp.value) { showSuccess(); form.reset(); markSent(); applyCooldownUI(); return; }
+    if (hp && hp.value) { showSuccess(); form.reset(); markSent(); applyCooldownButton(); return; }
 
     const payload = {
       name: (form.querySelector('[name="name"]') || {}).value || '',
@@ -1478,7 +1502,11 @@ function initContactForm() {
       message: (form.querySelector('[name="message"]') || {}).value || ''
     };
 
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.originalText = submitBtn.dataset.originalText || submitBtn.textContent; submitBtn.textContent = '...'; }
+    if (submitBtn) {
+      if (!submitBtn.dataset.originalHtml) submitBtn.dataset.originalHtml = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '...';
+    }
 
     try {
       const res = await fetch(endpoint, {
@@ -1486,24 +1514,31 @@ function initContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (res.status === 429) {
+        markSent();
+        showCooldownPopup();
+        applyCooldownButton();
+        trackEvent('form_submit_error');
+        return;
+      }
       if (!res.ok) {
         let detail = '';
         try { const j = await res.json(); detail = j.error || j.message || ''; } catch (_) {}
         showError(detail || ('Error ' + res.status));
         trackEvent('form_submit_error');
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.originalText; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = submitBtn.dataset.originalHtml; }
       } else {
         showSuccess();
         form.reset();
         trackEvent('form_submit');
         if (typeof sendServerEvent === 'function') sendServerEvent('contact_submit');
         markSent();
-        applyCooldownUI();
+        applyCooldownButton();
       }
     } catch (err) {
       showError('Network error. Please try again.');
       trackEvent('form_submit_error');
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.originalText; }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = submitBtn.dataset.originalHtml; }
     }
   });
 }
